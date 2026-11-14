@@ -67,12 +67,13 @@ class EnvExampleTest extends TestCase
         $this->assertSame('AI Code Security Audit Platform', $values['APP_NAME']);
     }
 
-    public function test_env_example_uses_redis_for_cache_and_session(): void
+    public function test_env_example_uses_redis_for_cache_session_and_queue(): void
     {
         $values = $this->parseEnvExample();
 
         $this->assertSame('redis', $values['SESSION_DRIVER']);
         $this->assertSame('redis', $values['CACHE_STORE']);
+        $this->assertSame('redis', $values['QUEUE_CONNECTION']);
     }
 
     /**
