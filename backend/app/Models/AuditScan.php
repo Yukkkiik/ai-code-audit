@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\AuditStatus;
+use App\Enums\Severity;
 use App\Enums\SourceType;
 use App\Enums\StageStatus;
+use App\Enums\VersionStatus;
 use Database\Factories\AuditScanFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -66,6 +69,46 @@ class AuditScan extends Model
             'queued_at' => 'datetime',
             'started_at' => 'datetime',
             'finished_at' => 'datetime',
+        ];
+    }
+
+    public static function hashGuestToken(string $token): string
+    {
+        return hash('sha256', $token);
+    }
+
+    /**
+     * Membandingkan guest token dengan hash tersimpan (constant-time).
+     * Audit milik user terdaftar tidak pernah cocok dengan guest token.
+     */
+    public function matchesGuestToken(string $token): bool
+    {
+        if ($this->guest_token_hash === null || $token === '') {
+            return false;
+        }
+
+        return hash_equals($this->guest_token_hash, self::hashGuestToken($token));
+    }
+
+    /**
+     * Relasi yang dihitung untuk ringkasan audit (`summary` di API_CONTRACT.md),
+     * dipakai dengan withCount() / loadCount() agar tidak terjadi query N+1.
+     *
+     * @return array<int|string, mixed>
+     */
+    public static function summaryCounts(): array
+    {
+        $counts = [];
+
+        foreach (Severity::cases() as $severity) {
+            $counts["findings as findings_{$severity->value}_count"] = fn (Builder $query) => $query->where('severity', $severity);
+        }
+
+        return [
+            ...$counts,
+            'dependencies',
+            'dependencies as dependencies_unresolved_count' => fn (Builder $query) => $query->where('version_status', VersionStatus::Unresolved),
+            'vulnerabilities',
         ];
     }
 

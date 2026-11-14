@@ -80,7 +80,7 @@ Struktur internal di atas adalah usulan; file baru hanya dibuat ketika fiturnya 
 
 | Modul | Lokasi backend | Pemilik |
 |---|---|---|
-| Audit Management (sesi audit, status, riwayat) | `Services/Audit`, `AuditController` | Bersama |
+| Audit Management (sesi audit, status, riwayat) | `Services/Audit` (`AuditScanCreator`, `AuditStatusManager`), `Policies/AuditScanPolicy`, `AuditController`, `Http/Resources/AuditResource` | Bersama |
 | Repository Ingestion | `Services/Ingestion` | Yuki |
 | SAST Engine + metrik + skor | `Services/Sast` | Raihan |
 | SCA Engine | `Services/Sca` | Yuki |

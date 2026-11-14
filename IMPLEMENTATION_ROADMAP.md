@@ -38,15 +38,15 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 ## TAHAP 3 — Audit Management
 | ID | Pekerjaan | Status |
 |---|---|---|
-| 3.1 | Membuat sesi audit (tanpa ingestion; record + guest token) | ⬜ |
-| 3.2 | Membaca detail audit + otorisasi pemilik/guest | ⬜ |
-| 3.3 | Service transisi status audit & tahap | ⬜ |
-| 3.4 | Riwayat audit user (paginated) | ⬜ |
+| 3.1 | Membuat sesi audit — service `AuditScanCreator` (record + guest token); endpoint `POST /audits` dibangun di 4.1/4.4 | 👀 |
+| 3.2 | `GET /api/v1/audits/{id}` + `AuditScanPolicy` (pemilik / `X-Guest-Token`) | 👀 |
+| 3.3 | `AuditStatusManager` (state machine + row lock) | 👀 |
+| 3.4 | `GET /api/v1/audits` (riwayat user, paginated, tanpa N+1) | 👀 |
 
 ## TAHAP 4 — Repository Ingestion (Yuki)
 | ID | Pekerjaan | Keputusan | Status |
 |---|---|---|---|
-| 4.1 | Upload ZIP + validasi request + `config/audit.php` (batas 50 MB) + batas `php.ini` (`upload_max_filesize`, `post_max_size`) | – | ⬜ |
+| 4.1 | Endpoint `POST /api/v1/audits` (ZIP) + validasi request + `config/audit.php` (batas 50 MB) + batas `php.ini` (`upload_max_filesize`, `post_max_size`) | – | ⬜ |
 | 4.2 | Validasi isi ZIP (path, symlink, ukuran, zip bomb) | – | ⬜ |
 | 4.3 | Ekstraksi aman ke workspace | D-25 | ⬜ |
 | 4.4 | Validasi URL Git (anti-SSRF) | D-08 | ⬜ |

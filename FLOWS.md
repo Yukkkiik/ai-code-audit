@@ -19,10 +19,16 @@ Aturan status akhir audit:
 | SAST | SCA | Audit |
 |---|---|---|
 | completed/skipped | completed/skipped | `completed` |
-| completed | failed/partial | `partial` |
-| failed | completed/partial/skipped | `partial` |
+| completed / partial | failed / partial | `partial` |
+| failed | completed / partial | `partial` |
+| failed | skipped | `failed` |
+| skipped | failed | `failed` |
 | failed | failed | `failed` |
 | (ingestion gagal) | – | `failed` (kedua tahap `skipped`) |
+
+Aturan umum (diimplementasikan di `AuditStatusManager::resolveFinalStatus`): tanpa tahap `failed`/`partial` → `completed`; ada tahap yang menghasilkan data (`completed`/`partial`) → `partial`; selain itu → `failed`. Revisi 2026-11-15: kombinasi `failed` + `skipped` kini `failed` (sebelumnya tertulis `partial`), karena tahap `skipped` tidak menghasilkan data sehingga tidak memenuhi definisi `partial`.
+
+Transisi status hanya dilakukan melalui `AuditStatusManager` (row lock + validasi alur); transisi yang melanggar alur melempar `InvalidAuditTransitionException`.
 
 Catatan: jika keduanya `skipped` (tidak ada file yang didukung sama sekali), audit tetap `completed` tetapi dashboard dan laporan menyatakan "tidak ada yang diperiksa", bukan "aman".
 

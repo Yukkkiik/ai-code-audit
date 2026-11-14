@@ -36,6 +36,10 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 - `QueueConnectionTest`: job gagal tercatat di `failed_jobs`.
 
 ### Audit Management
+- Diimplementasikan di `tests/Feature/Audit/AuditScanCreatorTest.php`, `AuditStatusManagerTest.php`, `tests/Feature/Api/V1/ShowAuditTest.php`, `ListAuditsTest.php`.
+- Guest token hanya dikembalikan sekali; database menyimpan hash SHA-256; verifikasi constant-time.
+- Aturan status akhir diuji untuk 10 kombinasi status SAST/SCA (data provider); transisi ilegal dan model usang ditolak.
+- Daftar audit memakai jumlah query konstan (≤ 2) walaupun ada banyak audit & temuan.
 - Membuat audit menghasilkan `public_id` ULID dan status `queued`.
 - Guest hanya bisa membaca audit dengan `X-Guest-Token` yang benar; token salah → 404.
 - User tidak bisa membaca audit user lain → 404.

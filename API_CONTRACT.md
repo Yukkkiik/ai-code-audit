@@ -59,9 +59,9 @@ Stack trace, path server, dan pesan exception mentah **tidak pernah** dikirim ke
   "health_category": null,
   "summary": {
     "findings_by_severity": { "critical": 0, "high": 2, "medium": 5, "low": 1, "info": 0 },
-    "dependencies_total": 0,
-    "dependencies_unresolved": 0,
-    "vulnerabilities_total": 0
+    "dependencies_total": null,
+    "dependencies_unresolved": null,
+    "vulnerabilities_total": null
   },
   "error": null,
   "queued_at": "2026-11-14T14:00:00Z",
@@ -70,7 +70,9 @@ Stack trace, path server, dan pesan exception mentah **tidak pernah** dikirim ke
   "created_at": "2026-11-14T14:00:00Z"
 }
 ```
-`summary` hanya menghitung tahap yang `completed`/`partial`; tahap yang belum selesai/gagal tidak ditampilkan sebagai nol "aman" — frontend wajib membaca `sast.status` / `sca.status`.
+`summary` hanya menghitung tahap yang `completed`/`partial`; untuk tahap lain field-nya bernilai **`null`** (contoh di atas: SCA masih `running`) — tidak pernah `0`, agar tidak terbaca sebagai "tidak ada masalah". Frontend wajib membaca `sast.status` / `sca.status`.
+
+Field yang **tidak pernah** dikirim: `id` internal (integer), `user_id`, `guest_token_hash`.
 
 ## 2. Endpoint
 
@@ -102,9 +104,9 @@ Jika salah satu dependensi gagal → `503` dengan `status: "degraded"` dan check
 ### 2.3 Audit (FR-05, FR-09)
 | Method | Path | Auth | Keterangan |
 |---|---|---|---|
-| POST | `/audits` | Guest / User | Buat audit + dispatch job. Guest dikenai rate limit IP. |
-| GET | `/audits` | User | Riwayat audit milik user (paginated, terbaru dulu). |
-| GET | `/audits/{id}` | Pemilik | Detail + status (dipakai polling). |
+| POST | `/audits` | Guest / User | Buat audit + dispatch job. Guest dikenai rate limit IP. **Dibangun di TAHAP 4** (ZIP: 4.1, Git: 4.4) di atas `AuditScanCreator`. |
+| GET | `/audits` | User | Riwayat audit milik user (paginated, terbaru dulu). Query: `page` (≥1), `per_page` (1–100, default 15). Tanpa login → `401 UNAUTHENTICATED`. ✅ |
+| GET | `/audits/{id}` | Pemilik | Detail + status (dipakai polling). `{id}` = ULID. Bukan pemilik / token salah / ID tidak valid → `404 NOT_FOUND`. ✅ |
 | GET | `/audits/{id}/findings` | Pemilik | Temuan SAST. Query: `severity`, `tool`, `category`, `page`, `per_page` (≤100). |
 | GET | `/audits/{id}/metrics` | Pemilik | Metrik kode. Query: `scope=file|function`, `page`. |
 | GET | `/audits/{id}/dependencies` | Pemilik | Daftar dependency. Query: `scope`, `relation`, `version_status`, `page`. |
