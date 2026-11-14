@@ -1,6 +1,6 @@
 # DATABASE — Rancangan Skema MySQL
 
-> Status dokumen: **DISETUJUI (2026-11-14)** — acuan seluruh migration TAHAP 2. Perubahan skema berikutnya wajib melalui plan & persetujuan.
+> Status dokumen: **DISETUJUI & DIIMPLEMENTASIKAN (2026-11-14)** — seluruh tabel dibuat oleh migration di `backend/database/migrations/` dan diuji di `backend/tests/Feature/Database/`. Perubahan skema berikutnya wajib melalui plan & persetujuan.
 > Engine: InnoDB · Charset: `utf8mb4` · Collation: `utf8mb4_unicode_ci` · Diverifikasi terhadap MySQL 9.4
 
 ## 1. Prinsip Desain
@@ -251,34 +251,47 @@ Status per pemanggilan disimpan di `ai_refactorings.status`; reset harian terjad
 
 ### 3.10 `failed_jobs` (bawaan Laravel)
 
-Struktur mengikuti migration bawaan Laravel (driver `database-uuids`, A-20). Dibuat pada item roadmap 2.6b.
+Struktur mengikuti migration resmi `php artisan make:queue-failed-table` Laravel 13 (driver `database-uuids`, A-20). Dibuat pada item roadmap 2.6b.
 
 | Kolom | Tipe | Null | Keterangan |
 |---|---|---|---|
 | id | BIGINT UNSIGNED PK AI | – | |
 | uuid | VARCHAR(255) | – | **UNIQUE**. ID job untuk `queue:retry`. |
-| connection | TEXT | – | Nama koneksi queue (`redis`). |
-| queue | TEXT | – | Nama antrean. |
+| connection | VARCHAR(255) | – | Nama koneksi queue (`redis`). |
+| queue | VARCHAR(255) | – | Nama antrean. |
 | payload | LONGTEXT | – | Payload job (hanya berisi ID audit — lihat `ARCHITECTURE.md`). |
 | exception | LONGTEXT | – | Exception lengkap — **hanya untuk developer**, tidak pernah dikirim ke client. |
 | failed_at | TIMESTAMP | – | Default `CURRENT_TIMESTAMP`. |
+
+Index: `UNIQUE(uuid)`, `INDEX(connection, queue, failed_at)`.
 
 ## 4. Enum
 
 | Enum | Nilai |
 |---|---|
-| `AuditStatus` | `queued`, `ingesting`, `scanning`, `completed`, `partial`, `failed` |
-| `StageStatus` | `pending`, `running`, `completed`, `partial`, `failed`, `skipped` |
-| `SourceType` | `zip`, `git` |
-| `Severity` | `critical`, `high`, `medium`, `low`, `info` |
-| `VulnerabilitySeverity` | `critical`, `high`, `medium`, `low`, `unknown` |
-| `FindingTool` | `semgrep`, `eslint` |
-| `ToolRunStatus` | `completed`, `failed`, `skipped` |
-| `CodeLanguage` | `javascript`, `typescript` |
-| `DependencyScope` | `production`, `development`, `optional`, `peer` |
-| `VersionStatus` | `exact`, `unresolved` |
-| `AiSource` | `llm`, `static_template` |
-| `AiStatus` | `pending`, `completed`, `failed`, `rejected_validation` |
+Setiap enum diimplementasikan sebagai PHP string-backed enum di `backend/app/Enums/` dan di-cast pada model.
+
+| Enum | Kolom | Nilai |
+|---|---|---|
+| `AuditStatus` | `audit_scans.status` | `queued`, `ingesting`, `scanning`, `completed`, `partial`, `failed` |
+| `StageStatus` | `audit_scans.sast_status`, `sca_status` | `pending`, `running`, `completed`, `partial`, `failed`, `skipped` |
+| `SourceType` | `audit_scans.source_type` | `zip`, `git` |
+| `FindingTool` | `scan_tool_runs.tool`, `scan_findings.tool` | `semgrep`, `eslint` |
+| `ToolRunStatus` | `scan_tool_runs.status` | `completed`, `failed`, `skipped` |
+| `FindingCategory` | `scan_findings.category` | `security`, `quality`, `best_practice` |
+| `Severity` | `scan_findings.severity` | `critical`, `high`, `medium`, `low`, `info` |
+| `MetricScope` | `code_metrics.scope` | `file`, `function` |
+| `CodeLanguage` | `code_metrics.language` | `javascript`, `typescript` |
+| `Ecosystem` | `dependencies.ecosystem` | `npm` |
+| `DependencyScope` | `dependencies.scope` | `production`, `development`, `optional`, `peer` |
+| `DependencyRelation` | `dependencies.relation` | `direct`, `transitive` |
+| `ManifestType` | `dependencies.source_file_type` | `package_json`, `package_lock_v2`, `package_lock_v3` |
+| `VersionStatus` | `dependencies.version_status` | `exact`, `unresolved` |
+| `UnresolvedReason` | `dependencies.unresolved_reason` | `range_without_lockfile`, `non_registry_source`, `missing_version`, `unsupported_lockfile` |
+| `OsvQueryStatus` | `dependencies.osv_status` | `not_queried`, `queried`, `failed` |
+| `VulnerabilitySeverity` | `vulnerabilities.severity_label` | `critical`, `high`, `medium`, `low`, `unknown` |
+| `AiSource` | `ai_refactorings.source` | `llm`, `static_template` |
+| `AiStatus` | `ai_refactorings.status` | `pending`, `completed`, `failed`, `rejected_validation` |
 
 Arti: `partial` (audit) = minimal satu tahap gagal tetapi tahap lain menghasilkan data; `skipped` (tahap) = tidak relevan, mis. tidak ada `package.json` atau tidak ada file berbahasa yang didukung.
 

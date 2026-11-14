@@ -5,7 +5,6 @@ namespace Tests\Feature\Database;
 use App\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -75,17 +74,5 @@ class UsersTableTest extends TestCase
         $this->assertNull($user->last_login_at);
         $this->assertArrayNotHasKey('google_id', $user->toArray());
         $this->assertArrayNotHasKey('password', $user->toArray());
-    }
-
-    public function test_only_approved_tables_exist_after_migration(): void
-    {
-        $database = DB::connection()->getDatabaseName();
-
-        $tables = collect(Schema::getTables())
-            ->where('schema', $database)
-            ->pluck('name')
-            ->all();
-
-        $this->assertEqualsCanonicalizing(['migrations', 'users'], $tables);
     }
 }

@@ -27,6 +27,14 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 - `GET /api/v1/health` → 200 saat DB & Redis hidup; 503 saat salah satu mati.
 - Queue: job yang di-dispatch ke koneksi `redis` tersimpan di antrean dan baru diproses saat `queue:work` berjalan (`QueueConnectionTest`, job khusus test `Tests\Support\Jobs\QueueProbeJob`).
 
+### Database Foundation
+- `tests/Feature/Database/*`: struktur setiap tabel (kolom, tipe, nullable, default, index, foreign key + `ON DELETE`, CHECK) dibandingkan dengan `DATABASE.md`; memakai query langsung (tanpa model) melalui helper `Tests\Support\InteractsWithSchema`.
+- Perilaku constraint: unique (`google_id`, `email`, `public_id`, fingerprint per audit, tool per audit, advisori per dependency, usage per user per hari), CHECK pemilik audit, CHECK tepat satu target AI.
+- Cascade: hapus user → audit, refactoring, usage log ikut terhapus; hapus audit → seluruh hasil terhapus; hapus requester audit lain → `requested_by_user_id` menjadi NULL.
+- `DatabaseSchemaTest`: hanya tabel di `DATABASE.md` yang ada; semua InnoDB + `utf8mb4_unicode_ci`.
+- `tests/Feature/Models/*`: ULID `public_id`, field tersembunyi, cast enum/JSON/tanggal/decimal, relasi dua arah, factory state (`ownedBy`, `fromGit`, `unresolved`, `forVulnerability`).
+- `QueueConnectionTest`: job gagal tercatat di `failed_jobs`.
+
 ### Audit Management
 - Membuat audit menghasilkan `public_id` ULID dan status `queued`.
 - Guest hanya bisa membaca audit dengan `X-Guest-Token` yang benar; token salah → 404.

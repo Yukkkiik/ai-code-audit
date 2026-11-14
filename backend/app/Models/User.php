@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -29,5 +30,29 @@ class User extends Authenticatable
         return [
             'last_login_at' => 'datetime',
         ];
+    }
+
+    /**
+     * @return HasMany<AuditScan, $this>
+     */
+    public function auditScans(): HasMany
+    {
+        return $this->hasMany(AuditScan::class);
+    }
+
+    /**
+     * @return HasMany<AiUsageLog, $this>
+     */
+    public function aiUsageLogs(): HasMany
+    {
+        return $this->hasMany(AiUsageLog::class);
+    }
+
+    /**
+     * @return HasMany<AiRefactoring, $this>
+     */
+    public function requestedRefactorings(): HasMany
+    {
+        return $this->hasMany(AiRefactoring::class, 'requested_by_user_id');
     }
 }

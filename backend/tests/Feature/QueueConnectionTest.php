@@ -2,15 +2,20 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use Tests\Support\Jobs\FailingProbeJob;
 use Tests\Support\Jobs\QueueProbeJob;
 use Tests\TestCase;
 
 class QueueConnectionTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_redis_queue_connection_uses_default_redis_connection(): void
     {
         $this->assertSame('redis', config('queue.connections.redis.driver'));
@@ -39,5 +44,25 @@ class QueueConnectionTest extends TestCase
         $this->assertSame(0, $redisQueue->size($queue));
 
         Cache::store('redis')->forget($marker);
+    }
+
+    public function test_failed_job_is_recorded_in_failed_jobs_table(): void
+    {
+        $queue = 'queue-failure-test-'.Str::uuid();
+
+        FailingProbeJob::dispatch()->onConnection('redis')->onQueue($queue);
+
+        Artisan::call('queue:work', [
+            'connection' => 'redis',
+            '--queue' => $queue,
+            '--once' => true,
+        ]);
+
+        $failed = DB::table('failed_jobs')->where('queue', $queue)->first();
+
+        $this->assertNotNull($failed, 'Job gagal tidak tercatat di failed_jobs.');
+        $this->assertSame('redis', $failed->connection);
+        $this->assertStringContainsString('FailingProbeJob sengaja gagal.', $failed->exception);
+        $this->assertSame(0, Queue::connection('redis')->size($queue));
     }
 }
