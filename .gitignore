@@ -1,0 +1,32 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Backend (Laravel)
+backend/vendor/
+backend/storage/app/private/uploads/
+backend/storage/app/private/workspaces/
+backend/storage/logs/*.log
+backend/.phpunit.result.cache
+backend/tooling/node_modules/
+
+# Frontend (Next.js)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/coverage/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+
+# Claude Code local settings
+.claude/settings.local.json
