@@ -15,6 +15,8 @@
 
 Database pengujian: MySQL terpisah `audit_app_testing` (diatur di `backend/phpunit.xml`) agar perilaku CHECK/JSON/unique sama dengan produksi. `DatabaseConnectionTest` memastikan test tidak pernah berjalan di database tanpa akhiran `_testing`.
 
+Redis pengujian: DB 14 (default/session) dan 15 (cache), diatur di `backend/phpunit.xml`. `RedisConnectionTest` memastikan test tidak menulis ke DB 0/1. Test **tidak boleh** memakai `FLUSHDB`/`FLUSHALL` — Redis lokal dapat dipakai aplikasi lain; hapus hanya key milik test.
+
 Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian dengan layanan nyata hanya dilakukan manual dan dicatat di laporan.
 
 ## 2. Skenario Uji per Modul

@@ -19,7 +19,7 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 1.2 | Konfigurasi environment (`.env.example`, `APP_TIMEZONE`, `FRONTEND_URL`) | A-13 | 👀 |
 | 1.3 | Koneksi MySQL (database dev & testing) | A-16 | 👀 |
 | 1.4 | Health check API `GET /api/v1/health` + format error seragam | D-30 | 👀 |
-| 1.5 | Koneksi Redis (cache, session) + check `redis` di health endpoint | D-07 | ⬜ |
+| 1.5 | Koneksi Redis (cache, session) + check `redis` di health endpoint | A-19 | 👀 |
 | 1.6 | Konfigurasi Laravel Queue (Redis) + `failed_jobs` | – | ⬜ |
 
 ## TAHAP 2 — Database Foundation

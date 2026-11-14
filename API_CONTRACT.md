@@ -79,9 +79,9 @@ Stack trace, path server, dan pesan exception mentah **tidak pernah** dikirim ke
 |---|---|---|---|
 | GET | `/health` | – | Status aplikasi dan dependensinya. |
 
-Response `200` (implementasi 1.4 — `redis` ditambahkan pada TAHAP 1.5):
+Response `200`:
 ```json
-{ "data": { "status": "ok", "checks": { "database": "ok" }, "time": "2026-11-14T14:00:00Z" } }
+{ "data": { "status": "ok", "checks": { "database": "ok", "redis": "ok" }, "time": "2026-11-14T14:00:00Z" } }
 ```
 Jika salah satu dependensi gagal → `503` dengan `status: "degraded"` dan check terkait `"fail"`. Detail kegagalan hanya dicatat di log server. `time` selalu UTC (ISO-8601, akhiran `Z`).
 

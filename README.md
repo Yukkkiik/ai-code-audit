@@ -46,7 +46,8 @@ Lalu isi `DB_PASSWORD=<password>` di `backend/.env` (jangan di `.env.example`). 
 |---|---|---|
 | `Access denied for user 'audit_app'` | Password di `.env` salah / user belum dibuat | Periksa `DB_PASSWORD`, jalankan ulang SQL di atas |
 | `Unknown database 'audit_app'` | Database belum dibuat | Jalankan `CREATE DATABASE` di atas |
-| `Connection refused` | MySQL mati | `brew services start mysql` |
+| `Connection refused` (port 3306) | MySQL mati | `brew services start mysql` |
+| `Connection refused` (port 6379) / halaman web error session | Redis mati | `brew services start redis` |
 
 ### Backend (setelah clone repository)
 ```bash
@@ -57,7 +58,7 @@ php artisan key:generate
 php artisan test          # verifikasi
 php artisan serve         # http://localhost:8000
 ```
-Catatan: Redis (TAHAP 1.5) belum dikonfigurasi. Untuk sementara `SESSION_DRIVER=file`, `CACHE_STORE=file`, `QUEUE_CONNECTION=sync` agar aplikasi berjalan tanpa database (diganti ke Redis di TAHAP 1.5/1.6). **Jangan** menjalankan `php artisan migrate` dulu; skema database menunggu persetujuan TAHAP 2.
+Catatan: Redis wajib berjalan (`brew services start redis`) karena session dan cache disimpan di Redis. Queue masih `sync` sampai Laravel Queue dikonfigurasi. **Jangan** menjalankan `php artisan migrate` dulu; skema database menunggu persetujuan TAHAP 2.
 
 _Akan diisi setelah item roadmap terkait selesai:_
 - Database, Redis, migrasi (TAHAP 1.3–1.6, TAHAP 2).
@@ -77,7 +78,11 @@ Semua secret (kredensial DB, Google OAuth, API key LLM) disimpan di `backend/.en
 | `APP_TIMEZONE` | Timezone aplikasi & penyimpanan data | `UTC` |
 | `FRONTEND_URL` | URL Next.js (CORS, redirect OAuth) | `http://localhost:3000` |
 | `DB_*` | Koneksi MySQL (`audit_app`); `DB_PASSWORD` hanya di `.env` lokal | `mysql`, `127.0.0.1:3306` |
-| `SESSION_DRIVER` / `CACHE_STORE` / `QUEUE_CONNECTION` | Sementara `file`/`file`/`sync`; Redis di TAHAP 1.5/1.6 | lihat template |
+| `SESSION_DRIVER` / `CACHE_STORE` | Session & cache di Redis | `redis` / `redis` |
+| `QUEUE_CONNECTION` | Sementara `sync` sampai Laravel Queue dikonfigurasi | `sync` |
+| `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | Koneksi Redis; password **wajib** di server | `127.0.0.1` / `6379` / kosong |
+| `REDIS_DB` / `REDIS_CACHE_DB` | DB Redis untuk session dan cache (test memakai 14/15) | `0` / `1` |
+| `REDIS_TIMEOUT` | Batas waktu koneksi Redis (detik) | `2` |
 
 Kode aplikasi membaca nilai lewat `config()`, bukan `env()` langsung.
 

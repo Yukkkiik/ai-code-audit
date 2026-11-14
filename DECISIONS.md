@@ -17,7 +17,8 @@ Keputusan berstatus Usulan/Terbuka **tidak boleh** diimplementasikan sampai dise
 | A-08 | Output AI advisory, structured output, tervalidasi; provider dapat dikonfigurasi. |
 | A-09 | Pengembangan satu fitur per sesi, plan-first. |
 | A-10 | **(D-01, disetujui 2026-11-14)** Backend: skeleton `laravel/laravel` ^13.11 → terpasang **Laravel Framework 13.42.0**, PHP 8.4.26. Versi Next.js dicatat saat TAHAP 10.1. |
-| A-12 | **(Sementara, 2026-11-14)** Sampai TAHAP 1.5/1.6: `SESSION_DRIVER=file`, `CACHE_STORE=file`, `QUEUE_CONNECTION=sync`. Default skeleton (`database`) menyebabkan error karena database belum disiapkan. Digantikan oleh D-07 (Redis). |
+| A-12 | **(Sementara, 2026-11-14)** `QUEUE_CONNECTION=sync` sampai konfigurasi Laravel Queue (Redis). Session & cache sudah dipindah ke Redis (A-19). |
+| A-19 | **(D-07, disetujui 2026-11-14)** Session & cache di Redis (`SESSION_DRIVER=redis`, `CACHE_STORE=redis`): DB Redis 0 (default/session) dan 1 (cache) untuk dev, **14 dan 15 untuk test** (`phpunit.xml`). Semua key memakai prefix dari `APP_NAME`. Timeout koneksi `REDIS_TIMEOUT=2` detik. Redis lokal tanpa password; server/production **wajib** memakai password (`REDIS_PASSWORD`). |
 | A-13 | **(Disetujui 2026-11-14)** Timezone aplikasi `APP_TIMEZONE=UTC` (penyimpanan data). `config/audit.php` dibuat pada fitur yang pertama memakainya (4.1/6.1), bukan sebagai kerangka kosong. |
 | A-14 | **(D-32, selesai 2026-11-14)** `backend/CLAUDE.md` & `backend/AGENTS.md` bawaan skeleton dihapus oleh pemilik; `laravel/boost` tidak dipasang. |
 | A-15 | **(D-33, 2026-11-14)** `laravel/pao` (dev dependency bawaan skeleton) dipertahankan — hanya memadatkan output test saat dijalankan AI agent. |
@@ -31,7 +32,6 @@ Keputusan berstatus Usulan/Terbuka **tidak boleh** diimplementasikan sampai dise
 | ID | Usulan | Alasan |
 |---|---|---|
 | D-06 | Autentikasi frontend↔backend memakai **Laravel Sanctum mode SPA** (cookie + CSRF). | First-party Laravel; tidak menyimpan token di `localStorage`. Butuh frontend & backend pada site yang sama (mis. `localhost:3000` & `localhost:8000`). |
-| D-07 | Session driver **Redis**. | Redis sudah dipakai; tidak perlu tabel `sessions`. |
 | D-11 | AI remediation **sinkron** dengan timeout (bukan job). | Lebih sederhana untuk satu temuan; dievaluasi ulang jika latensi terlalu tinggi. |
 | D-14 | `audit_scans.user_id` `ON DELETE SET NULL`. | Belum ada fitur hapus akun; aman sebagai default. |
 | D-15 | Tolak login Google jika email belum terverifikasi. | Mencegah akun dengan email tak tervalidasi. |
