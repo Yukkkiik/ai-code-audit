@@ -20,17 +20,18 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 1.3 | Koneksi MySQL (database dev & testing) | A-16 | 👀 |
 | 1.4 | Health check API `GET /api/v1/health` + format error seragam | D-30 | 👀 |
 | 1.5 | Koneksi Redis (cache, session) + check `redis` di health endpoint | A-19 | 👀 |
-| 1.6 | Konfigurasi Laravel Queue (Redis) + `failed_jobs` | – | ⬜ |
+| 1.6 | Konfigurasi Laravel Queue (Redis) | A-20 | 👀 |
 
 ## TAHAP 2 — Database Foundation
 | ID | Pekerjaan | Status |
 |---|---|---|
-| 2.1 | Finalisasi skema `DATABASE.md` (persetujuan wajib) | ⬜ |
+| 2.1 | Finalisasi skema `DATABASE.md` (persetujuan wajib) | 👀 |
 | 2.2 | Migration `users` (modifikasi default Laravel) | ⬜ |
 | 2.3 | Migration `audit_scans` + Enum | ⬜ |
-| 2.4 | Migration `scan_findings`, `code_metrics` | ⬜ |
+| 2.4 | Migration `scan_tool_runs`, `scan_findings`, `code_metrics` | ⬜ |
 | 2.5 | Migration `dependencies`, `vulnerabilities` | ⬜ |
 | 2.6 | Migration `ai_refactorings`, `ai_usage_logs` | ⬜ |
+| 2.6b | Migration `failed_jobs` (bawaan Laravel, driver `database-uuids`) — lihat A-20 | ⬜ |
 | 2.7 | Model, cast, dan relasi Eloquent | ⬜ |
 | 2.8 | Pengujian migration & relasi | ⬜ |
 
@@ -59,7 +60,7 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 5.1 | `ProcessAuditJob` kerangka orkestrator | ⬜ |
 | 5.2 | Worker & pembaruan status per tahap | ⬜ |
 | 5.3 | Timeout & retry policy | ⬜ |
-| 5.4 | Penanganan failed jobs + cleanup | ⬜ |
+| 5.4 | Penanganan failed jobs + cleanup (tabel `failed_jobs` dari 2.6b) | ⬜ |
 
 ## TAHAP 6 — SAST Engine JavaScript/TypeScript (Raihan)
 | ID | Pekerjaan | Keputusan | Status |

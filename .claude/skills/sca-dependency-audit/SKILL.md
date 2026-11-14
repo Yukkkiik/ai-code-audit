@@ -35,7 +35,7 @@ TAHAP 7 (7.1–7.6) dan perubahan apa pun pada `app/Services/Sca/`.
    - Pecah batch sesuai batas API (≤ 1000 query per request), dukung `next_page_token`.
    - Validasi: `results` harus array dengan panjang sama dengan `queries`; jika tidak → batch gagal.
    - Ambil detail tiap ID unik via `GET /v1/vulns/{id}` (querybatch hanya mengembalikan `id` & `modified`).
-   - Simpan `osv_id`, `aliases`, `summary`, `details`, `severity` mentah, `affected` (rentang untuk paket npm terkait), `fixed` dari `ranges[].events`, `references`, `published`, `modified`.
+   - Simpan `osv_id`, `aliases`, `summary`, `details`, `severity` mentah, `affected` (rentang untuk paket npm terkait), `fixed` dari `ranges[].events`, `references` OSV (disimpan ke kolom `reference_urls`), `published`, `modified`.
    - Timeout + retry terbatas dengan backoff untuk timeout/5xx/429. 4xx lain → tidak di-retry.
 8. Set `osv_status` per dependency dan `sca_status` (`completed`/`partial`/`failed`/`skipped`).
 

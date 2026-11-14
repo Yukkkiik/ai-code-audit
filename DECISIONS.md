@@ -17,7 +17,8 @@ Keputusan berstatus Usulan/Terbuka **tidak boleh** diimplementasikan sampai dise
 | A-08 | Output AI advisory, structured output, tervalidasi; provider dapat dikonfigurasi. |
 | A-09 | Pengembangan satu fitur per sesi, plan-first. |
 | A-10 | **(D-01, disetujui 2026-11-14)** Backend: skeleton `laravel/laravel` ^13.11 → terpasang **Laravel Framework 13.42.0**, PHP 8.4.26. Versi Next.js dicatat saat TAHAP 10.1. |
-| A-12 | **(Sementara, 2026-11-14)** `QUEUE_CONNECTION=sync` sampai konfigurasi Laravel Queue (Redis). Session & cache sudah dipindah ke Redis (A-19). |
+| A-12 | **(Selesai, 2026-11-14)** Driver sementara (`file`/`sync`) sudah diganti seluruhnya: session & cache (A-19), queue (A-20). |
+| A-20 | **(Disetujui 2026-11-14)** `QUEUE_CONNECTION=redis` (koneksi Redis `default`, antrean `default`, `retry_after` 90 detik — ditinjau ulang di TAHAP 5 bersama timeout job). Tabel `failed_jobs` dibuat di TAHAP 2 (opsi A); sampai saat itu belum ada job aplikasi. Test memakai `QUEUE_CONNECTION=sync` kecuali test queue yang memakai Redis secara eksplisit. |
 | A-19 | **(D-07, disetujui 2026-11-14)** Session & cache di Redis (`SESSION_DRIVER=redis`, `CACHE_STORE=redis`): DB Redis 0 (default/session) dan 1 (cache) untuk dev, **14 dan 15 untuk test** (`phpunit.xml`). Semua key memakai prefix dari `APP_NAME`. Timeout koneksi `REDIS_TIMEOUT=2` detik. Redis lokal tanpa password; server/production **wajib** memakai password (`REDIS_PASSWORD`). |
 | A-13 | **(Disetujui 2026-11-14)** Timezone aplikasi `APP_TIMEZONE=UTC` (penyimpanan data). `config/audit.php` dibuat pada fitur yang pertama memakainya (4.1/6.1), bukan sebagai kerangka kosong. |
 | A-14 | **(D-32, selesai 2026-11-14)** `backend/CLAUDE.md` & `backend/AGENTS.md` bawaan skeleton dihapus oleh pemilik; `laravel/boost` tidak dipasang. |
@@ -25,6 +26,7 @@ Keputusan berstatus Usulan/Terbuka **tidak boleh** diimplementasikan sampai dise
 | A-16 | **(Disetujui 2026-11-14)** MySQL: database dev `audit_app`, database test `audit_app_testing`, user khusus `audit_app`@`127.0.0.1` (hak hanya pada dua database itu). Database & user dibuat manual oleh developer; kredensial hanya di `backend/.env`. |
 | A-17 | **(D-30, disetujui 2026-11-14)** Prefix API `/api/v1` (`routes/api.php` didaftarkan manual di `bootstrap/app.php`, **tanpa** `install:api`/Sanctum) dan format error seragam via `ApiExceptionRenderer`. |
 | A-18 | **(D-34, disetujui 2026-11-14)** Mesin dev lokal memakai `DB_USERNAME=root` tanpa password (pilihan pemilik mesin). Template `.env.example` tetap `audit_app`; server/production **wajib** memakai user terbatas dengan password. Pengaman `_testing` di `DatabaseConnectionTest` tetap berlaku. |
+| A-21 | **(Disetujui 2026-11-14)** Skema `DATABASE.md` final (revisi R1–R8): `audit_scans.user_id` `ON DELETE CASCADE` + CHECK pemilik (menggantikan usulan D-14 `SET NULL`, yang terbukti ERROR 3823 bila dikombinasikan dengan CHECK); kolom `vulnerabilities.reference_urls` (bukan reserved word `references`); enum `VulnerabilitySeverity`; `dependencies.declared_spec` VARCHAR(1024); `ai_usage_logs` khusus user (tanpa `guest_hash`); tabel baru `scan_tool_runs`; struktur `failed_jobs` didokumentasikan. Termasuk prinsip D-27 (snapshot advisori per audit) dan D-28 (enum = VARCHAR + PHP Enum). |
 | A-11 | **(D-16, disetujui 2026-11-14)** Framework test backend: **PHPUnit** (bawaan skeleton, terpasang 12.5.44). |
 
 ## B. Usulan (menunggu persetujuan)
@@ -33,12 +35,9 @@ Keputusan berstatus Usulan/Terbuka **tidak boleh** diimplementasikan sampai dise
 |---|---|---|
 | D-06 | Autentikasi frontend↔backend memakai **Laravel Sanctum mode SPA** (cookie + CSRF). | First-party Laravel; tidak menyimpan token di `localStorage`. Butuh frontend & backend pada site yang sama (mis. `localhost:3000` & `localhost:8000`). |
 | D-11 | AI remediation **sinkron** dengan timeout (bukan job). | Lebih sederhana untuk satu temuan; dievaluasi ulang jika latensi terlalu tinggi. |
-| D-14 | `audit_scans.user_id` `ON DELETE SET NULL`. | Belum ada fitur hapus akun; aman sebagai default. |
 | D-15 | Tolak login Google jika email belum terverifikasi. | Mencegah akun dengan email tak tervalidasi. |
 | D-25 | Workspace di `backend/storage/app/private/workspaces/{public_id}/`. | Di luar `public/`, mudah dibersihkan, satu folder per audit. |
 | D-26 | Satu `ProcessAuditJob` orkestrator (ingestion → SAST → SCA → skor → cleanup). | Workspace harus tetap ada antar-tahap; kegagalan SAST tidak menghentikan SCA (berbeda dengan `Bus::chain`). |
-| D-27 | Advisori OSV disimpan sebagai snapshot per audit (tabel `vulnerabilities`), tanpa tabel advisori global. | Laporan lama tetap konsisten; skema lebih sederhana. |
-| D-28 | Enum disimpan sebagai `VARCHAR` + PHP Enum cast. | Menambah nilai tidak memerlukan `ALTER TABLE ENUM`. |
 | D-29 | ID publik audit = ULID; guest mengakses via `X-Guest-Token` (hash SHA-256 di DB). | Tidak bisa ditebak; tidak menyimpan token mentah. |
 | D-31 | Eksekusi tool via Symfony Process (array argumen, timeout), Semgrep dengan `--metrics=off`. | Tanpa shell injection; tidak mengirim telemetri. |
 

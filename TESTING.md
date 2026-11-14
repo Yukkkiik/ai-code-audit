@@ -23,6 +23,7 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 
 ### Foundation
 - `GET /api/v1/health` → 200 saat DB & Redis hidup; 503 saat salah satu mati.
+- Queue: job yang di-dispatch ke koneksi `redis` tersimpan di antrean dan baru diproses saat `queue:work` berjalan (`QueueConnectionTest`, job khusus test `Tests\Support\Jobs\QueueProbeJob`).
 
 ### Audit Management
 - Membuat audit menghasilkan `public_id` ULID dan status `queued`.

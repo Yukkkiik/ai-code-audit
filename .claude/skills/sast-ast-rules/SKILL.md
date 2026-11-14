@@ -34,7 +34,7 @@ TAHAP 6 (6.1–6.7) dan perubahan apa pun pada `app/Services/Sast/`.
    - Halstead: n1, n2, N1, N2 → Volume = N·log2(n), Difficulty = (n1/2)·(N2/n2), Effort = D·V.
    - MI = max(0, (171 − 5.2·ln(V) − 0.23·CC − 16.2·ln(SLOC)) · 100/171).
 8. **Skor kesehatan** 0–100 dari temuan SAST + metrik saja (rumus D-10). **Tanpa** data SCA.
-9. Simpan ke `scan_findings` / `code_metrics`, set `sast_status` (`completed`/`partial`/`failed`/`skipped`).
+9. Catat status setiap tool di `scan_tool_runs` (`completed`/`failed`/`skipped`, jumlah file, jumlah temuan, pesan error aman, durasi). Simpan ke `scan_findings` / `code_metrics`, set `sast_status` (`completed`/`partial`/`failed`/`skipped`).
 
 ## Larangan
 - Memuat/menjalankan konfigurasi, plugin, atau kode dari repositori target (`eslint.config.*`, `.eslintrc.*`, `tsconfig.json` sebagai project service, `.semgrep.yml`, dsb.).

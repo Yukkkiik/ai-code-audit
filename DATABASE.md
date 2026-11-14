@@ -1,7 +1,7 @@
 # DATABASE — Rancangan Skema MySQL
 
-> Status dokumen: **DRAFT — WAJIB disetujui sebelum migration pertama dibuat.**
-> Engine: InnoDB · Charset: `utf8mb4` · Collation: `utf8mb4_unicode_ci`
+> Status dokumen: **DISETUJUI (2026-11-14)** — acuan seluruh migration TAHAP 2. Perubahan skema berikutnya wajib melalui plan & persetujuan.
+> Engine: InnoDB · Charset: `utf8mb4` · Collation: `utf8mb4_unicode_ci` · Diverifikasi terhadap MySQL 9.4
 
 ## 1. Prinsip Desain
 
@@ -11,6 +11,8 @@
 - Enum disimpan sebagai `VARCHAR` + PHP Enum (Laravel cast), bukan `ENUM` MySQL, agar penambahan nilai tidak butuh `ALTER TABLE` berisiko. Daftar nilai tetap didokumentasikan di bawah.
 - Kolom JSON hanya untuk data pendukung yang tidak dipakai untuk filter (alias, referensi, metadata mentah).
 - IP guest **tidak** disimpan mentah.
+- Hindari nama kolom yang merupakan reserved word MySQL (mis. `references`, `key`, `order`).
+- CHECK constraint **tidak boleh** dipakai pada kolom FK dengan `ON DELETE SET NULL` (MySQL ERROR 3823 — terbukti pada MySQL 9.4). CHECK pada kolom FK dengan `ON DELETE CASCADE` diizinkan dan ditegakkan.
 
 ## 2. Ringkasan Tabel
 
@@ -18,12 +20,13 @@
 |---|---|---|---|
 | 1 | `users` | Akun Google | Raihan |
 | 2 | `audit_scans` | Sesi audit (pusat relasi) | Bersama |
-| 3 | `scan_findings` | Temuan SAST ternormalisasi | Raihan |
-| 4 | `code_metrics` | Metrik kualitas per file/fungsi | Raihan |
-| 5 | `dependencies` | Komponen npm hasil ekstraksi | Yuki |
-| 6 | `vulnerabilities` | Kecocokan advisori OSV ↔ dependency | Yuki |
-| 7 | `ai_refactorings` | Hasil AI remediation / fallback | Annisa |
-| 8 | `ai_usage_logs` | Penghitung pemakaian AI harian (kuota) | Annisa |
+| 3 | `scan_tool_runs` | Status eksekusi per tool SAST (Semgrep/ESLint) | Raihan |
+| 4 | `scan_findings` | Temuan SAST ternormalisasi | Raihan |
+| 5 | `code_metrics` | Metrik kualitas per file/fungsi | Raihan |
+| 6 | `dependencies` | Komponen npm hasil ekstraksi | Yuki |
+| 7 | `vulnerabilities` | Kecocokan advisori OSV ↔ dependency | Yuki |
+| 8 | `ai_refactorings` | Hasil AI remediation / fallback | Annisa |
+| 9 | `ai_usage_logs` | Penghitung pemakaian AI harian user (kuota) | Annisa |
 | — | `failed_jobs` | Bawaan Laravel, job yang gagal | Framework |
 
 ### Tabel yang tidak dibuat (beserta alasan)
@@ -31,12 +34,12 @@
 | Tabel | Alasan tidak dibuat |
 |---|---|
 | `password_reset_tokens` | Tidak ada login password; hanya Google OAuth. |
-| `sessions` | Usulan: session driver Redis (lihat D-07). Dibuat hanya jika tim memilih driver `database`. |
+| `sessions` | Session disimpan di Redis (A-19). |
 | `jobs`, `job_batches` | Queue memakai Redis, bukan database. |
 | `cache`, `cache_locks` | Cache memakai Redis. |
 | `personal_access_tokens` | Hanya dibutuhkan jika autentikasi Sanctum mode token (lihat D-06). |
 | `advisories` (cache global OSV) | Ditunda. Advisori disimpan sebagai snapshot per audit agar laporan lama tetap konsisten. Dapat dinormalisasi nanti bila duplikasi menjadi masalah. |
-| `guest_visitors` | Rate limit guest di Redis; tidak butuh tabel. |
+| `guest_visitors` | Rate limit guest (termasuk batas AI guest jika D-04 mengizinkan) di Redis; tidak butuh tabel. |
 
 ## 3. Detail Tabel
 
@@ -60,7 +63,7 @@ Catatan: kolom `password` dan `remember_token` bawaan Laravel dihapus dari migra
 |---|---|---|---|
 | id | BIGINT UNSIGNED PK AI | – | |
 | public_id | CHAR(26) | – | ULID. **UNIQUE**. Dipakai di URL API. |
-| user_id | BIGINT UNSIGNED FK → users.id | ✓ | NULL = audit guest. `ON DELETE SET NULL` (lihat D-14). |
+| user_id | BIGINT UNSIGNED FK → users.id | ✓ | NULL = audit guest. `ON DELETE CASCADE` — audit ikut terhapus bersama akun (A-21). |
 | guest_token_hash | CHAR(64) | ✓ | SHA-256 dari guest token. Wajib terisi jika `user_id` NULL. |
 | source_type | VARCHAR(10) | – | `zip` \| `git` |
 | repository_name | VARCHAR(255) | – | Nama dari ZIP / path repo Git. |
@@ -83,8 +86,29 @@ Catatan: kolom `password` dan `remember_token` bawaan Laravel dihapus dari migra
 | created_at, updated_at | TIMESTAMP | ✓ | |
 
 Index: `UNIQUE(public_id)`, `INDEX(user_id, created_at)` untuk riwayat, `INDEX(status)`.
+Constraint: `CHECK (user_id IS NOT NULL OR guest_token_hash IS NOT NULL)` — setiap audit punya pemilik (user atau guest). Diizinkan karena FK `user_id` memakai CASCADE, bukan SET NULL.
 
-### 3.3 `scan_findings`
+### 3.3 `scan_tool_runs`
+
+Satu baris = satu eksekusi tool SAST pada satu audit. Dipakai untuk menampilkan secara jujur tool mana yang berhasil, gagal, atau dilewati (`sast_status` di `audit_scans` adalah ringkasannya).
+
+| Kolom | Tipe | Null | Keterangan |
+|---|---|---|---|
+| id | BIGINT UNSIGNED PK AI | – | |
+| audit_scan_id | BIGINT UNSIGNED FK → audit_scans.id | – | CASCADE |
+| tool | VARCHAR(20) | – | `semgrep` \| `eslint` (enum `FindingTool`) |
+| status | VARCHAR(20) | – | `completed` \| `failed` \| `skipped` (enum `ToolRunStatus`) |
+| files_scanned | INT UNSIGNED | ✓ | Jumlah file JS/TS yang dikirim ke tool. |
+| findings_count | INT UNSIGNED | ✓ | Jumlah temuan tersimpan dari tool ini. |
+| error_message | VARCHAR(500) | ✓ | Pesan aman untuk pengguna (bukan stack trace/path server). |
+| duration_ms | INT UNSIGNED | ✓ | |
+| started_at | TIMESTAMP | ✓ | |
+| finished_at | TIMESTAMP | ✓ | |
+| created_at, updated_at | TIMESTAMP | ✓ | |
+
+Index: `UNIQUE(audit_scan_id, tool)`.
+
+### 3.4 `scan_findings`
 
 | Kolom | Tipe | Null | Keterangan |
 |---|---|---|---|
@@ -106,7 +130,7 @@ Index: `UNIQUE(public_id)`, `INDEX(user_id, created_at)` untuk riwayat, `INDEX(s
 
 Index: `UNIQUE(audit_scan_id, fingerprint)`, `INDEX(audit_scan_id, severity)`, `INDEX(audit_scan_id, tool)`.
 
-### 3.4 `code_metrics`
+### 3.5 `code_metrics`
 
 | Kolom | Tipe | Null | Keterangan |
 |---|---|---|---|
@@ -128,7 +152,7 @@ Index: `UNIQUE(audit_scan_id, fingerprint)`, `INDEX(audit_scan_id, severity)`, `
 
 Index: `INDEX(audit_scan_id, scope)`.
 
-### 3.5 `dependencies`
+### 3.6 `dependencies`
 
 | Kolom | Tipe | Null | Keterangan |
 |---|---|---|---|
@@ -137,7 +161,7 @@ Index: `INDEX(audit_scan_id, scope)`.
 | ecosystem | VARCHAR(20) | – | Saat ini selalu `npm`. |
 | name | VARCHAR(214) | – | Batas panjang nama paket npm = 214. |
 | version | VARCHAR(100) | ✓ | Versi pasti. NULL jika tidak dapat ditentukan. |
-| declared_spec | VARCHAR(255) | ✓ | Spesifikasi dari package.json (mis. `^1.2.3`, `git+https://…`). |
+| declared_spec | VARCHAR(1024) | ✓ | Spesifikasi dari package.json (mis. `^1.2.3`, `git+https://…#<commit>`). |
 | scope | VARCHAR(15) | – | `production` \| `development` \| `optional` \| `peer` |
 | relation | VARCHAR(15) | – | `direct` \| `transitive` |
 | manifest_path | VARCHAR(1024) | – | Path relatif `package.json` / `package-lock.json` sumber. |
@@ -151,7 +175,7 @@ Index: `INDEX(audit_scan_id, scope)`.
 Index: `INDEX(audit_scan_id, name)`, `INDEX(audit_scan_id, version_status)`.
 Deduplikasi dilakukan di aplikasi (kombinasi path terlalu panjang untuk unique index MySQL).
 
-### 3.6 `vulnerabilities`
+### 3.7 `vulnerabilities`
 
 Satu baris = satu advisori OSV yang cocok dengan satu dependency pada satu audit (snapshot).
 
@@ -164,18 +188,18 @@ Satu baris = satu advisori OSV yang cocok dengan satu dependency pada satu audit
 | aliases | JSON | ✓ | Daftar CVE/GHSA. |
 | summary | VARCHAR(1000) | ✓ | |
 | details | MEDIUMTEXT | ✓ | |
-| severity_label | VARCHAR(10) | ✓ | `critical`/`high`/`medium`/`low`/`unknown` — hanya jika dapat diturunkan dari data OSV, tidak dikarang. |
+| severity_label | VARCHAR(10) | ✓ | Enum `VulnerabilitySeverity`: `critical`/`high`/`medium`/`low`/`unknown` — hanya jika dapat diturunkan dari data OSV, tidak dikarang. |
 | severity_vectors | JSON | ✓ | Daftar `{type, score}` mentah dari OSV (mis. CVSS_V3). |
 | affected_ranges | JSON | ✓ | Rentang terdampak dari OSV. |
 | fixed_versions | JSON | ✓ | Versi perbaikan dari OSV saja. Kosong jika OSV tidak menyediakan. |
-| references | JSON | ✓ | |
+| reference_urls | JSON | ✓ | Daftar URL referensi dari OSV. (Bukan `references` — reserved word MySQL.) |
 | published_at | TIMESTAMP | ✓ | |
 | modified_at | TIMESTAMP | ✓ | |
 | created_at, updated_at | TIMESTAMP | ✓ | |
 
 Index: `UNIQUE(dependency_id, osv_id)`, `INDEX(audit_scan_id, severity_label)`.
 
-### 3.7 `ai_refactorings`
+### 3.8 `ai_refactorings`
 
 | Kolom | Tipe | Null | Keterangan |
 |---|---|---|---|
@@ -199,32 +223,45 @@ Index: `UNIQUE(dependency_id, osv_id)`, `INDEX(audit_scan_id, severity_label)`.
 | latency_ms | INT UNSIGNED | ✓ | |
 | created_at, updated_at | TIMESTAMP | ✓ | |
 
-Constraint: `CHECK ((scan_finding_id IS NULL) <> (vulnerability_id IS NULL))` — tepat satu target. (MySQL ≥ 8.0.16 menegakkan CHECK.)
+Constraint: `CHECK ((scan_finding_id IS NULL) <> (vulnerability_id IS NULL))` — tepat satu target. (MySQL ≥ 8.0.16 menegakkan CHECK; kombinasi CHECK + FK CASCADE teruji di MySQL 9.4: baris dengan dua target atau tanpa target ditolak dengan ERROR 3819.)
 Index: `INDEX(audit_scan_id)`, `INDEX(scan_finding_id)`, `INDEX(vulnerability_id)`.
 
-### 3.8 `ai_usage_logs`
+### 3.9 `ai_usage_logs`
 
-Penghitung harian untuk kuota. Satu baris per subjek per tanggal.
+Penghitung harian kuota AI untuk **user terdaftar**. Satu baris per user per tanggal. Batas guest (jika D-04 mengizinkan guest memakai AI) ditangani Redis rate limiter, bukan tabel ini.
 
 | Kolom | Tipe | Null | Keterangan |
 |---|---|---|---|
 | id | BIGINT UNSIGNED PK AI | – | |
-| user_id | BIGINT UNSIGNED FK → users.id | ✓ | CASCADE |
-| guest_hash | CHAR(64) | ✓ | HMAC-SHA256(IP, app key). Hanya dipakai jika guest boleh memakai AI (D-04). |
-| usage_date | DATE | – | Tanggal berdasarkan timezone aplikasi (D-12). |
+| user_id | BIGINT UNSIGNED FK → users.id | – | CASCADE |
+| usage_date | DATE | – | Tanggal berdasarkan timezone reset kuota (D-12). |
 | request_count | INT UNSIGNED | – | Default 0. Dinaikkan atomik sebelum memanggil LLM. |
 | success_count | INT UNSIGNED | – | Default 0. |
 | failed_count | INT UNSIGNED | – | Default 0. |
 | fallback_count | INT UNSIGNED | – | Default 0. |
 | created_at, updated_at | TIMESTAMP | ✓ | |
 
-Index: `UNIQUE(user_id, usage_date)`, `UNIQUE(guest_hash, usage_date)`.
+Index: `UNIQUE(user_id, usage_date)`.
 
 **Konsistensi kuota (anti race condition):**
 1. `INSERT ... ON DUPLICATE KEY UPDATE` untuk memastikan baris hari ini ada.
 2. `UPDATE ai_usage_logs SET request_count = request_count + 1 WHERE id = ? AND request_count < :limit`.
 3. Jika `affected rows = 0` → kuota habis (`429 AI_QUOTA_EXCEEDED`). Operasi ini atomik di InnoDB sehingga permintaan bersamaan tidak bisa melewati batas.
 Status per pemanggilan disimpan di `ai_refactorings.status`; reset harian terjadi otomatis karena baris baru per `usage_date`.
+
+### 3.10 `failed_jobs` (bawaan Laravel)
+
+Struktur mengikuti migration bawaan Laravel (driver `database-uuids`, A-20). Dibuat pada item roadmap 2.6b.
+
+| Kolom | Tipe | Null | Keterangan |
+|---|---|---|---|
+| id | BIGINT UNSIGNED PK AI | – | |
+| uuid | VARCHAR(255) | – | **UNIQUE**. ID job untuk `queue:retry`. |
+| connection | TEXT | – | Nama koneksi queue (`redis`). |
+| queue | TEXT | – | Nama antrean. |
+| payload | LONGTEXT | – | Payload job (hanya berisi ID audit — lihat `ARCHITECTURE.md`). |
+| exception | LONGTEXT | – | Exception lengkap — **hanya untuk developer**, tidak pernah dikirim ke client. |
+| failed_at | TIMESTAMP | – | Default `CURRENT_TIMESTAMP`. |
 
 ## 4. Enum
 
@@ -234,7 +271,9 @@ Status per pemanggilan disimpan di `ai_refactorings.status`; reset harian terjad
 | `StageStatus` | `pending`, `running`, `completed`, `partial`, `failed`, `skipped` |
 | `SourceType` | `zip`, `git` |
 | `Severity` | `critical`, `high`, `medium`, `low`, `info` |
+| `VulnerabilitySeverity` | `critical`, `high`, `medium`, `low`, `unknown` |
 | `FindingTool` | `semgrep`, `eslint` |
+| `ToolRunStatus` | `completed`, `failed`, `skipped` |
 | `CodeLanguage` | `javascript`, `typescript` |
 | `DependencyScope` | `production`, `development`, `optional`, `peer` |
 | `VersionStatus` | `exact`, `unresolved` |
@@ -250,6 +289,7 @@ erDiagram
     users ||--o{ audit_scans : "memiliki (nullable)"
     users ||--o{ ai_usage_logs : "kuota"
     users ||--o{ ai_refactorings : "meminta"
+    audit_scans ||--o{ scan_tool_runs : ""
     audit_scans ||--o{ scan_findings : ""
     audit_scans ||--o{ code_metrics : ""
     audit_scans ||--o{ dependencies : ""

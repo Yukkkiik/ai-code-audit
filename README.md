@@ -58,11 +58,18 @@ php artisan key:generate
 php artisan test          # verifikasi
 php artisan serve         # http://localhost:8000
 ```
-Catatan: Redis wajib berjalan (`brew services start redis`) karena session dan cache disimpan di Redis. Queue masih `sync` sampai Laravel Queue dikonfigurasi. **Jangan** menjalankan `php artisan migrate` dulu; skema database menunggu persetujuan TAHAP 2.
+Catatan: Redis wajib berjalan (`brew services start redis`) karena session, cache, dan queue disimpan di Redis.
+
+### Queue worker
+Job background (mis. pemindaian audit) hanya diproses jika worker berjalan di terminal terpisah:
+```bash
+cd backend
+php artisan queue:work redis
+```
+Job yang di-dispatch saat worker mati tetap tersimpan di Redis dan diproses ketika worker dinyalakan. Setelah mengubah kode, restart worker (`php artisan queue:restart`) karena worker menyimpan kode lama di memori. **Jangan** menjalankan `php artisan migrate` dulu; skema database menunggu persetujuan TAHAP 2.
 
 _Akan diisi setelah item roadmap terkait selesai:_
 - Database, Redis, migrasi (TAHAP 1.3–1.6, TAHAP 2).
-- Queue worker (TAHAP 1.6/5): `php artisan queue:work redis`.
 - Frontend (TAHAP 10.1): `npm install`, `npm run dev`.
 
 ## Konfigurasi Environment
@@ -79,7 +86,7 @@ Semua secret (kredensial DB, Google OAuth, API key LLM) disimpan di `backend/.en
 | `FRONTEND_URL` | URL Next.js (CORS, redirect OAuth) | `http://localhost:3000` |
 | `DB_*` | Koneksi MySQL (`audit_app`); `DB_PASSWORD` hanya di `.env` lokal | `mysql`, `127.0.0.1:3306` |
 | `SESSION_DRIVER` / `CACHE_STORE` | Session & cache di Redis | `redis` / `redis` |
-| `QUEUE_CONNECTION` | Sementara `sync` sampai Laravel Queue dikonfigurasi | `sync` |
+| `QUEUE_CONNECTION` | Antrean background job di Redis | `redis` |
 | `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | Koneksi Redis; password **wajib** di server | `127.0.0.1` / `6379` / kosong |
 | `REDIS_DB` / `REDIS_CACHE_DB` | DB Redis untuk session dan cache (test memakai 14/15) | `0` / `1` |
 | `REDIS_TIMEOUT` | Batas waktu koneksi Redis (detik) | `2` |

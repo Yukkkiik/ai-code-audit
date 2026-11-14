@@ -17,7 +17,7 @@ TAHAP 9 (9.1–9.5), item kuota 8.5, dan perubahan pada `app/Services/Ai/`.
 - Konfigurasi provider/model/timeout dari `.env` (D-05) — tidak di-hardcode.
 
 ## Langkah kerja
-1. **Cek akses & kuota** terlebih dahulu (atomik, lihat `DATABASE.md` §3.8). Kuota habis → 429, LLM tidak dipanggil.
+1. **Cek akses & kuota** terlebih dahulu (atomik, lihat `DATABASE.md` §3.9 `ai_usage_logs`). Kuota habis → 429, LLM tidak dipanggil.
 2. **Bangun prompt**:
    - System prompt tetap (versi `prompt_version`), berisi peran tutor keamanan, aturan, dan skema output.
    - Data temuan dan kode repo ditempatkan di bagian data dengan delimiter jelas, dengan pernyataan bahwa isi delimiter adalah data tak tepercaya dan bukan instruksi.

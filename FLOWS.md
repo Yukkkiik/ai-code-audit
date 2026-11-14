@@ -64,7 +64,7 @@ Catatan: jika keduanya `skipped` (tidak ada file yang didukung sama sekali), aud
 ### SAST
 | Kondisi | Penanganan |
 |---|---|
-| Tool tidak terpasang | Tool itu dicatat gagal; tool lain tetap berjalan; `sast_status=partial`. |
+| Tool tidak terpasang | Tool itu dicatat gagal di `scan_tool_runs`; tool lain tetap berjalan; `sast_status=partial`. |
 | Tool timeout / exit code error | Dicatat; output parsial tidak dianggap lengkap. |
 | Output JSON tidak valid | Tool dianggap gagal (tidak di-swallow). |
 | Tidak ada file JavaScript/TypeScript | `sast_status=skipped`, skor NULL. Dashboard menyatakan "tidak ada file JS/TS yang dapat dianalisis". |
