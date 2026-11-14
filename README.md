@@ -56,6 +56,7 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan test          # verifikasi
+php artisan migrate       # membuat tabel sesuai DATABASE.md
 php artisan serve         # http://localhost:8000
 ```
 Catatan: Redis wajib berjalan (`brew services start redis`) karena session, cache, dan queue disimpan di Redis.
@@ -66,7 +67,7 @@ Job background (mis. pemindaian audit) hanya diproses jika worker berjalan di te
 cd backend
 php artisan queue:work redis
 ```
-Job yang di-dispatch saat worker mati tetap tersimpan di Redis dan diproses ketika worker dinyalakan. Setelah mengubah kode, restart worker (`php artisan queue:restart`) karena worker menyimpan kode lama di memori. **Jangan** menjalankan `php artisan migrate` dulu; skema database menunggu persetujuan TAHAP 2.
+Job yang di-dispatch saat worker mati tetap tersimpan di Redis dan diproses ketika worker dinyalakan. Setelah mengubah kode, restart worker (`php artisan queue:restart`) karena worker menyimpan kode lama di memori.
 
 _Akan diisi setelah item roadmap terkait selesai:_
 - Database, Redis, migrasi (TAHAP 1.3–1.6, TAHAP 2).

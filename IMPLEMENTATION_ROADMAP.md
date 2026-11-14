@@ -25,13 +25,13 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 ## TAHAP 2 — Database Foundation
 | ID | Pekerjaan | Status |
 |---|---|---|
-| 2.1 | Finalisasi skema `DATABASE.md` (persetujuan wajib) | 👀 |
-| 2.2 | Migration `users` (modifikasi default Laravel) | ⬜ |
+| 2.1 | Finalisasi skema `DATABASE.md` (persetujuan wajib) | ✅ |
+| 2.2 | Migration `users` (modifikasi default Laravel; migration skeleton `cache` & `jobs` dihapus) | 👀 |
 | 2.3 | Migration `audit_scans` + Enum | ⬜ |
 | 2.4 | Migration `scan_tool_runs`, `scan_findings`, `code_metrics` | ⬜ |
 | 2.5 | Migration `dependencies`, `vulnerabilities` | ⬜ |
 | 2.6 | Migration `ai_refactorings`, `ai_usage_logs` | ⬜ |
-| 2.6b | Migration `failed_jobs` (bawaan Laravel, driver `database-uuids`) — lihat A-20 | ⬜ |
+| 2.6b | Migration `failed_jobs` (dibuat dengan `php artisan make:queue-failed-table`, driver `database-uuids`) — lihat A-20 | ⬜ |
 | 2.7 | Model, cast, dan relasi Eloquent | ⬜ |
 | 2.8 | Pengujian migration & relasi | ⬜ |
 
