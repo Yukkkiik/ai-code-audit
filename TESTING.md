@@ -46,6 +46,8 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 - Riwayat hanya berisi audit milik user, urut terbaru.
 
 ### Repository Ingestion
+- Diimplementasikan di `tests/Feature/Ingestion/*`, `tests/Unit/Ingestion/*`, `tests/Feature/Api/V1/StoreAuditTest.php`. Helper: `BuildsZipArchives` (ZIP berbahaya), `FakeGitBinary` (pengganti `git` tanpa jaringan, mencatat argumen & environment), `FakeHostResolver` (DNS palsu), `UsesTemporaryAuditStorage`.
+- Clone test memastikan opsi pengamanan git terpasang, URL berada setelah `--`, dan secret aplikasi (mis. `DB_PASSWORD`, `APP_KEY`) **tidak** sampai ke proses git.
 - ZIP valid diekstrak ke workspace audit sendiri.
 - ZIP berisi `../evil.txt`, `/etc/passwd`, symlink → ditolak, tidak ada file di luar workspace.
 - ZIP bomb (rasio tinggi / ukuran ekstrak > 50 MB) → `ARCHIVE_TOO_LARGE`.

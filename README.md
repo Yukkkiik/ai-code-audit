@@ -94,7 +94,21 @@ Semua secret (kredensial DB, Google OAuth, API key LLM) disimpan di `backend/.en
 
 Kode aplikasi membaca nilai lewat `config()`, bukan `env()` langsung.
 
-> **Catatan upload:** PHP lokal default membatasi `upload_max_filesize=2M` dan `post_max_size=8M`. Upload ZIP 50 MB membutuhkan penyesuaian `php.ini` (ditangani di TAHAP 4.1).
+> **Catatan upload:** PHP default membatasi `upload_max_filesize=2M` dan `post_max_size=8M`; ZIP di atas 2 MB akan dijawab `413`. Agar ZIP sampai 50 MB dapat diunggah, ubah `php.ini` (lokasinya: `php --ini`, mis. `/opt/homebrew/etc/php/8.4/php.ini`):
+> ```ini
+> upload_max_filesize = 50M
+> post_max_size = 55M
+> ```
+> lalu restart `php artisan serve`. Batas aplikasi tetap `AUDIT_MAX_REPOSITORY_BYTES`.
+
+| Variabel opsional | Kegunaan | Default |
+|---|---|---|
+| `AUDIT_MAX_REPOSITORY_BYTES` | Batas ukuran ZIP, hasil ekstraksi, dan hasil clone | `52428800` (50 MB) |
+| `AUDIT_GIT_ALLOWED_HOSTS` | Allowlist host Git (dipisah koma) | `github.com,gitlab.com,bitbucket.org` |
+| `AUDIT_GIT_CLONE_TIMEOUT` | Batas waktu `git clone` (detik) | `120` |
+| `AUDIT_ZIP_MAX_ENTRIES` / `AUDIT_ZIP_MAX_COMPRESSION_RATIO` | Pengaman zip bomb | `20000` / `100` |
+
+`git` wajib terpasang di server (dipakai untuk clone repositori publik).
 
 ## Pengujian
 Lihat `TESTING.md`. Perintah ringkas (setelah inisialisasi):

@@ -33,7 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Dinonaktifkan: disk ini berisi unggahan & workspace repositori pengguna (tidak boleh dilayani via URL).
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

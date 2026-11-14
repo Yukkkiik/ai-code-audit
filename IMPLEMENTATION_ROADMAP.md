@@ -46,13 +46,13 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 ## TAHAP 4 — Repository Ingestion (Yuki)
 | ID | Pekerjaan | Keputusan | Status |
 |---|---|---|---|
-| 4.1 | Endpoint `POST /api/v1/audits` (ZIP) + validasi request + `config/audit.php` (batas 50 MB) + batas `php.ini` (`upload_max_filesize`, `post_max_size`) | – | ⬜ |
-| 4.2 | Validasi isi ZIP (path, symlink, ukuran, zip bomb) | – | ⬜ |
-| 4.3 | Ekstraksi aman ke workspace | D-25 | ⬜ |
-| 4.4 | Validasi URL Git (anti-SSRF) | D-08 | ⬜ |
-| 4.5 | Git clone aman (timeout, depth 1, hooks off, batas ukuran) | – | ⬜ |
-| 4.6 | Temporary workspace manager + cleanup + nonaktifkan route bawaan `storage/{path}` (disk `local` → `serve`) | – | ⬜ |
-| 4.7 | Traversal file rekursif (abaikan `node_modules`, `vendor`, `.git`) | – | ⬜ |
+| 4.1 | `POST /api/v1/audits` (ZIP & Git) + `StoreAuditRequest` (ekstensi, magic bytes, 413) + `config/audit.php` | A-23 | 👀 |
+| 4.2 | Validasi isi ZIP sebelum ekstraksi (path, symlink, enkripsi, jumlah entri, ukuran, rasio kompresi) | A-23 | 👀 |
+| 4.3 | `SafeZipExtractor` (hitung byte saat menulis, `node_modules`/`vendor`/`.git` dilewati) | D-25 | 👀 |
+| 4.4 | `GitUrlValidator` (https, allowlist, anti-SSRF DNS) | A-23 | 👀 |
+| 4.5 | `GitRepositoryCloner` (depth 1, hooks/symlink/submodule/redirect off, timeout, env terisolasi) | A-23 | 👀 |
+| 4.6 | `AuditWorkspace` (0700 per audit, cleanup aman symlink) + route `storage/{path}` dinonaktifkan | – | 👀 |
+| 4.7 | `RepositoryFileWalker` (tanpa ikut symlink, abaikan `node_modules`/`vendor`/`.git`) + `RepositoryIngestor` | – | 👀 |
 
 ## TAHAP 5 — Background Processing
 | ID | Pekerjaan | Status |

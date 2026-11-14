@@ -116,13 +116,13 @@ Jika salah satu dependensi gagal → `503` dengan `status: "degraded"` dan check
 | Field | Aturan |
 |---|---|
 | `source_type` | wajib, `zip` |
-| `file` | wajib, file, ekstensi & magic bytes ZIP, ≤ 50 MB |
+| `file` | wajib, file, ekstensi `.zip` & magic bytes `PK\x03\x04` (atau `PK\x05\x06` untuk arsip kosong), ≤ `AUDIT_MAX_REPOSITORY_BYTES` (50 MB) |
 
 **POST `/audits` — Git** (`application/json`)
 | Field | Aturan |
 |---|---|
 | `source_type` | wajib, `git` |
-| `repository_url` | wajib, `https://`, ≤ 2048 karakter, tanpa userinfo (`user:pass@`), tanpa port non-standar, host lolos validasi anti-SSRF (D-08) |
+| `repository_url` | wajib, `https://`, ≤ 2048 karakter, tanpa userinfo (`user:pass@`), tanpa port selain 443, tanpa query/fragment, host ada di allowlist `AUDIT_GIT_ALLOWED_HOSTS` (default `github.com`, `gitlab.com`, `bitbucket.org`), bukan IP literal, path ≥ 2 segmen aman, dan **seluruh IP hasil DNS publik** (anti-SSRF) |
 
 Response `202 Accepted`:
 ```json
@@ -130,10 +130,12 @@ Response `202 Accepted`:
 ```
 `guest_token` hanya ada untuk guest dan hanya dikirim sekali.
 
-Error khusus: `422 INVALID_ARCHIVE`, `422 INVALID_REPOSITORY_URL`, `413 PAYLOAD_TOO_LARGE`, `429 RATE_LIMITED`.
+Error saat request: `422 VALIDATION_FAILED` dengan `details.file` / `details.repository_url` berisi alasan (mis. "Berkas bukan arsip ZIP yang valid.", "Host evil.example.com tidak didukung..."), `413 PAYLOAD_TOO_LARGE` (termasuk berkas yang ditolak batas `upload_max_filesize`/`post_max_size` PHP), dan `429 RATE_LIMITED` (dibangun di TAHAP 8). Revisi 2026-11-15: kode `INVALID_ARCHIVE` / `INVALID_REPOSITORY_URL` di level request diganti `VALIDATION_FAILED` + `details` agar semua error input memakai satu format per field.
+
+Status implementasi: endpoint aktif. Audit dibuat berstatus `queued` dan berkas ZIP disimpan; pemrosesan otomatis (job) dibangun di TAHAP 5.
 
 Kegagalan saat job (mis. ZIP Slip terdeteksi, repo tidak ditemukan, melebihi 50 MB setelah ekstraksi) **tidak** dikembalikan sebagai HTTP error; tercatat di `audit.status = failed` + `error.code`:
-`ZIP_SLIP_DETECTED`, `ARCHIVE_TOO_LARGE`, `ARCHIVE_CORRUPT`, `REPOSITORY_NOT_FOUND`, `REPOSITORY_TOO_LARGE`, `CLONE_TIMEOUT`, `INGESTION_FAILED`.
+`ZIP_SLIP_DETECTED` (path traversal / path absolut / symlink), `ARCHIVE_TOO_LARGE` (ukuran, jumlah entri, rasio kompresi), `ARCHIVE_CORRUPT`, `ARCHIVE_ENCRYPTED`, `INVALID_REPOSITORY_URL` (URL tidak lolos validasi ulang saat job), `REPOSITORY_NOT_FOUND`, `REPOSITORY_TOO_LARGE`, `CLONE_TIMEOUT`, `INGESTION_FAILED`. Didefinisikan di `backend/app/Exceptions/IngestionException.php`.
 
 ### 2.4 AI Remediation (FR-08, FR-04)
 | Method | Path | Auth | Keterangan |

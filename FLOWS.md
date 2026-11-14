@@ -58,11 +58,13 @@ Catatan: jika keduanya `skipped` (tidak ada file yang didukung sama sekali), aud
 ### Ingestion
 | Kondisi | Penanganan |
 |---|---|
-| File bukan ZIP / ZIP rusak | 422 `INVALID_ARCHIVE` (request) atau `failed` + `ARCHIVE_CORRUPT` (job). |
+| File bukan ZIP / ZIP rusak | 422 `VALIDATION_FAILED` (`details.file`, cek magic bytes saat request) atau `failed` + `ARCHIVE_CORRUPT` (job). |
+| ZIP terenkripsi (berpassword) | `failed` + `ARCHIVE_ENCRYPTED`. |
 | ZIP > 50 MB | 413 di request (juga dibatasi `upload_max_filesize`/`post_max_size` PHP). |
 | Hasil ekstraksi > 50 MB / zip bomb | Hentikan ekstraksi, `failed` + `ARCHIVE_TOO_LARGE`. |
 | Entri `../`, path absolut, symlink | `failed` + `ZIP_SLIP_DETECTED`, tidak ada file ditulis di luar workspace. |
-| URL ke IP privat/loopback/metadata (`169.254.169.254`) | 422 `INVALID_REPOSITORY_URL` (atau gagal di job jika DNS berubah — DNS diperiksa ulang). |
+| URL ke IP privat/loopback/metadata (`169.254.169.254`) | 422 `VALIDATION_FAILED` (`details.repository_url`), atau `failed` + `INVALID_REPOSITORY_URL` di job jika DNS berubah — URL divalidasi ulang tepat sebelum clone. |
+| Repo di-rename/dipindah (HTTP redirect) | `failed` + `REPOSITORY_NOT_FOUND`: redirect dinonaktifkan agar host tujuan tidak lolos dari allowlist. |
 | Repo privat / tidak ada | `failed` + `REPOSITORY_NOT_FOUND` (git dijalankan dengan `GIT_TERMINAL_PROMPT=0` agar tidak menunggu kredensial). |
 | Clone melebihi waktu | `failed` + `CLONE_TIMEOUT`. |
 | Repo kosong | Ingestion berhasil; SAST & SCA `skipped`. |
