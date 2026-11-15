@@ -109,14 +109,17 @@ Catatan: jika keduanya `skipped` (tidak ada file yang didukung sama sekali), aud
 
 ## 4. Retry, Timeout, Failed Jobs
 
-| Item | Usulan awal (dapat dikonfigurasi di `config/audit.php`) |
+| Item | Nilai (dapat dikonfigurasi lewat `.env`) |
 |---|---|
 | `ProcessAuditJob` `tries` | 1 untuk pipeline (hindari pemindaian ganda); retry dilakukan per panggilan HTTP eksternal. |
-| Job `timeout` | Ditentukan saat TAHAP 5 (harus < `retry_after` Redis queue). |
+| Job `timeout` | `AUDIT_JOB_TIMEOUT=600` detik (`failOnTimeout`); `REDIS_QUEUE_RETRY_AFTER=660` detik — **harus lebih besar** dari timeout job agar job tidak dijalankan ganda. Timeout `git clone` (120 detik) berada di dalam batas ini. |
 | Timeout per tool SAST | Ditentukan saat TAHAP 6. |
 | OSV.dev | timeout per request + maksimal 2 retry dengan backoff untuk 5xx/timeout. |
 | LLM | timeout per request; tanpa retry otomatis berulang (biaya). |
-| Job gagal tak terduga | Masuk `failed_jobs`; method `failed()` menandai audit `failed` + cleanup workspace. |
+| Job gagal tak terduga | Masuk `failed_jobs`; `ProcessAuditJob::failed()` membersihkan workspace lalu menandai audit `failed` dengan `JOB_TIMEOUT` (timeout) atau `PROCESSING_FAILED` (exception lain), kecuali audit sudah final. |
+| Job duplikat untuk audit yang sama | Hanya job pertama yang berhasil mengklaim (`queued → ingesting`); job lain berhenti tanpa mengubah status atau menghapus workspace. |
+| Redis tidak tersedia saat `POST /audits` | Audit langsung `failed` + `QUEUE_UNAVAILABLE`, upload dihapus, response `500 INTERNAL_ERROR` (audit tidak tertahan `queued`). |
+| Worker mati di tengah proses | Job muncul kembali setelah `retry_after`; karena `tries = 1`, queue langsung memanggil `failed()` → audit `failed`. |
 
 ## 5. Penanganan Error (prinsip)
 

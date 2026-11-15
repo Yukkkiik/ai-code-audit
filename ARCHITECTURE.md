@@ -54,7 +54,7 @@ ai-code-security-audit-platform/
 │   │   ├── Http/Controllers/Api/V1/
 │   │   ├── Http/Requests/
 │   │   ├── Http/Resources/
-│   │   ├── Jobs/                 # ProcessAuditJob
+│   │   ├── Jobs/                 # ProcessAuditJob (orkestrator audit)
 │   │   ├── Models/
 │   │   ├── Enums/                # AuditStatus, StageStatus, Severity, dst.
 │   │   └── Services/
@@ -95,7 +95,7 @@ Struktur internal di atas adalah usulan; file baru hanya dibuat ketika fiturnya 
 - **Frontend ↔ Backend**: REST JSON di `/api/v1`, kontrak di `API_CONTRACT.md`.
 - **Autentikasi** (usulan, menunggu persetujuan): Laravel Sanctum mode SPA (cookie session + CSRF). Google OAuth via Laravel Socialite — callback di backend, lalu redirect ke frontend.
 - **Guest**: menerima `guest_token` acak saat membuat audit; dikirim lewat header `X-Guest-Token` untuk mengakses audit tersebut. Backend hanya menyimpan hash-nya.
-- **Background**: Controller membuat `audit_scans` lalu dispatch `ProcessAuditJob` ke Redis. Frontend melakukan polling `GET /api/v1/audits/{id}`. Payload job hanya berisi ID audit — **tidak** berisi isi kode, path absolut di luar workspace, atau secret (payload tersimpan apa adanya di Redis).
+- **Background**: Controller membuat `audit_scans` lalu dispatch `ProcessAuditJob` ke Redis. Job menjalankan `RepositoryIngestor`, lalu setiap tahap lewat `StageRunner` (`App\Services\Audit\Stages`), dan semua perubahan status lewat `AuditStatusManager`. Frontend melakukan polling `GET /api/v1/audits/{id}`. Payload job hanya berisi ID audit — **tidak** berisi isi kode, path absolut di luar workspace, atau secret (payload tersimpan apa adanya di Redis).
 - **Kontrak antar subsistem**: SAST dan SCA masing-masing menulis ke tabelnya sendiri dan memperbarui `sast_status` / `sca_status`. AI dan Reporting hanya membaca data tersimpan.
 
 ## 6. Alur Sistem Utama (ringkas)

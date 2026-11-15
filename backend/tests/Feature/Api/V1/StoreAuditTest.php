@@ -3,12 +3,15 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Enums\AuditStatus;
+use App\Jobs\ProcessAuditJob;
 use App\Models\AuditScan;
 use App\Models\User;
 use App\Services\Ingestion\AuditWorkspace;
 use App\Services\Ingestion\HostResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Redis;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Support\BuildsZipArchives;
 use Tests\Support\FakeHostResolver;
@@ -25,6 +28,51 @@ class StoreAuditTest extends TestCase
 
         $this->setUpTemporaryAuditStorage();
         $this->app->instance(HostResolver::class, new FakeHostResolver(['github.com' => ['140.82.112.3']]));
+        Queue::fake();
+    }
+
+    public function test_accepted_audits_dispatch_exactly_one_processing_job_with_only_the_id(): void
+    {
+        $zipId = $this->post('/api/v1/audits', ['source_type' => 'zip', 'file' => $this->zipUpload('repo.zip')], ['Accept' => 'application/json'])
+            ->assertStatus(202)->json('data.audit.id');
+        $gitId = $this->postJson('/api/v1/audits', ['source_type' => 'git', 'repository_url' => 'https://github.com/org/repo'])
+            ->assertStatus(202)->json('data.audit.id');
+
+        foreach ([$zipId, $gitId] as $publicId) {
+            $audit = AuditScan::query()->where('public_id', $publicId)->firstOrFail();
+            Queue::assertPushed(ProcessAuditJob::class, fn (ProcessAuditJob $job) => $job->auditScanId === $audit->id);
+        }
+
+        Queue::assertPushed(ProcessAuditJob::class, 2);
+    }
+
+    public function test_rejected_request_dispatches_no_job(): void
+    {
+        $this->postJson('/api/v1/audits', ['source_type' => 'git', 'repository_url' => 'http://github.com/org/repo'])->assertUnprocessable();
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_unavailable_queue_fails_audit_instead_of_leaving_it_queued_forever(): void
+    {
+        // Kembalikan queue asli (bukan fake) agar dispatch benar-benar mencoba menghubungi Redis.
+        $this->app->forgetInstance('queue');
+        Queue::clearResolvedInstance('queue');
+        config([
+            'queue.default' => 'redis',
+            'database.redis.default.port' => 1,
+            'database.redis.default.max_retries' => 0,
+        ]);
+        Redis::purge('default');
+
+        $this->post('/api/v1/audits', ['source_type' => 'zip', 'file' => $this->zipUpload('repo.zip')], ['Accept' => 'application/json'])
+            ->assertStatus(500)
+            ->assertJsonPath('error.code', 'INTERNAL_ERROR');
+
+        $audit = AuditScan::query()->firstOrFail();
+        $this->assertSame(AuditStatus::Failed, $audit->status);
+        $this->assertSame('QUEUE_UNAVAILABLE', $audit->error_code);
+        $this->assertFileDoesNotExist($this->app->make(AuditWorkspace::class)->uploadPath($audit));
     }
 
     public function test_guest_can_submit_zip_and_receives_one_time_token(): void

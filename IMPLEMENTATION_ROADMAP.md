@@ -57,12 +57,14 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 ## TAHAP 5 — Background Processing
 | ID | Pekerjaan | Status |
 |---|---|---|
-| 5.1 | `ProcessAuditJob` kerangka orkestrator | ⬜ |
-| 5.2 | Worker & pembaruan status per tahap | ⬜ |
-| 5.3 | Timeout & retry policy | ⬜ |
-| 5.4 | Penanganan failed jobs + cleanup (tabel `failed_jobs` dari 2.6b) | ⬜ |
+| 5.1 | `ProcessAuditJob` orkestrator + `StageRunner` / `AuditStageRunners` (sementara `UnavailableStageRunner`) | A-24 | 👀 |
+| 5.2 | Dispatch dari `POST /audits` + pembaruan status per tahap + metadata (`commit_sha`, ukuran) | A-24 | 👀 |
+| 5.3 | Timeout & retry policy (`tries=1`, timeout 600 s, `retry_after` 660 s) | A-24 | 👀 |
+| 5.4 | `failed()` (`JOB_TIMEOUT` / `PROCESSING_FAILED`) + cleanup + `failed_jobs` + `QUEUE_UNAVAILABLE` | A-24 | 👀 |
 
 ## TAHAP 6 — SAST Engine JavaScript/TypeScript (Raihan)
+
+> Engine diimplementasikan sebagai `StageRunner` untuk `AuditStage::Sast` dan didaftarkan di `AppServiceProvider` menggantikan `UnavailableStageRunner`.
 | ID | Pekerjaan | Keputusan | Status |
 |---|---|---|---|
 | 6.1 | Seleksi file JS/TS (`.js .jsx .mjs .cjs .ts .tsx .mts .cts`), ekstensi didaftarkan di `config/audit.php` | – | ⬜ |
@@ -73,6 +75,8 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 6.6 | Skor kesehatan + kategori | D-10 | ⬜ |
 
 ## TAHAP 7 — SCA Engine Node.js/npm (Yuki)
+
+> Engine diimplementasikan sebagai `StageRunner` untuk `AuditStage::Sca` dan didaftarkan di `AppServiceProvider` menggantikan `UnavailableStageRunner`.
 | ID | Pekerjaan | Status |
 |---|---|---|
 | 7.1 | Pencarian manifest & lockfile | ⬜ |

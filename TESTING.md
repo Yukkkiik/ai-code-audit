@@ -56,6 +56,11 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 - Workspace terhapus setelah sukses **dan** setelah gagal.
 - `node_modules`, `vendor`, `.git` diabaikan saat traversal.
 
+### Background Processing
+- `tests/Feature/Audit/ProcessAuditJobTest.php`: alur ZIP & Git end-to-end (termasuk worker Redis sungguhan), runner default jujur (`failed` "belum tersedia"), exception satu tahap tidak menggagalkan tahap lain, ingestion gagal, job duplikat, audit terhapus, `failed()` untuk timeout & error tak terduga, kebijakan `tries`/timeout/`retry_after`, payload hanya ID.
+- `StoreAuditTest`: setiap audit yang diterima men-dispatch tepat satu job; request ditolak tidak men-dispatch; Redis mati → audit `QUEUE_UNAVAILABLE`.
+- Engine tahap di test diganti `Tests\Support\RecordingStageRunner`.
+
 ### SAST
 - Output contoh Semgrep/ESLint (fixture JSON) dinormalisasi ke format seragam.
 - Repo campuran: file `.py`, `.php`, `.vue` tidak dikirim ke tool; hanya `.js .jsx .mjs .cjs .ts .tsx .mts .cts`.

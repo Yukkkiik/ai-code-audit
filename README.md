@@ -67,7 +67,15 @@ Job background (mis. pemindaian audit) hanya diproses jika worker berjalan di te
 cd backend
 php artisan queue:work redis
 ```
-Job yang di-dispatch saat worker mati tetap tersimpan di Redis dan diproses ketika worker dinyalakan. Setelah mengubah kode, restart worker (`php artisan queue:restart`) karena worker menyimpan kode lama di memori.
+Setiap `POST /api/v1/audits` mengirim satu `ProcessAuditJob`. Job yang di-dispatch saat worker mati tetap tersimpan di Redis dan diproses ketika worker dinyalakan. Setelah mengubah kode, restart worker (`php artisan queue:restart`) karena worker menyimpan kode lama di memori.
+
+| Perintah | Kegunaan |
+|---|---|
+| `php artisan queue:work redis --stop-when-empty` | Proses semua job lalu berhenti (berguna saat mencoba) |
+| `php artisan queue:failed` | Daftar job yang gagal (tabel `failed_jobs`) |
+| `php artisan queue:forget <uuid>` / `queue:flush` | Hapus satu / semua catatan job gagal |
+
+Job **tidak** di-retry otomatis (`tries = 1`) agar repositori tidak dipindai ganda; audit yang gagal ditandai `failed` beserta kode errornya. `queue:retry` tidak akan memproses ulang audit yang sudah final.
 
 _Akan diisi setelah item roadmap terkait selesai:_
 - Database, Redis, migrasi (TAHAP 1.3–1.6, TAHAP 2).

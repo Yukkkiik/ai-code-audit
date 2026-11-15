@@ -50,6 +50,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Job Pemrosesan Audit
+    |--------------------------------------------------------------------------
+    |
+    | Batas waktu satu ProcessAuditJob (ingestion + SAST + SCA). Harus lebih kecil
+    | dari queue.connections.redis.retry_after (REDIS_QUEUE_RETRY_AFTER).
+    |
+    */
+
+    'job' => [
+        'timeout_seconds' => (int) env('AUDIT_JOB_TIMEOUT', 600),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Lokasi Penyimpanan Sementara
     |--------------------------------------------------------------------------
     |

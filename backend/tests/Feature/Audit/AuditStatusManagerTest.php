@@ -48,6 +48,18 @@ class AuditStatusManagerTest extends TestCase
         $this->assertSame(AuditStatus::Completed, $audit->fresh()->status);
     }
 
+    public function test_mark_scanning_records_source_metadata(): void
+    {
+        $audit = AuditScan::factory()->fromGit()->create(['commit_sha' => null, 'source_size_bytes' => null]);
+        $this->manager->markIngesting($audit);
+
+        $this->manager->markScanning($audit, 'abcdefabcdefabcdefabcdefabcdefabcdefabcd', 4096);
+
+        $this->assertSame(AuditStatus::Scanning, $audit->status);
+        $this->assertSame('abcdefabcdefabcdefabcdefabcdefabcdefabcd', $audit->commit_sha);
+        $this->assertSame(4096, $audit->source_size_bytes);
+    }
+
     /**
      * @return array<string, array{StageStatus, StageStatus, AuditStatus}>
      */

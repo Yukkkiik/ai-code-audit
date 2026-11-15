@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Enums\AuditStage;
+use App\Services\Audit\Stages\AuditStageRunners;
+use App\Services\Audit\Stages\UnavailableStageRunner;
 use App\Services\Ingestion\DnsHostResolver;
 use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
@@ -24,6 +27,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->when(RepositoryFileWalker::class)
             ->needs('$ignoredDirectories')
             ->giveConfig('audit.ignored_directories');
+
+        // Engine SAST (TAHAP 6) & SCA (TAHAP 7) belum ada: tahap dicatat gagal secara jujur.
+        $this->app->singleton(AuditStageRunners::class, fn () => new AuditStageRunners([
+            new UnavailableStageRunner(AuditStage::Sast),
+            new UnavailableStageRunner(AuditStage::Sca),
+        ]));
     }
 
     /**

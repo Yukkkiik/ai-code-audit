@@ -8,16 +8,20 @@ use App\Http\Requests\Api\V1\ListAuditsRequest;
 use App\Http\Requests\Api\V1\StoreAuditRequest;
 use App\Http\Resources\AuditCollection;
 use App\Http\Resources\AuditResource;
+use App\Jobs\ProcessAuditJob;
 use App\Models\AuditScan;
 use App\Services\Audit\AuditScanCreator;
+use App\Services\Audit\AuditStatusManager;
 use App\Services\Audit\CreatedAuditScan;
 use App\Services\Ingestion\AuditWorkspace;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class AuditController extends Controller
 {
@@ -25,8 +29,13 @@ class AuditController extends Controller
      * Membuat audit dari ZIP atau URL Git publik. Audit berstatus `queued`;
      * guest menerima `guest_token` satu kali di response ini.
      */
-    public function store(StoreAuditRequest $request, AuditScanCreator $creator, AuditWorkspace $workspace): JsonResponse
-    {
+    public function store(
+        StoreAuditRequest $request,
+        AuditScanCreator $creator,
+        AuditWorkspace $workspace,
+        AuditStatusManager $statusManager,
+        Dispatcher $bus,
+    ): JsonResponse {
         $owner = $request->user();
 
         $created = match ($request->sourceType()) {
@@ -53,6 +62,8 @@ class AuditController extends Controller
                 repositoryUrl: $request->gitRepository()->url,
             ),
         };
+
+        $this->dispatchProcessing($created->audit, $bus, $statusManager, $workspace);
 
         return $this->createdResponse($request, $created);
     }
@@ -85,6 +96,22 @@ class AuditController extends Controller
         $audit->loadCount(AuditScan::summaryCounts());
 
         return new AuditResource($audit);
+    }
+
+    /**
+     * Jika antrean tidak dapat menerima job (mis. Redis mati), audit langsung ditandai gagal
+     * agar tidak tertahan `queued` selamanya; exception diteruskan sebagai 500.
+     */
+    private function dispatchProcessing(AuditScan $audit, Dispatcher $bus, AuditStatusManager $statusManager, AuditWorkspace $workspace): void
+    {
+        try {
+            $bus->dispatch(new ProcessAuditJob($audit->id));
+        } catch (Throwable $e) {
+            $statusManager->markFailed($audit, 'QUEUE_UNAVAILABLE', 'Antrean pemrosesan sedang tidak tersedia. Silakan coba lagi.');
+            $workspace->cleanup($audit);
+
+            throw $e;
+        }
     }
 
     private function createdResponse(Request $request, CreatedAuditScan $created): JsonResponse

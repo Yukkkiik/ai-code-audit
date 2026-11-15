@@ -28,12 +28,19 @@ class AuditStatusManager
         });
     }
 
-    public function markScanning(AuditScan $audit): void
+    /**
+     * Ingestion selesai: catat metadata sumber (commit hasil clone, ukuran) bersamaan dengan transisi.
+     */
+    public function markScanning(AuditScan $audit, ?string $commitSha = null, ?int $sourceSizeBytes = null): void
     {
-        $this->transition($audit, function (AuditScan $current) {
+        $this->transition($audit, function (AuditScan $current) use ($commitSha, $sourceSizeBytes) {
             $this->expectStatus($current, AuditStatus::Ingesting);
 
-            return ['status' => AuditStatus::Scanning];
+            return array_filter([
+                'status' => AuditStatus::Scanning,
+                'commit_sha' => $commitSha,
+                'source_size_bytes' => $sourceSizeBytes,
+            ], fn ($value) => $value !== null);
         });
     }
 
