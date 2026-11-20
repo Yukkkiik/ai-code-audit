@@ -79,8 +79,8 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 > Engine diimplementasikan sebagai `StageRunner` untuk `AuditStage::Sca` dan didaftarkan di `AppServiceProvider` menggantikan `UnavailableStageRunner`.
 | ID | Pekerjaan | Status |
 |---|---|---|
-| 7.1 | Pencarian manifest & lockfile | 👀 |
-| 7.2 | Parser `package.json` (versi pasti vs rentang vs non-registry) | ⬜ |
+| 7.1 | Pencarian manifest & lockfile | ✅ |
+| 7.2 | Parser `package.json` (versi pasti vs rentang vs non-registry) | 👀 |
 | 7.3 | Parser `package-lock.json` v2/v3 (direct/transitive, dev) | ⬜ |
 | 7.4 | Penyimpanan dependencies | ⬜ |
 | 7.5 | OSV client `querybatch` (timeout, retry, validasi, pagination) | ⬜ |

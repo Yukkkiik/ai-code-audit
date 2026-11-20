@@ -9,6 +9,7 @@ use App\Services\Ingestion\DnsHostResolver;
 use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryFileWalker;
+use App\Services\Sca\PackageJsonParser;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->when(RepositoryFileWalker::class)
             ->needs('$ignoredDirectories')
             ->giveConfig('audit.ignored_directories');
+
+        $this->app->when(PackageJsonParser::class)
+            ->needs('$maxBytes')
+            ->giveConfig('audit.sca.max_manifest_bytes');
 
         // Engine SAST (TAHAP 6) & SCA (TAHAP 7) belum ada: tahap dicatat gagal secara jujur.
         $this->app->singleton(AuditStageRunners::class, fn () => new AuditStageRunners([
