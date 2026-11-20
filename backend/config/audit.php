@@ -76,6 +76,9 @@ return [
         'max_manifest_bytes' => (int) env('AUDIT_SCA_MAX_MANIFEST_BYTES', 5 * 1024 * 1024),
         'max_lockfile_bytes' => (int) env('AUDIT_SCA_MAX_LOCKFILE_BYTES', 5 * 1024 * 1024),
 
+        // Cadangan waktu job (detik) yang tidak boleh dipakai pemanggilan OSV: untuk penyimpanan, finalisasi, dan cleanup.
+        'job_margin_seconds' => (int) env('AUDIT_SCA_JOB_MARGIN_SECONDS', 30),
+
         // OSV.dev querybatch. base_url wajib https (kecuali environment testing); batch_size maksimum 1000 (batas API).
         // max_total_seconds = anggaran waktu seluruh pemanggilan OSV dalam satu audit (harus jauh di bawah timeout job).
         'osv' => [

@@ -12,6 +12,7 @@ use App\Services\Ingestion\RepositoryFileWalker;
 use App\Services\Sca\OsvClient;
 use App\Services\Sca\PackageJsonParser;
 use App\Services\Sca\PackageLockParser;
+use App\Services\Sca\ScaStageRunner;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 
@@ -53,10 +54,10 @@ class AppServiceProvider extends ServiceProvider
                 return $config;
             });
 
-        // Engine SAST (TAHAP 6) & SCA (TAHAP 7) belum ada: tahap dicatat gagal secara jujur.
-        $this->app->singleton(AuditStageRunners::class, fn () => new AuditStageRunners([
+        // Engine SAST (TAHAP 6) belum ada: tahap dicatat gagal secara jujur. SCA memakai engine asli.
+        $this->app->singleton(AuditStageRunners::class, fn ($app) => new AuditStageRunners([
             new UnavailableStageRunner(AuditStage::Sast),
-            new UnavailableStageRunner(AuditStage::Sca),
+            $app->make(ScaStageRunner::class),
         ]));
     }
 

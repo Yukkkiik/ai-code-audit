@@ -8,6 +8,7 @@ use App\Enums\SourceType;
 use App\Enums\StageStatus;
 use App\Jobs\ProcessAuditJob;
 use App\Models\AuditScan;
+use App\Models\Vulnerability;
 use App\Services\Audit\AuditScanCreator;
 use App\Services\Audit\AuditStatusManager;
 use App\Services\Audit\Stages\AuditStageRunners;
@@ -15,11 +16,13 @@ use App\Services\Audit\Stages\StageResult;
 use App\Services\Ingestion\AuditWorkspace;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryIngestor;
+use App\Services\Sca\ScaStageRunner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\TimeoutExceededException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -85,7 +88,7 @@ class ProcessAuditJobTest extends TestCase
         $this->assertGreaterThan(0, $audit->source_size_bytes);
     }
 
-    public function test_default_runners_honestly_report_engines_as_unavailable(): void
+    public function test_default_runners_report_sast_as_unavailable_and_run_the_real_sca_engine(): void
     {
         $this->app->forgetInstance(AuditStageRunners::class);
         $audit = $this->zipAudit(['index.js' => 'x']);
@@ -94,10 +97,58 @@ class ProcessAuditJobTest extends TestCase
 
         $audit->refresh();
         $this->assertSame(StageStatus::Failed, $audit->sast_status);
-        $this->assertSame(StageStatus::Failed, $audit->sca_status);
         $this->assertStringContainsString('belum tersedia', $audit->sast_error);
-        $this->assertStringContainsString('belum tersedia', $audit->sca_error);
+        $this->assertSame(StageStatus::Skipped, $audit->sca_status);
+        $this->assertStringContainsString('package.json', $audit->sca_error);
         $this->assertSame(AuditStatus::Failed, $audit->status);
+    }
+
+    public function test_sca_runs_end_to_end_through_the_job_while_sast_stays_unavailable(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'api.osv.dev/v1/querybatch' => Http::response(['results' => [['vulns' => [['id' => 'GHSA-aaaa-0000-0001', 'modified' => '2024-02-15T05:32:53Z']]]]]),
+            'api.osv.dev/v1/vulns/*' => Http::response(['id' => 'GHSA-aaaa-0000-0001', 'summary' => 'Contoh advisori', 'database_specific' => ['severity' => 'HIGH']]),
+        ]);
+        $this->app->forgetInstance(AuditStageRunners::class);
+        $audit = $this->zipAudit([
+            'proyek/package.json' => json_encode(['dependencies' => ['example-lib' => '^1.0.0']]),
+            'proyek/package-lock.json' => json_encode(['lockfileVersion' => 3, 'packages' => [
+                '' => ['dependencies' => ['example-lib' => '^1.0.0']],
+                'node_modules/example-lib' => ['version' => '1.0.0', 'resolved' => 'https://registry.npmjs.org/example-lib/-/example-lib-1.0.0.tgz'],
+            ]]),
+            'proyek/index.js' => 'x',
+        ]);
+
+        ProcessAuditJob::dispatchSync($audit->id);
+
+        $audit->refresh();
+        $this->assertSame(StageStatus::Failed, $audit->sast_status);
+        $this->assertSame(StageStatus::Completed, $audit->sca_status);
+        $this->assertSame(AuditStatus::Partial, $audit->status);
+        $this->assertSame(1, $audit->dependencies()->count());
+        $this->assertSame('GHSA-aaaa-0000-0001', Vulnerability::query()->where('audit_scan_id', $audit->id)->sole()->osv_id);
+        $this->assertDirectoryDoesNotExist($this->app->make(AuditWorkspace::class)->path($audit));
+    }
+
+    public function test_a_crashing_sca_runner_does_not_fail_sast_and_vice_versa(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake(['api.osv.dev/*' => fn () => throw new RuntimeException('bug')]);
+        $this->app->forgetInstance(AuditStageRunners::class);
+        $this->app->instance(AuditStageRunners::class, new AuditStageRunners([
+            $this->sast,
+            $this->app->make(ScaStageRunner::class),
+        ]));
+        $audit = $this->zipAudit(['proyek/package.json' => json_encode(['dependencies' => ['example-lib' => '1.0.0']])]);
+
+        ProcessAuditJob::dispatchSync($audit->id);
+
+        $audit->refresh();
+        $this->assertSame(StageStatus::Completed, $audit->sast_status);
+        $this->assertSame(StageStatus::Failed, $audit->sca_status);
+        $this->assertStringNotContainsString('bug', (string) $audit->sca_error);
+        $this->assertSame(AuditStatus::Partial, $audit->status);
     }
 
     public function test_crashing_stage_does_not_fail_the_other_stage(): void

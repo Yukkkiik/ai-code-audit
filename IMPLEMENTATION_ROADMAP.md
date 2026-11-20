@@ -83,8 +83,9 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 7.2 | Parser `package.json` (versi pasti vs rentang vs non-registry) | ✅ |
 | 7.3 | Parser `package-lock.json` v2/v3 (direct/transitive, dev) | ✅ |
 | 7.4 | Penyimpanan dependencies | ✅ |
-| 7.5 | OSV client `querybatch` (timeout, retry, validasi, pagination) | 👀 |
-| 7.6 | Pengambilan detail advisori + penyimpanan vulnerabilities | ⬜ |
+| 7.5 | OSV client `querybatch` (timeout, retry, validasi, pagination) | ✅ |
+| 7.6 | Pengambilan detail advisori + penyimpanan vulnerabilities + runner SCA | 👀 |
+| 7.7 | Endpoint `GET /audits/{id}/dependencies` & `GET /audits/{id}/vulnerabilities` (API_CONTRACT) | ⬜ |
 
 ## TAHAP 8 — Authentication & Access Control
 | ID | Pekerjaan | Keputusan | Status |

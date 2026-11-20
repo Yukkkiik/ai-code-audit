@@ -4,6 +4,8 @@ namespace App\Services\Sca;
 
 use App\Enums\OsvFailureReason;
 use App\Exceptions\OsvRequestException;
+use Carbon\CarbonInterface;
+use Closure;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -15,7 +17,8 @@ use Illuminate\Support\Sleep;
 /**
  * Klien OSV.dev `POST /v1/querybatch` (npm saja). Tahan gagal: timeout, retry terbatas dengan backoff
  * eksponensial (hanya untuk koneksi gagal, 429, dan 5xx), validasi respons ketat, pagination, dan anggaran
- * waktu total. Kegagalan satu batch hanya menggagalkan query di dalam batch itu. Klien tidak menyentuh database;
+ * waktu total. Kegagalan satu batch hanya menggagalkan query di dalam batch itu. Juga mengambil detail advisori
+ * (`GET /v1/vulns/{id}`) dengan aturan yang sama. Klien tidak menyentuh database;
  * pemanggil hanya boleh membuat OsvQuery dari dependensi berversi pasti.
  */
 class OsvClient
@@ -27,6 +30,9 @@ class OsvClient
     private const MAX_MODIFIED_LENGTH = 64;
 
     private const MAX_TOKEN_LENGTH = 4096;
+
+    /** ID advisori masuk ke path URL: hanya karakter aman, tidak boleh diawali tanda baca. */
+    private const ID_PATTERN = '/^[A-Za-z0-9][A-Za-z0-9._:+-]{0,99}$/D';
 
     private string $baseUrl;
 
@@ -61,15 +67,16 @@ class OsvClient
 
     /**
      * @param  list<OsvQuery>  $queries
+     * @param  CarbonInterface|null  $deadline  batas akhir seluruh pemanggilan; default: sekarang + anggaran waktu
      * @return list<OsvQueryResult> sejajar dengan urutan $queries
      */
-    public function query(array $queries): array
+    public function query(array $queries, ?CarbonInterface $deadline = null): array
     {
         if ($queries === []) {
             return [];
         }
 
-        $deadlineMs = $this->nowMs() + $this->maxTotalMs;
+        $deadlineMs = $deadline?->getTimestampMs() ?? $this->nowMs() + $this->maxTotalMs;
 
         // Pasangan (nama, versi) yang sama hanya ditanyakan sekali.
         $unique = [];
@@ -158,6 +165,56 @@ class OsvClient
     }
 
     /**
+     * Batas akhir default seluruh pemanggilan OSV untuk satu pekerjaan (sekarang + anggaran waktu).
+     */
+    public function budgetDeadline(): Carbon
+    {
+        return Carbon::now()->addMilliseconds($this->maxTotalMs);
+    }
+
+    /**
+     * Mengambil detail advisori (`GET /v1/vulns/{id}`) satu per satu. ID yang bukan pola aman tidak pernah
+     * diminta. Kegagalan satu ID tidak menggagalkan yang lain; setelah anggaran waktu habis, sisa ID gagal
+     * tanpa request.
+     *
+     * @param  list<string>  $ids
+     * @return array<string, OsvDetailResult> berkunci ID
+     */
+    public function fetchVulnerabilities(array $ids, ?CarbonInterface $deadline = null): array
+    {
+        $deadlineMs = $deadline?->getTimestampMs() ?? $this->nowMs() + $this->maxTotalMs;
+        $results = [];
+
+        foreach (array_values(array_unique(array_map('strval', $ids))) as $position => $id) {
+            if (preg_match(self::ID_PATTERN, $id) !== 1) {
+                $results[$id] = OsvDetailResult::failed(OsvFailureReason::InvalidResponse);
+
+                continue;
+            }
+
+            if ($this->remainingMs($deadlineMs) <= 0) {
+                $results[$id] = OsvDetailResult::failed(OsvFailureReason::TimeBudgetExhausted);
+
+                continue;
+            }
+
+            try {
+                $results[$id] = OsvDetailResult::ok($this->execute(
+                    fn (PendingRequest $http) => $http->get('/v1/vulns/'.rawurlencode($id)),
+                    fn (Response $response) => $this->parseDetail($response, $id),
+                    $deadlineMs,
+                    1,
+                    $position,
+                ));
+            } catch (OsvRequestException $e) {
+                $results[$id] = OsvDetailResult::failed($e->reason);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * @param  array<int, OsvFailureReason>  $failures
      * @param  list<int>  $indexes
      */
@@ -190,6 +247,26 @@ class OsvClient
      */
     private function sendBatch(array $queries, int $count, int $deadlineMs, int $round, int $batch): array
     {
+        return $this->execute(
+            fn (PendingRequest $http) => $http->post('/v1/querybatch', ['queries' => $queries]),
+            fn (Response $response) => $this->parse($response, $count),
+            $deadlineMs,
+            $round,
+            $batch,
+        );
+    }
+
+    /**
+     * Satu permintaan dengan retry terbatas dan anggaran waktu: dicek sebelum setiap percobaan, timeout request
+     * dibatasi sisa anggaran, dan backoff yang melewati sisa anggaran menggagalkan tanpa tidur.
+     *
+     * @param  Closure(PendingRequest): Response  $send
+     * @param  Closure(Response): mixed  $parse
+     *
+     * @throws OsvRequestException
+     */
+    private function execute(Closure $send, Closure $parse, int $deadlineMs, int $round, int $batch): mixed
+    {
         for ($attempt = 1; ; $attempt++) {
             $remainingMs = $this->remainingMs($deadlineMs);
 
@@ -200,10 +277,10 @@ class OsvClient
             $status = null;
 
             try {
-                $response = $this->request($remainingMs)->post('/v1/querybatch', ['queries' => $queries]);
+                $response = $send($this->request($remainingMs));
                 $status = $response->status();
 
-                return $this->parse($response, $count);
+                return $parse($response);
             } catch (ConnectionException) {
                 $reason = OsvFailureReason::Timeout;
                 $retryable = true;
@@ -247,6 +324,39 @@ class OsvClient
      */
     private function parse(Response $response, int $count): array
     {
+        $status = $this->assertSuccessful($response);
+
+        $results = $response->json('results');
+
+        if (! is_array($results) || ! array_is_list($results) || count($results) !== $count) {
+            throw $this->invalid($status);
+        }
+
+        return array_map(fn (mixed $entry) => $this->entry($entry, $status), $results);
+    }
+
+    /**
+     * @throws OsvRequestException
+     */
+    private function parseDetail(Response $response, string $id): OsvVulnerabilityDetail
+    {
+        $status = $this->assertSuccessful($response);
+        $json = $response->json();
+
+        if (! is_array($json) || ($json !== [] && array_is_list($json))) {
+            throw $this->invalid($status);
+        }
+
+        return OsvVulnerabilityParser::parse($json, $id);
+    }
+
+    /**
+     * @return int status HTTP 2xx
+     *
+     * @throws OsvRequestException
+     */
+    private function assertSuccessful(Response $response): int
+    {
         $status = $response->status();
 
         if ($status === 429) {
@@ -261,13 +371,7 @@ class OsvClient
             throw new OsvRequestException(OsvFailureReason::ClientError, false, $status);
         }
 
-        $results = $response->json('results');
-
-        if (! is_array($results) || ! array_is_list($results) || count($results) !== $count) {
-            throw $this->invalid($status);
-        }
-
-        return array_map(fn (mixed $entry) => $this->entry($entry, $status), $results);
+        return $status;
     }
 
     /**

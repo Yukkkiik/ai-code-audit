@@ -83,6 +83,9 @@ Catatan: jika keduanya `skipped` (tidak ada file yang didukung sama sekali), aud
 | Kondisi | Penanganan |
 |---|---|
 | Tidak ada `package.json` | `sca_status=skipped`. |
+| Ada dependensi tetapi tidak satu pun berversi pasti (atau waktu job tidak cukup) | `sca_status=partial` dengan pesan jelas; dependensi tersimpan, `osv_status=not_queried`. |
+| Sebagian dependensi diperiksa, sisanya tidak berversi pasti | `completed`; jumlah yang tidak diperiksa ada di pesan. |
+| Detail advisori gagal diambil | Baris `vulnerabilities` minimal (severity NULL), `sca_status=partial`. |
 | Hanya ada `yarn.lock` / `pnpm-lock.yaml` | Lockfile tersebut tidak dibaca; diperlakukan sebagai "tanpa lockfile" (hanya dependensi langsung berversi pasti). |
 | `package.json` tanpa lockfile | Hanya dependensi langsung dengan versi pasti; rentang → `unresolved` (`range_without_lockfile`). |
 | Lockfile v1 / versi tidak dikenal | Parser mengembalikan `unsupported`; fallback ke aturan tanpa lockfile, dependensi langsung berupa rentang diberi alasan `unsupported_lockfile` (diterapkan di 7.4). |

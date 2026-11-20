@@ -15,9 +15,12 @@ final readonly class StageResult
         public ?string $message,
     ) {}
 
-    public static function completed(): self
+    /**
+     * `message` opsional: ringkasan hasil yang aman untuk pengguna (mis. jumlah komponen yang tidak diperiksa).
+     */
+    public static function completed(?string $message = null): self
     {
-        return new self(StageStatus::Completed, null);
+        return new self(StageStatus::Completed, $message);
     }
 
     public static function partial(string $message): self

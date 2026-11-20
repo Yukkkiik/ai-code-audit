@@ -188,7 +188,7 @@ Satu baris = satu advisori OSV yang cocok dengan satu dependency pada satu audit
 | aliases | JSON | ✓ | Daftar CVE/GHSA. |
 | summary | VARCHAR(1000) | ✓ | |
 | details | MEDIUMTEXT | ✓ | |
-| severity_label | VARCHAR(10) | ✓ | Enum `VulnerabilitySeverity`: `critical`/`high`/`medium`/`low`/`unknown` — hanya jika dapat diturunkan dari data OSV, tidak dikarang. |
+| severity_label | VARCHAR(10) | ✓ | Enum `VulnerabilitySeverity`: `critical`/`high`/`medium`/`low`/`unknown` — hanya jika dapat diturunkan dari data OSV (`database_specific.severity`), tidak dikarang. **NULL = detail advisori tidak berhasil diambil; `unknown` = detail ada tetapi severity tidak dapat diturunkan (jangan diperlakukan sebagai rendah).** |
 | severity_vectors | JSON | ✓ | Daftar `{type, score}` mentah dari OSV (mis. CVSS_V3). |
 | affected_ranges | JSON | ✓ | Rentang terdampak dari OSV. |
 | fixed_versions | JSON | ✓ | Versi perbaikan dari OSV saja. Kosong jika OSV tidak menyediakan. |
