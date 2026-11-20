@@ -72,6 +72,7 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 - Skor kesehatan berada di 0–100 dan tidak berubah oleh data SCA.
 
 ### SCA
+- Pencarian manifest (`ManifestFinder`): `package.json` + lockfile sejajar, monorepo, `node_modules`/`vendor`/`.git` dan symlink diabaikan, lockfile tanpa `package.json` diabaikan, `yarn.lock`/`pnpm-lock.yaml` tidak dicari.
 - package.json saja: versi pasti (`1.2.3`) tercatat `exact`; `^1.2.3`, `~1.2.3`, `*`, `latest` → `unresolved`.
 - lockfile v2 dan v3: direct vs transitive benar, `dev: true` → `development`, nested `node_modules/a/node_modules/b` tercatat terpisah.
 - Sumber `git+`, `file:`, `link:` → `non_registry_source`.
