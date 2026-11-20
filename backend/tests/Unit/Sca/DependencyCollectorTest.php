@@ -167,8 +167,28 @@ class DependencyCollectorTest extends TestCase
 
         $this->assertCount(1, $result->failures);
         $this->assertSame('package-lock.json', $result->failures[0]->path);
-        $this->assertSame(UnresolvedReason::RangeWithoutLockfile, $this->find($result->dependencies, 'a')->unresolvedReason);
+        $this->assertSame(UnresolvedReason::LockfileUnreadable, $this->find($result->dependencies, 'a')->unresolvedReason);
         $this->assertSame(ManifestType::PackageJson, $this->find($result->dependencies, 'a')->sourceFileType);
+    }
+
+    public function test_unreadable_lockfile_changes_only_the_reason_of_ranges(): void
+    {
+        $this->write('package.json', ['dependencies' => ['a' => '^1.0.0', 'b' => '2.0.0', 'c' => 'github:x/y', 'd' => 'latest']]);
+        $this->write('package-lock.json', '[');
+
+        $deps = $this->collect()->dependencies;
+
+        $this->assertSame(UnresolvedReason::LockfileUnreadable, $this->find($deps, 'a')->unresolvedReason);
+        $this->assertSame(UnresolvedReason::LockfileUnreadable, $this->find($deps, 'd')->unresolvedReason);
+        $this->assertSame(VersionStatus::Exact, $this->find($deps, 'b')->versionStatus);
+        $this->assertSame(UnresolvedReason::NonRegistrySource, $this->find($deps, 'c')->unresolvedReason);
+    }
+
+    public function test_project_without_lockfile_still_uses_range_without_lockfile(): void
+    {
+        $this->write('package.json', ['dependencies' => ['a' => '^1.0.0']]);
+
+        $this->assertSame(UnresolvedReason::RangeWithoutLockfile, $this->collect()->dependencies[0]->unresolvedReason);
     }
 
     public function test_oversized_lockfile_falls_back_and_records_failure(): void
@@ -180,6 +200,7 @@ class DependencyCollectorTest extends TestCase
 
         $this->assertCount(1, $result->failures);
         $this->assertSame(ManifestType::PackageJson, $this->find($result->dependencies, 'a')->sourceFileType);
+        $this->assertSame(UnresolvedReason::LockfileUnreadable, $this->find($result->dependencies, 'a')->unresolvedReason);
     }
 
     public function test_broken_package_json_with_good_lockfile_uses_lockfile_and_records_failure(): void

@@ -11,4 +11,5 @@ enum UnresolvedReason: string
     case NonRegistrySource = 'non_registry_source';
     case MissingVersion = 'missing_version';
     case UnsupportedLockfile = 'unsupported_lockfile';
+    case LockfileUnreadable = 'lockfile_unreadable';
 }

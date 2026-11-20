@@ -168,7 +168,7 @@ Index: `INDEX(audit_scan_id, scope)`.
 | source_file_type | VARCHAR(20) | – | `package_json` \| `package_lock_v2` \| `package_lock_v3` |
 | lock_path | VARCHAR(1024) | ✓ | Key di `packages` lockfile, mis. `node_modules/a/node_modules/b`. |
 | version_status | VARCHAR(20) | – | `exact` \| `unresolved` |
-| unresolved_reason | VARCHAR(30) | ✓ | `range_without_lockfile` \| `non_registry_source` \| `missing_version` \| `unsupported_lockfile` |
+| unresolved_reason | VARCHAR(30) | ✓ | `range_without_lockfile` \| `non_registry_source` \| `missing_version` \| `unsupported_lockfile` \| `lockfile_unreadable` |
 | osv_status | VARCHAR(15) | – | `not_queried` \| `queried` \| `failed`. Default `not_queried`. |
 | created_at, updated_at | TIMESTAMP | ✓ | |
 
@@ -287,7 +287,7 @@ Setiap enum diimplementasikan sebagai PHP string-backed enum di `backend/app/Enu
 | `DependencyRelation` | `dependencies.relation` | `direct`, `transitive` |
 | `ManifestType` | `dependencies.source_file_type` | `package_json`, `package_lock_v2`, `package_lock_v3` |
 | `VersionStatus` | `dependencies.version_status` | `exact`, `unresolved` |
-| `UnresolvedReason` | `dependencies.unresolved_reason` | `range_without_lockfile`, `non_registry_source`, `missing_version`, `unsupported_lockfile` |
+| `UnresolvedReason` | `dependencies.unresolved_reason` | `range_without_lockfile`, `non_registry_source`, `missing_version`, `unsupported_lockfile`, `lockfile_unreadable` |
 | `OsvQueryStatus` | `dependencies.osv_status` | `not_queried`, `queried`, `failed` |
 | `VulnerabilitySeverity` | `vulnerabilities.severity_label` | `critical`, `high`, `medium`, `low`, `unknown` |
 | `AiSource` | `ai_refactorings.source` | `llm`, `static_template` |

@@ -82,6 +82,24 @@ class DependencyStoreTest extends TestCase
         $this->assertSame(OsvQueryStatus::NotQueried, $row->osv_status);
     }
 
+    public function test_every_unresolved_reason_fits_the_column_without_migration(): void
+    {
+        $audit = AuditScan::factory()->create();
+
+        $this->store($audit, array_map(fn (UnresolvedReason $reason) => $this->dep($reason->value, [
+            'versionStatus' => VersionStatus::Unresolved, 'version' => null, 'unresolvedReason' => $reason,
+        ]), UnresolvedReason::cases()));
+
+        $this->assertEqualsCanonicalizing(
+            array_map(fn (UnresolvedReason $r) => $r->value, UnresolvedReason::cases()),
+            Dependency::query()->pluck('unresolved_reason')->map(fn ($r) => $r->value)->all(),
+        );
+        $this->assertSame(
+            UnresolvedReason::LockfileUnreadable,
+            Dependency::query()->where('name', 'lockfile_unreadable')->sole()->unresolved_reason,
+        );
+    }
+
     public function test_null_spec_and_lock_path_are_stored_as_null(): void
     {
         $audit = AuditScan::factory()->create();

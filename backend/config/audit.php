@@ -75,6 +75,19 @@ return [
     'sca' => [
         'max_manifest_bytes' => (int) env('AUDIT_SCA_MAX_MANIFEST_BYTES', 5 * 1024 * 1024),
         'max_lockfile_bytes' => (int) env('AUDIT_SCA_MAX_LOCKFILE_BYTES', 5 * 1024 * 1024),
+
+        // OSV.dev querybatch. base_url wajib https (kecuali environment testing); batch_size maksimum 1000 (batas API).
+        // max_total_seconds = anggaran waktu seluruh pemanggilan OSV dalam satu audit (harus jauh di bawah timeout job).
+        'osv' => [
+            'base_url' => env('AUDIT_OSV_BASE_URL', 'https://api.osv.dev'),
+            'timeout_seconds' => (int) env('AUDIT_OSV_TIMEOUT', 15),
+            'connect_timeout_seconds' => (int) env('AUDIT_OSV_CONNECT_TIMEOUT', 5),
+            'max_attempts' => (int) env('AUDIT_OSV_MAX_ATTEMPTS', 3),
+            'backoff_ms' => (int) env('AUDIT_OSV_BACKOFF_MS', 500),
+            'batch_size' => (int) env('AUDIT_OSV_BATCH_SIZE', 1000),
+            'max_pages' => (int) env('AUDIT_OSV_MAX_PAGES', 20),
+            'max_total_seconds' => (int) env('AUDIT_OSV_MAX_TOTAL_SECONDS', 180),
+        ],
     ],
 
     /*

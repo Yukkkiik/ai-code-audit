@@ -86,11 +86,18 @@ class DependencyCollector
                 continue;
             }
 
-            // Lockfile v1/tidak dikenal: rentang diberi alasan yang menyebut lockfile tidak didukung.
-            if ($lock !== null) {
+            // Ada lockfile tetapi tidak terpakai: rentang diberi alasan yang menyebut sebabnya
+            // (v1/tidak dikenal = tidak didukung; gagal parse atau melebihi batas = tidak terbaca).
+            $reason = match (true) {
+                $lock !== null => UnresolvedReason::UnsupportedLockfile,
+                $state['lockExists'] => UnresolvedReason::LockfileUnreadable,
+                default => null,
+            };
+
+            if ($reason !== null) {
                 $declared = array_map(
                     fn (ParsedDependency $dep) => $dep->unresolvedReason === UnresolvedReason::RangeWithoutLockfile
-                        ? $dep->asUnresolved(UnresolvedReason::UnsupportedLockfile)
+                        ? $dep->asUnresolved($reason)
                         : $dep,
                     $declared,
                 );

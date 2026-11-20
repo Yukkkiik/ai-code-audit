@@ -9,9 +9,11 @@ use App\Services\Ingestion\DnsHostResolver;
 use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryFileWalker;
+use App\Services\Sca\OsvClient;
 use App\Services\Sca\PackageJsonParser;
 use App\Services\Sca\PackageLockParser;
 use Illuminate\Support\ServiceProvider;
+use InvalidArgumentException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +39,19 @@ class AppServiceProvider extends ServiceProvider
         $this->app->when(PackageLockParser::class)
             ->needs('$maxBytes')
             ->giveConfig('audit.sca.max_lockfile_bytes');
+
+        $this->app->when(OsvClient::class)
+            ->needs('$config')
+            ->give(function () {
+                $config = config('audit.sca.osv');
+
+                // Hanya https; http diizinkan di environment testing agar dapat diarahkan ke server tiruan.
+                if (! str_starts_with((string) $config['base_url'], 'https://') && ! $this->app->environment('testing')) {
+                    throw new InvalidArgumentException('URL dasar OSV harus memakai https.');
+                }
+
+                return $config;
+            });
 
         // Engine SAST (TAHAP 6) & SCA (TAHAP 7) belum ada: tahap dicatat gagal secara jujur.
         $this->app->singleton(AuditStageRunners::class, fn () => new AuditStageRunners([
