@@ -10,6 +10,7 @@ use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryFileWalker;
 use App\Services\Sca\PackageJsonParser;
+use App\Services\Sca\PackageLockParser;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->when(PackageJsonParser::class)
             ->needs('$maxBytes')
             ->giveConfig('audit.sca.max_manifest_bytes');
+
+        $this->app->when(PackageLockParser::class)
+            ->needs('$maxBytes')
+            ->giveConfig('audit.sca.max_lockfile_bytes');
 
         // Engine SAST (TAHAP 6) & SCA (TAHAP 7) belum ada: tahap dicatat gagal secara jujur.
         $this->app->singleton(AuditStageRunners::class, fn () => new AuditStageRunners([

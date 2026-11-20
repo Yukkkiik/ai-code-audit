@@ -83,7 +83,7 @@ Struktur internal di atas adalah usulan; file baru hanya dibuat ketika fiturnya 
 | Audit Management (sesi audit, status, riwayat) | `Services/Audit` (`AuditScanCreator`, `AuditStatusManager`), `Policies/AuditScanPolicy`, `AuditController`, `Http/Resources/AuditResource` | Bersama |
 | Repository Ingestion | `Services/Ingestion` (`AuditWorkspace`, `SafeZipExtractor`, `GitUrlValidator`, `GitRepositoryCloner`, `RepositoryFileWalker`, `RepositoryIngestor`), `StoreAuditRequest` | Yuki |
 | SAST Engine + metrik + skor | `Services/Sast` | Raihan |
-| SCA Engine | `Services/Sca` (`ManifestFinder`, `ManifestProject`, `PackageJsonParser`, `ParsedDependency`) | Yuki |
+| SCA Engine | `Services/Sca` (`ManifestFinder`, `ManifestProject`, `PackageJsonParser`, `PackageLockParser`, `ParsedDependency`, `ParsedLockfile`, `ManifestJsonReader`, `ExactVersion`) | Yuki |
 | Auth (Google OAuth, sesi) | `AuthController`, `Services/Auth` | Raihan |
 | Guest Mode, rate limit, kuota | `Services/Access`, middleware | Annisa |
 | AI Remediation | `Services/Ai` | Annisa |

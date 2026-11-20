@@ -6,7 +6,6 @@ use App\Enums\DependencyScope;
 use App\Enums\UnresolvedReason;
 use App\Enums\VersionStatus;
 use App\Exceptions\ManifestParseException;
-use JsonException;
 use stdClass;
 
 /**
@@ -32,10 +31,6 @@ class PackageJsonParser
 
     private const MAX_SPEC_LENGTH = 1024;
 
-    private const MAX_JSON_DEPTH = 64;
-
-    private const SEMVER = '(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?';
-
     public function __construct(private int $maxBytes) {}
 
     /**
@@ -46,7 +41,7 @@ class PackageJsonParser
      */
     public function parse(string $root, string $relativePath): array
     {
-        $manifest = $this->decode(rtrim($root, '/').'/'.$relativePath);
+        $manifest = $this->decode($root, $relativePath);
 
         $result = [];
 
@@ -67,33 +62,9 @@ class PackageJsonParser
         return $result;
     }
 
-    private function decode(string $path): stdClass
+    private function decode(string $root, string $relativePath): stdClass
     {
-        if (is_link($path) || ! is_file($path)) {
-            throw ManifestParseException::unreadable();
-        }
-
-        $size = filesize($path);
-
-        if ($size === false) {
-            throw ManifestParseException::unreadable();
-        }
-
-        if ($size > $this->maxBytes) {
-            throw ManifestParseException::tooLarge();
-        }
-
-        $contents = file_get_contents($path);
-
-        if ($contents === false) {
-            throw ManifestParseException::unreadable();
-        }
-
-        try {
-            $manifest = json_decode($contents, false, self::MAX_JSON_DEPTH, JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
-            throw ManifestParseException::invalid();
-        }
+        $manifest = ManifestJsonReader::read($root, $relativePath, $this->maxBytes, false);
 
         if (! $manifest instanceof stdClass) {
             throw ManifestParseException::invalid();
@@ -164,7 +135,7 @@ class PackageJsonParser
 
     private function exactVersion(string $spec): ?string
     {
-        return preg_match('/^=?v?('.self::SEMVER.')$/', trim($spec), $m) === 1 ? $m[1] : null;
+        return ExactVersion::parse($spec);
     }
 
     private function exact(string $name, string $declared, string $version, DependencyScope $scope, string $manifestPath): ParsedDependency

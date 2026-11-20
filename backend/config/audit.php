@@ -67,12 +67,14 @@ return [
     | SCA
     |--------------------------------------------------------------------------
     |
-    | Batas ukuran satu berkas manifest (package.json) yang dibaca parser.
+    | Batas ukuran satu berkas yang dibaca parser. Lockfile didekode seluruhnya ke memori
+    | (pemakaian memori beberapa kali lipat ukuran berkas): sesuaikan dengan memory_limit worker.
     |
     */
 
     'sca' => [
         'max_manifest_bytes' => (int) env('AUDIT_SCA_MAX_MANIFEST_BYTES', 5 * 1024 * 1024),
+        'max_lockfile_bytes' => (int) env('AUDIT_SCA_MAX_LOCKFILE_BYTES', 5 * 1024 * 1024),
     ],
 
     /*

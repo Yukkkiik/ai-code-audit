@@ -85,7 +85,8 @@ Catatan: jika keduanya `skipped` (tidak ada file yang didukung sama sekali), aud
 | Tidak ada `package.json` | `sca_status=skipped`. |
 | Hanya ada `yarn.lock` / `pnpm-lock.yaml` | Lockfile tersebut tidak dibaca; diperlakukan sebagai "tanpa lockfile" (hanya dependensi langsung berversi pasti). |
 | `package.json` tanpa lockfile | Hanya dependensi langsung dengan versi pasti; rentang → `unresolved` (`range_without_lockfile`). |
-| Lockfile v1 | Dependensi dari lockfile ditandai `unsupported_lockfile`; fallback ke aturan tanpa lockfile. |
+| Lockfile v1 / versi tidak dikenal | Parser mengembalikan `unsupported`; fallback ke aturan tanpa lockfile, dependensi langsung berupa rentang diberi alasan `unsupported_lockfile` (diterapkan di 7.4). |
+| Lockfile JSON rusak / terlalu besar | Fallback ke aturan tanpa lockfile dan `sca_status=partial` dengan alasan yang tampak di laporan (diterapkan di 7.4). |
 | Sumber git/file/link/tarball | `unresolved` (`non_registry_source`), tidak dikirim ke OSV. |
 | JSON rusak | Manifest itu dicatat gagal; manifest lain tetap diproses → `partial`. |
 | OSV timeout / 5xx | Retry terbatas (backoff); tetap gagal → dependency `osv_status=failed`, `sca_status=partial` atau `failed`. |

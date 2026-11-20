@@ -15,52 +15,52 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 ## TAHAP 1 — Backend Foundation
 | ID | Pekerjaan | Keputusan terkait | Status |
 |---|---|---|---|
-| 1.1 | Inisialisasi Laravel langsung di `backend/` | A-10, A-11 | 👀 |
-| 1.2 | Konfigurasi environment (`.env.example`, `APP_TIMEZONE`, `FRONTEND_URL`) | A-13 | 👀 |
-| 1.3 | Koneksi MySQL (database dev & testing) | A-16 | 👀 |
-| 1.4 | Health check API `GET /api/v1/health` + format error seragam | D-30 | 👀 |
-| 1.5 | Koneksi Redis (cache, session) + check `redis` di health endpoint | A-19 | 👀 |
-| 1.6 | Konfigurasi Laravel Queue (Redis) | A-20 | 👀 |
+| 1.1 | Inisialisasi Laravel langsung di `backend/` | A-10, A-11 | ✅ |
+| 1.2 | Konfigurasi environment (`.env.example`, `APP_TIMEZONE`, `FRONTEND_URL`) | A-13 | ✅ |
+| 1.3 | Koneksi MySQL (database dev & testing) | A-16 | ✅ |
+| 1.4 | Health check API `GET /api/v1/health` + format error seragam | D-30 | ✅ |
+| 1.5 | Koneksi Redis (cache, session) + check `redis` di health endpoint | A-19 | ✅ |
+| 1.6 | Konfigurasi Laravel Queue (Redis) | A-20 | ✅ |
 
 ## TAHAP 2 — Database Foundation
 | ID | Pekerjaan | Status |
 |---|---|---|
 | 2.1 | Finalisasi skema `DATABASE.md` (persetujuan wajib) | ✅ |
-| 2.2 | Migration `users` (modifikasi default Laravel; migration skeleton `cache` & `jobs` dihapus) | 👀 |
-| 2.3 | Migration `audit_scans` (+ CHECK pemilik) | 👀 |
-| 2.4 | Migration `scan_tool_runs`, `scan_findings`, `code_metrics` | 👀 |
-| 2.5 | Migration `dependencies`, `vulnerabilities` | 👀 |
-| 2.6 | Migration `ai_refactorings` (+ CHECK satu target), `ai_usage_logs` | 👀 |
-| 2.6b | Migration `failed_jobs` (dibuat dengan `php artisan make:queue-failed-table`, driver `database-uuids`) — lihat A-20 | 👀 |
-| 2.7 | 19 PHP Enum, 8 model + relasi + cast, factory | 👀 |
-| 2.8 | Pengujian migration, constraint, cascade & relasi | 👀 |
+| 2.2 | Migration `users` (modifikasi default Laravel; migration skeleton `cache` & `jobs` dihapus) | ✅ |
+| 2.3 | Migration `audit_scans` (+ CHECK pemilik) | ✅ |
+| 2.4 | Migration `scan_tool_runs`, `scan_findings`, `code_metrics` | ✅ |
+| 2.5 | Migration `dependencies`, `vulnerabilities` | ✅ |
+| 2.6 | Migration `ai_refactorings` (+ CHECK satu target), `ai_usage_logs` | ✅ |
+| 2.6b | Migration `failed_jobs` (dibuat dengan `php artisan make:queue-failed-table`, driver `database-uuids`) — lihat A-20 | ✅ |
+| 2.7 | 19 PHP Enum, 8 model + relasi + cast, factory | ✅ |
+| 2.8 | Pengujian migration, constraint, cascade & relasi | ✅ |
 
 ## TAHAP 3 — Audit Management
 | ID | Pekerjaan | Status |
 |---|---|---|
-| 3.1 | Membuat sesi audit — service `AuditScanCreator` (record + guest token); endpoint `POST /audits` dibangun di 4.1/4.4 | 👀 |
-| 3.2 | `GET /api/v1/audits/{id}` + `AuditScanPolicy` (pemilik / `X-Guest-Token`) | 👀 |
-| 3.3 | `AuditStatusManager` (state machine + row lock) | 👀 |
-| 3.4 | `GET /api/v1/audits` (riwayat user, paginated, tanpa N+1) | 👀 |
+| 3.1 | Membuat sesi audit — service `AuditScanCreator` (record + guest token); endpoint `POST /audits` dibangun di 4.1/4.4 | ✅ |
+| 3.2 | `GET /api/v1/audits/{id}` + `AuditScanPolicy` (pemilik / `X-Guest-Token`) | ✅ |
+| 3.3 | `AuditStatusManager` (state machine + row lock) | ✅ |
+| 3.4 | `GET /api/v1/audits` (riwayat user, paginated, tanpa N+1) | ✅ |
 
 ## TAHAP 4 — Repository Ingestion (Yuki)
 | ID | Pekerjaan | Keputusan | Status |
 |---|---|---|---|
-| 4.1 | `POST /api/v1/audits` (ZIP & Git) + `StoreAuditRequest` (ekstensi, magic bytes, 413) + `config/audit.php` | A-23 | 👀 |
-| 4.2 | Validasi isi ZIP sebelum ekstraksi (path, symlink, enkripsi, jumlah entri, ukuran, rasio kompresi) | A-23 | 👀 |
-| 4.3 | `SafeZipExtractor` (hitung byte saat menulis, `node_modules`/`vendor`/`.git` dilewati) | D-25 | 👀 |
-| 4.4 | `GitUrlValidator` (https, allowlist, anti-SSRF DNS) | A-23 | 👀 |
-| 4.5 | `GitRepositoryCloner` (depth 1, hooks/symlink/submodule/redirect off, timeout, env terisolasi) | A-23 | 👀 |
-| 4.6 | `AuditWorkspace` (0700 per audit, cleanup aman symlink) + route `storage/{path}` dinonaktifkan | – | 👀 |
-| 4.7 | `RepositoryFileWalker` (tanpa ikut symlink, abaikan `node_modules`/`vendor`/`.git`) + `RepositoryIngestor` | – | 👀 |
+| 4.1 | `POST /api/v1/audits` (ZIP & Git) + `StoreAuditRequest` (ekstensi, magic bytes, 413) + `config/audit.php` | A-23 | ✅ |
+| 4.2 | Validasi isi ZIP sebelum ekstraksi (path, symlink, enkripsi, jumlah entri, ukuran, rasio kompresi) | A-23 | ✅ |
+| 4.3 | `SafeZipExtractor` (hitung byte saat menulis, `node_modules`/`vendor`/`.git` dilewati) | D-25 | ✅ |
+| 4.4 | `GitUrlValidator` (https, allowlist, anti-SSRF DNS) | A-23 | ✅ |
+| 4.5 | `GitRepositoryCloner` (depth 1, hooks/symlink/submodule/redirect off, timeout, env terisolasi) | A-23 | ✅ |
+| 4.6 | `AuditWorkspace` (0700 per audit, cleanup aman symlink) + route `storage/{path}` dinonaktifkan | – | ✅ |
+| 4.7 | `RepositoryFileWalker` (tanpa ikut symlink, abaikan `node_modules`/`vendor`/`.git`) + `RepositoryIngestor` | – | ✅ |
 
 ## TAHAP 5 — Background Processing
 | ID | Pekerjaan | Status |
 |---|---|---|
-| 5.1 | `ProcessAuditJob` orkestrator + `StageRunner` / `AuditStageRunners` (sementara `UnavailableStageRunner`) | A-24 | 👀 |
-| 5.2 | Dispatch dari `POST /audits` + pembaruan status per tahap + metadata (`commit_sha`, ukuran) | A-24 | 👀 |
-| 5.3 | Timeout & retry policy (`tries=1`, timeout 600 s, `retry_after` 660 s) | A-24 | 👀 |
-| 5.4 | `failed()` (`JOB_TIMEOUT` / `PROCESSING_FAILED`) + cleanup + `failed_jobs` + `QUEUE_UNAVAILABLE` | A-24 | 👀 |
+| 5.1 | `ProcessAuditJob` orkestrator + `StageRunner` / `AuditStageRunners` (sementara `UnavailableStageRunner`) | A-24 | ✅ |
+| 5.2 | Dispatch dari `POST /audits` + pembaruan status per tahap + metadata (`commit_sha`, ukuran) | A-24 | ✅ |
+| 5.3 | Timeout & retry policy (`tries=1`, timeout 600 s, `retry_after` 660 s) | A-24 | ✅ |
+| 5.4 | `failed()` (`JOB_TIMEOUT` / `PROCESSING_FAILED`) + cleanup + `failed_jobs` + `QUEUE_UNAVAILABLE` | A-24 | ✅ |
 
 ## TAHAP 6 — SAST Engine JavaScript/TypeScript (Raihan)
 
@@ -80,8 +80,8 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | ID | Pekerjaan | Status |
 |---|---|---|
 | 7.1 | Pencarian manifest & lockfile | ✅ |
-| 7.2 | Parser `package.json` (versi pasti vs rentang vs non-registry) | 👀 |
-| 7.3 | Parser `package-lock.json` v2/v3 (direct/transitive, dev) | ⬜ |
+| 7.2 | Parser `package.json` (versi pasti vs rentang vs non-registry) | ✅ |
+| 7.3 | Parser `package-lock.json` v2/v3 (direct/transitive, dev) | ✅ |
 | 7.4 | Penyimpanan dependencies | ⬜ |
 | 7.5 | OSV client `querybatch` (timeout, retry, validasi, pagination) | ⬜ |
 | 7.6 | Pengambilan detail advisori + penyimpanan vulnerabilities | ⬜ |
