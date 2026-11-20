@@ -27,4 +27,20 @@ final readonly class ParsedDependency
         public DependencyRelation $relation = DependencyRelation::Direct,
         public ?string $lockPath = null,
     ) {}
+
+    public function withDeclaredSpec(?string $declaredSpec): self
+    {
+        return new self(
+            $this->name, $declaredSpec, $this->scope, $this->versionStatus, $this->version, $this->unresolvedReason,
+            $this->manifestPath, $this->sourceFileType, $this->relation, $this->lockPath,
+        );
+    }
+
+    public function asUnresolved(UnresolvedReason $reason): self
+    {
+        return new self(
+            $this->name, $this->declaredSpec, $this->scope, VersionStatus::Unresolved, null, $reason,
+            $this->manifestPath, $this->sourceFileType, $this->relation, $this->lockPath,
+        );
+    }
 }

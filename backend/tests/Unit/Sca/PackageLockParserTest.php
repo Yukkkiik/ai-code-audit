@@ -265,6 +265,20 @@ class PackageLockParserTest extends TestCase
         $this->assertNotContains('packages/web', array_map(fn ($d) => $d->lockPath, $result));
     }
 
+    public function test_workspace_paths_are_exposed_without_becoming_dependencies(): void
+    {
+        $result = $this->parseRaw(json_encode(['lockfileVersion' => 3, 'packages' => [
+            '' => [],
+            'packages/web' => ['name' => 'web'],
+            'packages/my_node_modules/x' => ['name' => 'x'],
+            'node_modules/web' => ['resolved' => 'packages/web', 'link' => true],
+            'packages/web/node_modules/zod' => $this->reg('zod', '3.0.0'),
+        ]]));
+
+        $this->assertSame(['packages/web', 'packages/my_node_modules/x'], $result->workspacePaths);
+        $this->assertCount(2, $result->dependencies);
+    }
+
     public function test_key_with_node_modules_only_as_substring_is_skipped_as_project_code(): void
     {
         $deps = $this->deps([

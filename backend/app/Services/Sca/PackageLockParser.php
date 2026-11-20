@@ -55,11 +55,16 @@ class PackageLockParser
 
         $direct = $this->declaredDirectDependencies($packages);
         $result = [];
+        $workspaces = [];
 
         foreach ($packages as $key => $entry) {
             $key = (string) $key;
 
             if (! $this->isDependencyKey($key)) {
+                if ($key !== '') {
+                    $workspaces[] = $key;
+                }
+
                 continue;
             }
 
@@ -70,7 +75,7 @@ class PackageLockParser
             $result[] = $this->dependency($key, $entry, $direct, $type, $lockfilePath);
         }
 
-        return ParsedLockfile::supported($type, $result);
+        return ParsedLockfile::supported($type, $result, $workspaces);
     }
 
     /**
