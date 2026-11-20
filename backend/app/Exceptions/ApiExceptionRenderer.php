@@ -25,6 +25,7 @@ class ApiExceptionRenderer
         403 => ['FORBIDDEN', 'Anda tidak memiliki akses ke resource ini.'],
         404 => ['NOT_FOUND', 'Resource tidak ditemukan.'],
         405 => ['METHOD_NOT_ALLOWED', 'Method HTTP tidak didukung untuk endpoint ini.'],
+        409 => ['AUDIT_NOT_READY', 'Data belum tersedia karena pemindaian belum selesai.'],
         413 => ['PAYLOAD_TOO_LARGE', 'Ukuran data melebihi batas yang diizinkan.'],
         429 => ['RATE_LIMITED', 'Terlalu banyak permintaan. Coba lagi nanti.'],
     ];

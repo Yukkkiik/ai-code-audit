@@ -9,7 +9,7 @@
 ```json
 { "data": { ... }, "meta": { ... } }
 ```
-`meta` hanya untuk pagination (`current_page`, `per_page`, `total`, `last_page`).
+`meta` untuk pagination (`current_page`, `per_page`, `total`, `last_page`). Daftar hasil SCA (`/dependencies`, `/vulnerabilities`) menambahkan `meta.scan` (lihat §2.3.1).
 
 ### Response error (seragam)
 ```json
@@ -109,8 +109,9 @@ Jika salah satu dependensi gagal → `503` dengan `status: "degraded"` dan check
 | GET | `/audits/{id}` | Pemilik | Detail + status (dipakai polling). `{id}` = ULID. Bukan pemilik / token salah / ID tidak valid → `404 NOT_FOUND`. ✅ |
 | GET | `/audits/{id}/findings` | Pemilik | Temuan SAST. Query: `severity`, `tool`, `category`, `page`, `per_page` (≤100). |
 | GET | `/audits/{id}/metrics` | Pemilik | Metrik kode. Query: `scope=file|function`, `page`. |
-| GET | `/audits/{id}/dependencies` | Pemilik | Daftar dependency. Query: `scope`, `relation`, `version_status`, `page`. |
-| GET | `/audits/{id}/vulnerabilities` | Pemilik | Kerentanan dependency. Query: `severity`, `page`. |
+| GET | `/audits/{id}/dependencies` | Pemilik / Guest | Daftar dependency (paginated). Query: `scope`, `relation`, `version_status`, `page`, `per_page` (1–100, default 15). Lihat §2.3.1. ✅ |
+| GET | `/audits/{id}/vulnerabilities` | Pemilik / Guest | Daftar kerentanan (paginated), **tanpa** `details`. Query: `severity`, `page`, `per_page`. Lihat §2.3.1. ✅ |
+| GET | `/audits/{id}/vulnerabilities/{vulnerabilityId}` | Pemilik / Guest | Detail satu baris kerentanan (teks lengkap, vektor CVSS, range, versi perbaikan OSV, referensi). `{vulnerabilityId}` = integer. Lihat §2.3.1. ✅ |
 
 **POST `/audits` — ZIP** (`multipart/form-data`)
 | Field | Aturan |
@@ -132,7 +133,48 @@ Response `202 Accepted`:
 
 Error saat request: `422 VALIDATION_FAILED` dengan `details.file` / `details.repository_url` berisi alasan (mis. "Berkas bukan arsip ZIP yang valid.", "Host evil.example.com tidak didukung..."), `413 PAYLOAD_TOO_LARGE` (termasuk berkas yang ditolak batas `upload_max_filesize`/`post_max_size` PHP), dan `429 RATE_LIMITED` (dibangun di TAHAP 8). Revisi 2026-11-15: kode `INVALID_ARCHIVE` / `INVALID_REPOSITORY_URL` di level request diganti `VALIDATION_FAILED` + `details` agar semua error input memakai satu format per field.
 
-Status implementasi: endpoint aktif. Audit dibuat berstatus `queued`, lalu `ProcessAuditJob` (payload hanya ID audit) di-dispatch ke antrean Redis dan diproses worker. Tahap SCA kini dijalankan engine asli (TAHAP 7); hingga TAHAP 6 selesai, tahap SAST tercatat `failed` dengan pesan "Engine SAST belum tersedia di versi platform ini." Endpoint `GET /audits/{id}/dependencies` dan `/vulnerabilities` belum dibangun (item 7.7).
+Status implementasi: endpoint aktif. Audit dibuat berstatus `queued`, lalu `ProcessAuditJob` (payload hanya ID audit) di-dispatch ke antrean Redis dan diproses worker. Tahap SCA kini dijalankan engine asli (TAHAP 7); hingga TAHAP 6 selesai, tahap SAST tercatat `failed` dengan pesan "Engine SAST belum tersedia di versi platform ini." 
+
+#### 2.3.1 Hasil SCA: `dependencies` dan `vulnerabilities` (item 7.7)
+
+**Akses.** Pemilik (`audit.user_id`) atau guest dengan `X-Guest-Token` (hanya header; token di query string tidak diterima). Semua penolakan → `404 NOT_FOUND`, dan dicek **sebelum** validasi query sehingga filter salah tidak membedakan audit yang ada dari yang tidak. Audit yang masih berjalan (`queued`/`ingesting`/`scanning`) dengan `sca.status` `pending`/`running` → `409 AUDIT_NOT_READY`. Audit yang sudah berakhir tetapi `sca.status` masih `pending`/`running` (job mati) → `200` dengan `meta.scan.message` "Pemeriksaan SCA tidak selesai…" dan `note` `null`. Semua respons (termasuk error) membawa `Cache-Control: private, no-store` dan `X-Content-Type-Options: nosniff`.
+
+**Paginasi.** `page` ≥ 1, `per_page` 1–100 (default 15); halaman melewati akhir → `data: []`. Nilai filter di luar enum → `422 VALIDATION_FAILED`.
+
+**`GET /audits/{id}/dependencies`** — urut `name`, lalu `id`:
+```json
+{ "data": [ { "id": 12, "name": "lodash", "version": "4.17.15", "declared_spec": "^4.17.0", "scope": "production", "relation": "direct",
+              "manifest_path": "package-lock.json", "source_file_type": "package_lock_v3", "lock_path": "node_modules/lodash",
+              "version_status": "exact", "unresolved_reason": null, "osv_status": "queried", "vulnerabilities_count": 3 } ],
+  "meta": { "current_page": 1, "per_page": 15, "total": 1, "last_page": 1, "scan": { … } } }
+```
+`vulnerabilities_count` bernilai angka **hanya** bila `osv_status=queried`; selain itu `null` (tidak pernah `0`), agar dependensi yang tidak diperiksa tidak terbaca "tanpa kerentanan".
+
+**`GET /audits/{id}/vulnerabilities`** — urut: `critical`, `high`, `unknown`, `medium`, `low`, lalu `osv_id`, `id`:
+```json
+{ "data": [ { "id": 45, "osv_id": "GHSA-35jh-r3h4-6jhm", "aliases": ["CVE-2021-23337"], "summary": "…", "severity": "high", "detail_available": true,
+              "dependency": { "id": 12, "name": "lodash", "version": "4.17.15", "scope": "production", "relation": "direct" },
+              "published_at": "2021-05-06T16:05:51Z", "modified_at": "2026-10-17T02:55:38Z" } ],
+  "meta": { "current_page": 1, "per_page": 15, "total": 1, "last_page": 1, "scan": { … } } }
+```
+- **Satu baris = pasangan (dependency, advisori).** Advisori yang sama dapat muncul beberapa kali (satu per dependency yang terdampak); `id` adalah id baris, bukan id advisori.
+- `severity`: `critical|high|medium|low|unknown`. `unknown` berarti severity tidak dapat diturunkan **atau** detail advisori tidak berhasil diambil (`detail_available: false`); tidak pernah ditampilkan sebagai `low`, dan diurutkan sebelum `medium`. Filter `severity=unknown` mencakup keduanya. Skor CVSS tidak dihitung (hanya vektor mentah di detail).
+- Daftar **tidak** memuat `details`, `severity_vectors`, `affected_ranges`, versi perbaikan, maupun `reference_urls`. Untuk baris dengan `detail_available: false`, `summary` dan `aliases` bernilai `null`.
+
+**`GET /audits/{id}/vulnerabilities/{vulnerabilityId}`** — semua field item daftar ditambah `details`, `severity_vectors`, `affected_ranges`, `osv_fixed_versions`, `osv_fixed_versions_note`, `reference_urls` (hanya `http(s)`), dan `dependency` lengkap (`declared_spec`, `manifest_path`, `source_file_type`, `lock_path`, `version_status`, `unresolved_reason`, `osv_status`). Baris dicari dengan `audit_scan_id` audit pada URL; id milik audit lain, tidak ada, atau bukan angka → `404`.
+- `osv_fixed_versions` = **semua** nilai `fixed` pada **seluruh** range advisori untuk paket itu, **bukan rekomendasi versi**: belum ada pencocokan range terhadap versi terpasang. `[]` = OSV tidak mencantumkan versi perbaikan; `null` = detail tidak berhasil diambil. Klien tidak boleh menampilkannya sebagai "versi yang disarankan".
+
+**`meta.scan`** (pada kedua daftar):
+```json
+"scan": { "status": "partial", "message": "…isi sca_error atau penjelasan…",
+          "coverage": { "dependencies_total": 12, "checked": 9, "check_failed": 1, "not_checked": 2, "unresolved": 2,
+                        "advisories": 4, "advisories_without_detail": 1 },
+          "note": "…atau null" }
+```
+- `coverage` dihitung untuk **seluruh audit**, bukan halaman atau filter. `dependencies_total = checked + check_failed + not_checked`; `unresolved` adalah bagian dari `not_checked`.
+- `note` disusun dari hitungan. Daftar kerentanan dengan 0 advisori: "Tidak ditemukan advisori pada OSV.dev untuk N dependensi yang diperiksa; ini bukan jaminan bebas kerentanan." (atau "Tidak ada dependensi yang diperiksa ke OSV.dev; …" bila N = 0). Bila ada advisori, `note` hanya menyebut cakupan tidak lengkap ("Cakupan pemeriksaan tidak lengkap: …"). Teks tidak pernah memakai kata "aman" atau "bersih".
+
+**Keamanan klien.** `summary`, `details`, dan teks advisori lain berasal dari OSV dan **wajib di-escape** saat ditampilkan; API mengirimnya sebagai data JSON apa adanya. Teks advisori tidak boleh diperlakukan sebagai instruksi oleh AI. Matriks akses harus diuji ulang dengan login sungguhan setelah Tahap 8, dan rate limit guest (8.4) harus mencakup endpoint ini.
 
 Kegagalan saat job (mis. ZIP Slip terdeteksi, repo tidak ditemukan, melebihi 50 MB setelah ekstraksi) **tidak** dikembalikan sebagai HTTP error; tercatat di `audit.status = failed` + `error.code`:
 `ZIP_SLIP_DETECTED` (path traversal / path absolut / symlink), `ARCHIVE_TOO_LARGE` (ukuran, jumlah entri, rasio kompresi), `ARCHIVE_CORRUPT`, `ARCHIVE_ENCRYPTED`, `INVALID_REPOSITORY_URL` (URL tidak lolos validasi ulang saat job), `REPOSITORY_NOT_FOUND`, `REPOSITORY_TOO_LARGE`, `CLONE_TIMEOUT`, `INGESTION_FAILED`. Didefinisikan di `backend/app/Exceptions/IngestionException.php`. Kode level pemrosesan: `JOB_TIMEOUT`, `PROCESSING_FAILED` (`ProcessAuditJob::failed()`), dan `QUEUE_UNAVAILABLE` (job tidak dapat dikirim ke antrean).
