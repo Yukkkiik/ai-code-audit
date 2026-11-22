@@ -85,8 +85,10 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 7.4 | Penyimpanan dependencies | ✅ |
 | 7.5 | OSV client `querybatch` (timeout, retry, validasi, pagination) | ✅ |
 | 7.6 | Pengambilan detail advisori + penyimpanan vulnerabilities + runner SCA | ✅ |
-| 7.7 | Endpoint `GET /audits/{id}/dependencies` & `GET /audits/{id}/vulnerabilities` (+ detail per advisori) | 👀 |
-| 7.8 | Pencocokan range versi perbaikan (prasyarat AI Remediation, Tahap 9) | ⬜ |
+| 7.7 | Endpoint `GET /audits/{id}/dependencies` & `GET /audits/{id}/vulnerabilities` (+ detail per advisori) | ✅ |
+| 7.8 | Pencocokan range versi perbaikan (prasyarat AI Remediation, Tahap 9) | 👀 |
+| 7.9 | Rekomendasi versi gabungan per dependency (memenuhi semua advisorinya) | ⬜ |
+| 7.10 | Simpan daftar `versions` eksplisit OSV (agar advisori tanpa range tidak `undetermined`) | ⬜ |
 
 ## TAHAP 8 — Authentication & Access Control
 | ID | Pekerjaan | Keputusan | Status |
@@ -105,6 +107,7 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 9.3 | Structured output + validator | – | ⬜ |
 | 9.4 | Static rule template fallback | – | ⬜ |
 | 9.5 | Endpoint & penyimpanan remediation | D-11 | ⬜ |
+| 9.6 | Perketat skill `ai-remediation-guardrail`: versi yang disebut aman hanya `fix_match.fixed_version` (bukan semua `fixed_versions`) | A-34 | ⬜ |
 
 ## TAHAP 10 — Frontend, Dashboard & Reporting
 | ID | Pekerjaan | Keputusan | Status |
