@@ -67,12 +67,12 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 > Engine diimplementasikan sebagai `StageRunner` untuk `AuditStage::Sast` dan didaftarkan di `AppServiceProvider` menggantikan `UnavailableStageRunner`.
 | ID | Pekerjaan | Keputusan | Status |
 |---|---|---|---|
-| 6.1 | Seleksi file JS/TS (`.js .jsx .mjs .cjs .ts .tsx .mts .cts`), ekstensi didaftarkan di `config/audit.php` | – | ⬜ |
-| 6.2 | Runner Semgrep (JS/TS) + parser JSON | D-22, D-31 | ⬜ |
-| 6.3 | Runner ESLint (config platform, parser TS) + parser | D-20, D-21 | ⬜ |
-| 6.4 | Normalisasi & penyimpanan findings | – | ⬜ |
-| 6.5 | Metrik CC, Halstead, LOC, MI (JS/TS) | D-09 | ⬜ |
-| 6.6 | Skor kesehatan + kategori | D-10 | ⬜ |
+| 6.1 | Seleksi file JS/TS (`.js .jsx .mjs .cjs .ts .tsx .mts .cts`), ekstensi didaftarkan di `config/audit.php` | – | ✅ |
+| 6.2 | Runner Semgrep (JS/TS) + parser JSON | D-22, D-31 | ✅ |
+| 6.3 | Runner ESLint (config platform, parser TS) + parser | D-20, D-21 | ✅ |
+| 6.4 | Normalisasi & penyimpanan findings | – | ✅ |
+| 6.5 | Metrik CC, Halstead, LOC, MI (JS/TS) | D-09 | ✅ |
+| 6.6 | Skor kesehatan + kategori | D-10 | ✅ |
 
 ## TAHAP 7 — SCA Engine Node.js/npm (Yuki)
 

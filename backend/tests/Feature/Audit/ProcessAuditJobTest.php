@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
 use RuntimeException;
 use Tests\Support\BuildsZipArchives;
@@ -88,29 +89,62 @@ class ProcessAuditJobTest extends TestCase
         $this->assertGreaterThan(0, $audit->source_size_bytes);
     }
 
-    public function test_default_runners_report_sast_as_unavailable_and_run_the_real_sca_engine(): void
+    /**
+     * Menjalankan engine SAST asli dengan Semgrep/ESLint/metrik palsu (tanpa temuan) agar hasilnya deterministik.
+     */
+    private function useRealSastWithCleanFakeTools(): void
     {
+        $scripts = [];
+
+        foreach (['eslint', 'metrics'] as $name) {
+            $scripts[$name] = sys_get_temp_dir().'/'.$name.'-fake-'.bin2hex(random_bytes(4)).'.js';
+            file_put_contents($scripts[$name], '');
+        }
+
+        $this->beforeApplicationDestroyed(function () use ($scripts) {
+            array_map('unlink', $scripts);
+        });
+
+        config([
+            'audit.sast.eslint.script_path' => $scripts['eslint'],
+            'audit.sast.metrics.script_path' => $scripts['metrics'],
+            'audit.sast.metrics.typescript_path' => $scripts['metrics'],
+        ]);
+
+        Process::fake([
+            '*eslint-fake*' => Process::result('[]'),
+            '*metrics-fake*' => Process::result('{"files": [], "errors": []}'),
+            '*' => Process::result('{"results": [], "errors": []}'),
+        ]);
+
         $this->app->forgetInstance(AuditStageRunners::class);
+    }
+
+    public function test_default_runners_run_the_real_sast_and_sca_engines(): void
+    {
+        $this->useRealSastWithCleanFakeTools();
         $audit = $this->zipAudit(['index.js' => 'x']);
 
         ProcessAuditJob::dispatchSync($audit->id);
 
         $audit->refresh();
-        $this->assertSame(StageStatus::Failed, $audit->sast_status);
-        $this->assertStringContainsString('belum tersedia', $audit->sast_error);
+        $this->assertSame(StageStatus::Completed, $audit->sast_status);
+        $this->assertStringContainsString('0 temuan', $audit->sast_error);
+        $this->assertSame(100, $audit->health_score);
+        $this->assertSame('good', $audit->health_category);
         $this->assertSame(StageStatus::Skipped, $audit->sca_status);
         $this->assertStringContainsString('package.json', $audit->sca_error);
-        $this->assertSame(AuditStatus::Failed, $audit->status);
+        $this->assertSame(AuditStatus::Completed, $audit->status);
     }
 
-    public function test_sca_runs_end_to_end_through_the_job_while_sast_stays_unavailable(): void
+    public function test_sca_runs_end_to_end_through_the_job_alongside_the_real_sast_engine(): void
     {
         Http::preventStrayRequests();
         Http::fake([
             'api.osv.dev/v1/querybatch' => Http::response(['results' => [['vulns' => [['id' => 'GHSA-aaaa-0000-0001', 'modified' => '2024-02-15T05:32:53Z']]]]]),
             'api.osv.dev/v1/vulns/*' => Http::response(['id' => 'GHSA-aaaa-0000-0001', 'summary' => 'Contoh advisori', 'database_specific' => ['severity' => 'HIGH']]),
         ]);
-        $this->app->forgetInstance(AuditStageRunners::class);
+        $this->useRealSastWithCleanFakeTools();
         $audit = $this->zipAudit([
             'proyek/package.json' => json_encode(['dependencies' => ['example-lib' => '^1.0.0']]),
             'proyek/package-lock.json' => json_encode(['lockfileVersion' => 3, 'packages' => [
@@ -123,9 +157,9 @@ class ProcessAuditJobTest extends TestCase
         ProcessAuditJob::dispatchSync($audit->id);
 
         $audit->refresh();
-        $this->assertSame(StageStatus::Failed, $audit->sast_status);
+        $this->assertSame(StageStatus::Completed, $audit->sast_status);
         $this->assertSame(StageStatus::Completed, $audit->sca_status);
-        $this->assertSame(AuditStatus::Partial, $audit->status);
+        $this->assertSame(AuditStatus::Completed, $audit->status);
         $this->assertSame(1, $audit->dependencies()->count());
         $this->assertSame('GHSA-aaaa-0000-0001', Vulnerability::query()->where('audit_scan_id', $audit->id)->sole()->osv_id);
         $this->assertDirectoryDoesNotExist($this->app->make(AuditWorkspace::class)->path($audit));

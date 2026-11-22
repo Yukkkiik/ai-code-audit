@@ -79,7 +79,7 @@ Catatan: kolom `password` dan `remember_token` bawaan Laravel dihapus dari migra
 | error_code | VARCHAR(50) | ✓ | Kode kegagalan level audit, mis. `ZIP_SLIP_DETECTED`. |
 | error_message | VARCHAR(500) | ✓ | |
 | health_score | TINYINT UNSIGNED | ✓ | 0–100. NULL jika SAST gagal/belum selesai. |
-| health_category | VARCHAR(20) | ✓ | Kategori dari skor (definisi menunggu D-10). |
+| health_category | VARCHAR(20) | ✓ | Enum `HealthCategory`: `good` (skor ≥ 80), `fair` (≥ 50), `poor` (< 50). NULL bila skor NULL (A-35). |
 | queued_at | TIMESTAMP | ✓ | |
 | started_at | TIMESTAMP | ✓ | |
 | finished_at | TIMESTAMP | ✓ | |

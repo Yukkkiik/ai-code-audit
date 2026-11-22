@@ -1,0 +1,155 @@
+[
+ {
+  "filePath": "/srv/ws/repo/src/a.js",
+  "messages": [
+   {
+    "ruleId": "security/detect-eval-with-expression",
+    "severity": 1,
+    "message": "eval with argument of type Identifier",
+    "line": 1,
+    "column": 11,
+    "endLine": 1,
+    "endColumn": 22
+   },
+   {
+    "ruleId": "no-eval",
+    "severity": 2,
+    "message": "`eval` can be harmful.",
+    "line": 1,
+    "column": 11,
+    "messageId": "unexpected",
+    "endLine": 1,
+    "endColumn": 15
+   },
+   {
+    "ruleId": "eqeqeq",
+    "severity": 1,
+    "message": "Expected '===' and instead saw '=='.",
+    "line": 2,
+    "column": 7,
+    "messageId": "unexpected",
+    "endLine": 2,
+    "endColumn": 9,
+    "suggestions": [
+     {
+      "messageId": "replaceOperator",
+      "data": {
+       "expectedOperator": "===",
+       "actualOperator": "=="
+      },
+      "fix": {
+       "range": [
+        29,
+        31
+       ],
+       "text": "==="
+      },
+      "desc": "Use '===' instead of '=='."
+     }
+    ]
+   },
+   {
+    "ruleId": "no-empty",
+    "severity": 1,
+    "message": "Empty block statement.",
+    "line": 2,
+    "column": 13,
+    "messageId": "unexpected",
+    "endLine": 2,
+    "endColumn": 15,
+    "suggestions": [
+     {
+      "messageId": "suggestComment",
+      "data": {
+       "type": "block"
+      },
+      "fix": {
+       "range": [
+        36,
+        36
+       ],
+       "text": " /* empty */ "
+      },
+      "desc": "Add comment inside empty block statement."
+     }
+    ]
+   },
+   {
+    "ruleId": "security/detect-non-literal-fs-filename",
+    "severity": 1,
+    "message": "Found readFile from package \"fs\" with non literal argument at index 0",
+    "line": 3,
+    "column": 27,
+    "endLine": 3,
+    "endColumn": 54
+   },
+   {
+    "ruleId": "security/detect-unsafe-regex",
+    "severity": 1,
+    "message": "Unsafe Regular Expression",
+    "line": 4,
+    "column": 11,
+    "endLine": 4,
+    "endColumn": 19
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 1,
+  "fatalErrorCount": 0,
+  "warningCount": 5,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "/srv/ws/repo/src/b.tsx",
+  "messages": [
+   {
+    "ruleId": "security/detect-eval-with-expression",
+    "severity": 1,
+    "message": "eval with argument of type Identifier",
+    "line": 1,
+    "column": 47,
+    "endLine": 1,
+    "endColumn": 54
+   },
+   {
+    "ruleId": "no-eval",
+    "severity": 2,
+    "message": "`eval` can be harmful.",
+    "line": 1,
+    "column": 47,
+    "messageId": "unexpected",
+    "endLine": 1,
+    "endColumn": 51
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 1,
+  "fatalErrorCount": 0,
+  "warningCount": 1,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ },
+ {
+  "filePath": "/srv/ws/repo/src/bad.js",
+  "messages": [
+   {
+    "ruleId": null,
+    "fatal": true,
+    "severity": 2,
+    "message": "Parsing error: Unexpected token (",
+    "line": 1,
+    "column": 10
+   }
+  ],
+  "suppressedMessages": [],
+  "errorCount": 1,
+  "fatalErrorCount": 1,
+  "warningCount": 0,
+  "fixableErrorCount": 0,
+  "fixableWarningCount": 0,
+  "usedDeprecatedRules": []
+ }
+]
