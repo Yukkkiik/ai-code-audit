@@ -127,6 +127,19 @@ return [
             'max_args_bytes' => (int) env('AUDIT_SEMGREP_MAX_ARGS_BYTES', 12000),
         ],
 
+        // Metrik kode (D-09): tooling/metrics.mjs memakai parser `typescript` milik platform.
+        // max_function_rows = batas baris metrik per fungsi per audit (kompleksitas tertinggi lebih dulu); baris per file selalu disimpan.
+        'metrics' => [
+            'node_binary' => env('AUDIT_NODE_BINARY', 'node'),
+            'script_path' => base_path('tooling/metrics.mjs'),
+            'typescript_path' => base_path('tooling/node_modules/typescript/lib/typescript.js'),
+            'timeout_seconds' => (int) env('AUDIT_METRICS_TIMEOUT', 120),
+            'max_output_bytes' => (int) env('AUDIT_METRICS_MAX_OUTPUT_BYTES', 20 * 1024 * 1024),
+            'max_args_bytes' => (int) env('AUDIT_METRICS_MAX_ARGS_BYTES', 12000),
+            'max_file_bytes' => (int) env('AUDIT_SAST_MAX_FILE_BYTES', 1024 * 1024),
+            'max_function_rows' => (int) env('AUDIT_METRICS_MAX_FUNCTION_ROWS', 10000),
+        ],
+
         // ESLint milik platform (D-20, D-21): dipasang di backend/tooling lewat `npm ci --ignore-scripts`.
         'eslint' => [
             'node_binary' => env('AUDIT_NODE_BINARY', 'node'),

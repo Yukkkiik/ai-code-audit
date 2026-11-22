@@ -12,6 +12,8 @@ use App\Services\Ingestion\RepositoryFileWalker;
 use App\Services\Sast\EslintRunner;
 use App\Services\Sast\FindingNormalizer;
 use App\Services\Sast\JsTsFileSelector;
+use App\Services\Sast\MetricsRunner;
+use App\Services\Sast\MetricsStore;
 use App\Services\Sast\SemgrepRunner;
 use App\Services\Sast\SnippetReader;
 use App\Services\Sca\OsvClient;
@@ -56,6 +58,14 @@ class AppServiceProvider extends ServiceProvider
             $app->make(SnippetReader::class),
             config('audit.sast.max_findings'),
         ));
+
+        $this->app->when(MetricsRunner::class)
+            ->needs('$config')
+            ->giveConfig('audit.sast.metrics');
+
+        $this->app->when(MetricsStore::class)
+            ->needs('$maxFunctionRows')
+            ->giveConfig('audit.sast.metrics.max_function_rows');
 
         $this->app->when(EslintRunner::class)
             ->needs('$config')
