@@ -10,8 +10,10 @@ use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryFileWalker;
 use App\Services\Sast\EslintRunner;
+use App\Services\Sast\FindingNormalizer;
 use App\Services\Sast\JsTsFileSelector;
 use App\Services\Sast\SemgrepRunner;
+use App\Services\Sast\SnippetReader;
 use App\Services\Sca\OsvClient;
 use App\Services\Sca\PackageJsonParser;
 use App\Services\Sca\PackageLockParser;
@@ -42,6 +44,17 @@ class AppServiceProvider extends ServiceProvider
             config('audit.sast.ignored_suffixes'),
             config('audit.sast.max_files'),
             config('audit.sast.max_file_bytes'),
+        ));
+
+        $this->app->bind(SnippetReader::class, fn () => new SnippetReader(
+            config('audit.sast.snippet_max_lines'),
+            config('audit.sast.snippet_max_line_chars'),
+            config('audit.sast.max_file_bytes'),
+        ));
+
+        $this->app->bind(FindingNormalizer::class, fn ($app) => new FindingNormalizer(
+            $app->make(SnippetReader::class),
+            config('audit.sast.max_findings'),
         ));
 
         $this->app->when(EslintRunner::class)

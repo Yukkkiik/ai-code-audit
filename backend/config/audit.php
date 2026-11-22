@@ -111,6 +111,11 @@ return [
         'max_files' => (int) env('AUDIT_SAST_MAX_FILES', 2000),
         'max_file_bytes' => (int) env('AUDIT_SAST_MAX_FILE_BYTES', 1024 * 1024),
 
+        // Penyimpanan temuan: batas jumlah per audit (severity terendah dibuang lebih dulu) dan cuplikan kode.
+        'max_findings' => (int) env('AUDIT_SAST_MAX_FINDINGS', 5000),
+        'snippet_max_lines' => (int) env('AUDIT_SAST_SNIPPET_MAX_LINES', 5),
+        'snippet_max_line_chars' => (int) env('AUDIT_SAST_SNIPPET_MAX_LINE_CHARS', 300),
+
         // Semgrep dengan rule lokal milik platform (D-22); tidak pernah memakai registry atau config repositori target.
         // timeout_seconds = anggaran total seluruh batch; per_file_timeout_seconds = batas Semgrep per file.
         'semgrep' => [
