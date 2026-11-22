@@ -1,0 +1,7 @@
+backend/vendor/
+backend/storage/
+backend/bootstrap/cache/
+backend/.env
+backend/.env.*
+node_modules/
+frontend/.next/
