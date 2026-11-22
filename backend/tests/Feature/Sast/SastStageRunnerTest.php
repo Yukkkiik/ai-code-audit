@@ -74,7 +74,7 @@ class SastStageRunnerTest extends TestCase
 
     private function jsFile(): void
     {
-        file_put_contents($this->root.'/src/a.js', "function add(a, b) {\n  const x = eval(a);\n  if (a == b) {}\n  return a + b;\n}\n");
+        file_put_contents($this->root.'/src/a.js', "function add(a, b) {\n  const x = eval(a);\n  debugger;\n  return a + b;\n}\n");
     }
 
     /**
@@ -92,7 +92,7 @@ class SastStageRunnerTest extends TestCase
 
         $eslintOk = json_encode([['filePath' => $this->root.'/src/a.js', 'messages' => [
             ['ruleId' => 'no-eval', 'severity' => 2, 'message' => '`eval` can be harmful.', 'line' => 2, 'column' => 13, 'endLine' => 2],
-            ['ruleId' => 'eqeqeq', 'severity' => 1, 'message' => "Expected '==='.", 'line' => 3, 'column' => 7, 'endLine' => 3],
+            ['ruleId' => 'no-debugger', 'severity' => 1, 'message' => 'Unexpected debugger statement.', 'line' => 3, 'column' => 7, 'endLine' => 3],
         ]]]);
 
         $metricsOk = json_encode(['files' => [
@@ -135,7 +135,7 @@ class SastStageRunnerTest extends TestCase
 
         $result = $this->runStage();
 
-        // Temuan: Semgrep eval (high, CWE-95) menggantikan ESLint no-eval (CWE-95, lokasi sama); eqeqeq warn → low.
+        // Temuan: Semgrep eval (high, CWE-95) menggantikan ESLint no-eval (CWE-95, lokasi sama); no-debugger warn → low.
         // Penalti temuan = 8 + 1 = 9. MI file a.js = 68,768 → 0,3 × 31,232 = 9,3696; CC rata-rata 3 ≤ 5 → 0.
         // Skor = 100 − 9 − 9,3696 = 81,63 → 82 → good.
         $this->assertSame(StageStatus::Completed, $result->status);
@@ -146,7 +146,7 @@ class SastStageRunnerTest extends TestCase
         $this->assertSame(82, $this->audit->health_score);
         $this->assertSame('good', $this->audit->health_category);
 
-        $this->assertSame(['js-eval-injection', 'eqeqeq'], ScanFinding::query()->where('audit_scan_id', $this->audit->id)->orderBy('id')->pluck('rule_id')->all());
+        $this->assertSame(['js-eval-injection', 'no-debugger'], ScanFinding::query()->where('audit_scan_id', $this->audit->id)->orderBy('id')->pluck('rule_id')->all());
         $this->assertStringContainsString('eval(a)', (string) ScanFinding::query()->where('rule_id', 'js-eval-injection')->value('code_snippet'));
         $this->assertSame(2, CodeMetric::query()->where('audit_scan_id', $this->audit->id)->count());
         $this->assertSame(2, ScanToolRun::query()->where('audit_scan_id', $this->audit->id)->where('status', ToolRunStatus::Completed->value)->count());
@@ -169,7 +169,7 @@ class SastStageRunnerTest extends TestCase
         $semgrep = ScanToolRun::query()->where('audit_scan_id', $this->audit->id)->where('tool', 'semgrep')->sole();
         $this->assertSame(ToolRunStatus::Failed, $semgrep->status);
         $this->assertNull($semgrep->findings_count, 'tool gagal tidak boleh tampak "0 temuan".');
-        $this->assertSame(['no-eval' => Severity::High, 'eqeqeq' => Severity::Low], ScanFinding::query()->where('audit_scan_id', $this->audit->id)->orderBy('id')->get()->pluck('severity', 'rule_id')->all());
+        $this->assertSame(['no-eval' => Severity::High, 'no-debugger' => Severity::Low], ScanFinding::query()->where('audit_scan_id', $this->audit->id)->orderBy('id')->get()->pluck('severity', 'rule_id')->all());
     }
 
     public function test_all_finding_tools_failing_is_failed_with_no_score_and_no_findings(): void
@@ -277,7 +277,7 @@ class SastStageRunnerTest extends TestCase
 
         $rules = ScanFinding::query()->where('audit_scan_id', $this->audit->id)->pluck('rule_id')->all();
         $this->assertContains('no-eval', $rules);
-        $this->assertContains('eqeqeq', $rules);
+        $this->assertContains('no-debugger', $rules);
 
         // bad.js gagal di-parse (tidak punya metrik); eslint.config.js milik repo hanya dianalisis sebagai kode biasa, tidak dimuat.
         $this->assertSame(

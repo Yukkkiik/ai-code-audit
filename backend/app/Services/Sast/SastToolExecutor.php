@@ -88,13 +88,13 @@ class SastToolExecutor
         $duration = (int) round((microtime(true) - $started) * 1000);
 
         if ($scanned === 0) {
-            return ToolRunResult::failed("{$label} gagal: ".implode('; ', array_unique($failures)).'.', $duration);
+            return ToolRunResult::failed("{$label} gagal: ".implode('; ', array_unique(array_map(fn (string $failure) => rtrim($failure, '.'), $failures))).'.', $duration);
         }
 
         $notes = [];
 
         if ($failures !== []) {
-            $notes[] = 'sebagian file tidak diperiksa ('.implode('; ', array_unique($failures)).')';
+            $notes[] = 'sebagian file tidak diperiksa ('.implode('; ', array_unique(array_map(fn (string $failure) => rtrim($failure, '.'), $failures))).')';
         }
 
         if ($toolErrors > 0) {
