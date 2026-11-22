@@ -136,6 +136,7 @@ class SemgrepRunnerTest extends TestCase
 
         $this->assertSame(ToolRunStatus::Failed, $result->status);
         $this->assertStringContainsString('bukan JSON yang valid', $result->message);
+        $this->assertStringNotContainsString('..', $result->message);
     }
 
     public function test_oversized_output_fails_the_tool(): void

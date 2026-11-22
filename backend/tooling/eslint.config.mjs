@@ -32,9 +32,7 @@ export default [
       'no-new-func': 'error',
       'no-script-url': 'error',
 
-      eqeqeq: 'warn',
       'no-debugger': 'warn',
-      'no-empty': 'warn',
       'no-fallthrough': 'warn',
       'no-unsafe-finally': 'error',
       'no-unsafe-negation': 'error',

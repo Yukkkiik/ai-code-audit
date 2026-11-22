@@ -106,7 +106,7 @@ return [
 
     'sast' => [
         'extensions' => ['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'mts', 'cts'],
-        'ignored_directories' => ['dist', 'build', 'coverage'],
+        'ignored_directories' => ['dist', 'build', 'coverage', '.next', '.nuxt', '.turbo', '.cache'],
         'ignored_suffixes' => ['.min.js', '.min.mjs', '.min.cjs', '.d.ts', '.d.mts', '.d.cts'],
         'max_files' => (int) env('AUDIT_SAST_MAX_FILES', 2000),
         'max_file_bytes' => (int) env('AUDIT_SAST_MAX_FILE_BYTES', 1024 * 1024),

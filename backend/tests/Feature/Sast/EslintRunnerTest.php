@@ -146,7 +146,7 @@ class EslintRunnerTest extends TestCase
 
         try {
             file_put_contents($root.'/eslint.config.js', 'throw new Error("config repo tidak boleh dimuat");');
-            file_put_contents($root.'/src/a.js', "/* eslint-disable */\nconst x = eval(input);\nif (a == b) {}\n");
+            file_put_contents($root.'/src/a.js', "/* eslint-disable */\nconst x = eval(input);\ndebugger;\n");
             file_put_contents($root.'/src/b.ts', "export const f = (a: string): number => eval(a) as number;\n");
             file_put_contents($root.'/src/bad.js', 'function ( {');
 
@@ -160,7 +160,7 @@ class EslintRunnerTest extends TestCase
         $rules = array_map(fn ($finding) => $finding->filePath.':'.$finding->ruleId, $result->findings);
 
         $this->assertContains('src/a.js:no-eval', $rules, 'eslint-disable di repo target harus diabaikan.');
-        $this->assertContains('src/a.js:eqeqeq', $rules);
+        $this->assertContains('src/a.js:no-debugger', $rules);
         $this->assertContains('src/b.ts:no-eval', $rules, 'file TypeScript harus diparse parser TS platform.');
         $this->assertTrue($result->incomplete, 'src/bad.js gagal di-parse → hasil tidak lengkap.');
     }
