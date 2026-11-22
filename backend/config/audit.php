@@ -95,6 +95,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | SAST (JavaScript/TypeScript)
+    |--------------------------------------------------------------------------
+    |
+    | Seleksi file yang dianalisis. Direktori di `ignored_directories` ditambahkan ke
+    | `audit.ignored_directories`; berkas ber-akhiran `ignored_suffixes` (minified/deklarasi)
+    | dilewati. File kosong, di atas `max_file_bytes`, atau melewati `max_files` tidak dianalisis.
+    |
+    */
+
+    'sast' => [
+        'extensions' => ['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'mts', 'cts'],
+        'ignored_directories' => ['dist', 'build', 'coverage'],
+        'ignored_suffixes' => ['.min.js', '.min.mjs', '.min.cjs', '.d.ts', '.d.mts', '.d.cts'],
+        'max_files' => (int) env('AUDIT_SAST_MAX_FILES', 2000),
+        'max_file_bytes' => (int) env('AUDIT_SAST_MAX_FILE_BYTES', 1024 * 1024),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Lokasi Penyimpanan Sementara
     |--------------------------------------------------------------------------
     |

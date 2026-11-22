@@ -9,6 +9,7 @@ use App\Services\Ingestion\DnsHostResolver;
 use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryFileWalker;
+use App\Services\Sast\JsTsFileSelector;
 use App\Services\Sca\OsvClient;
 use App\Services\Sca\PackageJsonParser;
 use App\Services\Sca\PackageLockParser;
@@ -32,6 +33,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->when(RepositoryFileWalker::class)
             ->needs('$ignoredDirectories')
             ->giveConfig('audit.ignored_directories');
+
+        $this->app->bind(JsTsFileSelector::class, fn () => new JsTsFileSelector(
+            config('audit.sast.extensions'),
+            array_values(array_unique([...config('audit.ignored_directories'), ...config('audit.sast.ignored_directories')])),
+            config('audit.sast.ignored_suffixes'),
+            config('audit.sast.max_files'),
+            config('audit.sast.max_file_bytes'),
+        ));
 
         $this->app->when(PackageJsonParser::class)
             ->needs('$maxBytes')
