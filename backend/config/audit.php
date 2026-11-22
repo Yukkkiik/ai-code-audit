@@ -127,6 +127,20 @@ return [
             'max_args_bytes' => (int) env('AUDIT_SEMGREP_MAX_ARGS_BYTES', 12000),
         ],
 
+        // Skor kesehatan (D-10). Angka adalah usulan awal yang belum divalidasi pada repositori nyata.
+        // Penalti temuan absolut (bukan per ukuran kode); hasil SCA tidak dihitung (A-07).
+        'health' => [
+            'weights' => ['critical' => 15, 'high' => 8, 'medium' => 3, 'low' => 1, 'info' => 0],
+            'max_findings_penalty' => 60,
+            'mi_factor' => 0.3,
+            'max_mi_penalty' => 30,
+            'cc_threshold' => 5,
+            'cc_factor' => 2,
+            'max_cc_penalty' => 10,
+            'good_min' => 80,
+            'fair_min' => 50,
+        ],
+
         // Metrik kode (D-09): tooling/metrics.mjs memakai parser `typescript` milik platform.
         // max_function_rows = batas baris metrik per fungsi per audit (kompleksitas tertinggi lebih dulu); baris per file selalu disimpan.
         'metrics' => [

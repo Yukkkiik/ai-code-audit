@@ -2,18 +2,18 @@
 
 namespace App\Providers;
 
-use App\Enums\AuditStage;
 use App\Services\Audit\Stages\AuditStageRunners;
-use App\Services\Audit\Stages\UnavailableStageRunner;
 use App\Services\Ingestion\DnsHostResolver;
 use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryFileWalker;
 use App\Services\Sast\EslintRunner;
 use App\Services\Sast\FindingNormalizer;
+use App\Services\Sast\HealthScoreCalculator;
 use App\Services\Sast\JsTsFileSelector;
 use App\Services\Sast\MetricsRunner;
 use App\Services\Sast\MetricsStore;
+use App\Services\Sast\SastStageRunner;
 use App\Services\Sast\SemgrepRunner;
 use App\Services\Sast\SnippetReader;
 use App\Services\Sca\OsvClient;
@@ -59,6 +59,10 @@ class AppServiceProvider extends ServiceProvider
             config('audit.sast.max_findings'),
         ));
 
+        $this->app->when(HealthScoreCalculator::class)
+            ->needs('$config')
+            ->giveConfig('audit.sast.health');
+
         $this->app->when(MetricsRunner::class)
             ->needs('$config')
             ->giveConfig('audit.sast.metrics');
@@ -96,9 +100,8 @@ class AppServiceProvider extends ServiceProvider
                 return $config;
             });
 
-        // Engine SAST (TAHAP 6) belum ada: tahap dicatat gagal secara jujur. SCA memakai engine asli.
         $this->app->singleton(AuditStageRunners::class, fn ($app) => new AuditStageRunners([
-            new UnavailableStageRunner(AuditStage::Sast),
+            $app->make(SastStageRunner::class),
             $app->make(ScaStageRunner::class),
         ]));
     }
