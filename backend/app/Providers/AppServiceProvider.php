@@ -10,6 +10,7 @@ use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryFileWalker;
 use App\Services\Sast\JsTsFileSelector;
+use App\Services\Sast\SemgrepRunner;
 use App\Services\Sca\OsvClient;
 use App\Services\Sca\PackageJsonParser;
 use App\Services\Sca\PackageLockParser;
@@ -41,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
             config('audit.sast.max_files'),
             config('audit.sast.max_file_bytes'),
         ));
+
+        $this->app->when(SemgrepRunner::class)
+            ->needs('$config')
+            ->giveConfig('audit.sast.semgrep');
 
         $this->app->when(PackageJsonParser::class)
             ->needs('$maxBytes')

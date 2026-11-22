@@ -110,6 +110,17 @@ return [
         'ignored_suffixes' => ['.min.js', '.min.mjs', '.min.cjs', '.d.ts', '.d.mts', '.d.cts'],
         'max_files' => (int) env('AUDIT_SAST_MAX_FILES', 2000),
         'max_file_bytes' => (int) env('AUDIT_SAST_MAX_FILE_BYTES', 1024 * 1024),
+
+        // Semgrep dengan rule lokal milik platform (D-22); tidak pernah memakai registry atau config repositori target.
+        // timeout_seconds = anggaran total seluruh batch; per_file_timeout_seconds = batas Semgrep per file.
+        'semgrep' => [
+            'binary' => env('AUDIT_SEMGREP_BINARY', 'semgrep'),
+            'rules_path' => base_path('tooling/semgrep'),
+            'timeout_seconds' => (int) env('AUDIT_SEMGREP_TIMEOUT', 180),
+            'per_file_timeout_seconds' => (int) env('AUDIT_SEMGREP_FILE_TIMEOUT', 10),
+            'max_output_bytes' => (int) env('AUDIT_SEMGREP_MAX_OUTPUT_BYTES', 20 * 1024 * 1024),
+            'max_args_bytes' => (int) env('AUDIT_SEMGREP_MAX_ARGS_BYTES', 12000),
+        ],
     ],
 
     /*
