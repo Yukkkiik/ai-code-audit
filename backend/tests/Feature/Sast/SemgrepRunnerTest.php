@@ -3,6 +3,7 @@
 namespace Tests\Feature\Sast;
 
 use App\Enums\ToolRunStatus;
+use App\Services\Sast\SastToolExecutor;
 use App\Services\Sast\SemgrepParser;
 use App\Services\Sast\SemgrepRunner;
 use Illuminate\Process\Exceptions\ProcessTimedOutException;
@@ -27,7 +28,7 @@ class SemgrepRunnerTest extends TestCase
             'per_file_timeout_seconds' => 10,
             'max_output_bytes' => 1024 * 1024,
             'max_args_bytes' => 12000,
-        ], $overrides), new SemgrepParser);
+        ], $overrides), new SemgrepParser, new SastToolExecutor);
     }
 
     private function fixture(): string

@@ -9,6 +9,7 @@ use App\Services\Ingestion\DnsHostResolver;
 use App\Services\Ingestion\GitUrlValidator;
 use App\Services\Ingestion\HostResolver;
 use App\Services\Ingestion\RepositoryFileWalker;
+use App\Services\Sast\EslintRunner;
 use App\Services\Sast\JsTsFileSelector;
 use App\Services\Sast\SemgrepRunner;
 use App\Services\Sca\OsvClient;
@@ -42,6 +43,10 @@ class AppServiceProvider extends ServiceProvider
             config('audit.sast.max_files'),
             config('audit.sast.max_file_bytes'),
         ));
+
+        $this->app->when(EslintRunner::class)
+            ->needs('$config')
+            ->giveConfig('audit.sast.eslint');
 
         $this->app->when(SemgrepRunner::class)
             ->needs('$config')

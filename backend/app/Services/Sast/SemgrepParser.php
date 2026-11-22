@@ -17,7 +17,7 @@ class SemgrepParser
 
     private const MAX_SNIPPET_CHARS = 2000;
 
-    public function parse(string $json): SemgrepReport
+    public function parse(string $json): ToolReport
     {
         try {
             $data = json_decode($json, true, 64, JSON_THROW_ON_ERROR);
@@ -44,7 +44,7 @@ class SemgrepParser
 
         $errors = $data['errors'] ?? [];
 
-        return new SemgrepReport($findings, is_array($errors) ? count($errors) : 0, $dropped);
+        return new ToolReport($findings, is_array($errors) ? count($errors) : 0, $dropped);
     }
 
     /**

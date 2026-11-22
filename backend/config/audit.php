@@ -121,6 +121,16 @@ return [
             'max_output_bytes' => (int) env('AUDIT_SEMGREP_MAX_OUTPUT_BYTES', 20 * 1024 * 1024),
             'max_args_bytes' => (int) env('AUDIT_SEMGREP_MAX_ARGS_BYTES', 12000),
         ],
+
+        // ESLint milik platform (D-20, D-21): dipasang di backend/tooling lewat `npm ci --ignore-scripts`.
+        'eslint' => [
+            'node_binary' => env('AUDIT_NODE_BINARY', 'node'),
+            'script_path' => base_path('tooling/node_modules/eslint/bin/eslint.js'),
+            'config_path' => base_path('tooling/eslint.config.mjs'),
+            'timeout_seconds' => (int) env('AUDIT_ESLINT_TIMEOUT', 180),
+            'max_output_bytes' => (int) env('AUDIT_ESLINT_MAX_OUTPUT_BYTES', 20 * 1024 * 1024),
+            'max_args_bytes' => (int) env('AUDIT_ESLINT_MAX_ARGS_BYTES', 12000),
+        ],
     ],
 
     /*

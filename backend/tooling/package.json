@@ -1,0 +1,12 @@
+{
+  "name": "audit-platform-sast-tooling",
+  "private": true,
+  "description": "Perkakas SAST milik platform (ESLint). Bukan bagian dari repositori yang diaudit.",
+  "engines": { "node": "^20.19.0 || ^22.13.0 || >=24" },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.73.0",
+    "eslint": "10.15.0",
+    "eslint-plugin-security": "4.2.1",
+    "typescript": "6.0.3"
+  }
+}
