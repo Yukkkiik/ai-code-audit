@@ -73,6 +73,7 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 6.4 | Normalisasi & penyimpanan findings | – | ✅ |
 | 6.5 | Metrik CC, Halstead, LOC, MI (JS/TS) | D-09 | ✅ |
 | 6.6 | Skor kesehatan + kategori | D-10 | ✅ |
+| 6.7 | Endpoint hasil SAST: `GET /audits/{id}/findings` & `/metrics` (+ `meta.scan` berisi status tool) | A-36 | 👀 |
 
 ## TAHAP 7 — SCA Engine Node.js/npm (Yuki)
 
