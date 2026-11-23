@@ -57,7 +57,7 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 - `node_modules`, `vendor`, `.git` diabaikan saat traversal.
 
 ### Background Processing
-- `tests/Feature/Audit/ProcessAuditJobTest.php`: alur ZIP & Git end-to-end (termasuk worker Redis sungguhan), runner default (SAST `failed` "belum tersedia", SCA engine asli) dan SCA end-to-end lewat job, exception satu tahap tidak menggagalkan tahap lain, ingestion gagal, job duplikat, audit terhapus, `failed()` untuk timeout & error tak terduga, kebijakan `tries`/timeout/`retry_after`, payload hanya ID.
+- `tests/Feature/Audit/ProcessAuditJobTest.php`: alur ZIP & Git end-to-end (termasuk worker Redis sungguhan), runner default (SAST dan SCA engine asli) dan SCA end-to-end lewat job, exception satu tahap tidak menggagalkan tahap lain, ingestion gagal, job duplikat, audit terhapus, `failed()` untuk timeout & error tak terduga, kebijakan `tries`/timeout/`retry_after`, payload hanya ID.
 - `StoreAuditTest`: setiap audit yang diterima men-dispatch tepat satu job; request ditolak tidak men-dispatch; Redis mati → audit `QUEUE_UNAVAILABLE`.
 - Engine tahap di test diganti `Tests\Support\RecordingStageRunner`.
 
@@ -70,6 +70,7 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 - Tool gagal → tahap `partial`, tool lain tetap tersimpan.
 - Kalkulasi CC, Halstead, MI pada fungsi contoh dengan nilai yang dihitung manual.
 - Skor kesehatan berada di 0–100 dan tidak berubah oleh data SCA.
+- Endpoint hasil SAST (item 6.7; `AuditFindingsTest`, `AuditMetricsTest`, `SastScanSummaryTest`): matriks akses (pemilik, guest, token salah/hilang/di query, audit user lain, ULID tidak valid) dengan 404 dan tanpa pembedaan oleh filter salah; 409 untuk audit berjalan dengan SAST belum selesai dan 200 + penjelasan untuk audit berakhir dengan SAST tidak selesai; filter, paginasi, urutan severity/kompleksitas; `findings_count` tool gagal `null` (bukan 0); `tools` kosong saat tahap `failed`/`skipped` dengan `note` yang jujur; 0 temuan → "bukan jaminan"; `note` tidak pernah memuat "aman"/"bersih" (data provider kombinasi status); hitungan `note` tidak terpengaruh filter/halaman; snippet berbahaya tetap data JSON; tanpa fingerprint/`audit_scan_id`/path server; nilai desimal metrik sebagai string; skor sama dengan `GET /audits/{id}`; header no-store/nosniff pada 200/404/409/422; jumlah query konstan; perilaku endpoint SCA tidak berubah. **Belum diuji:** login sungguhan (Tahap 8) — jalur pemilik memakai `actingAs`.
 
 ### SCA
 - Pencarian manifest (`ManifestFinder`): `package.json` + lockfile sejajar, monorepo, `node_modules`/`vendor`/`.git` dan symlink diabaikan, lockfile tanpa `package.json` diabaikan, `yarn.lock`/`pnpm-lock.yaml` tidak dicari.

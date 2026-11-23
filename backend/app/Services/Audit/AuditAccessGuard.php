@@ -2,6 +2,7 @@
 
 namespace App\Services\Audit;
 
+use App\Enums\AuditStage;
 use App\Enums\AuditStatus;
 use App\Enums\StageStatus;
 use App\Models\AuditScan;
@@ -27,16 +28,16 @@ class AuditAccessGuard
     }
 
     /**
-     * 409 AUDIT_NOT_READY hanya untuk audit yang masih berjalan dan tahap SCA-nya belum selesai.
+     * 409 AUDIT_NOT_READY hanya untuk audit yang masih berjalan dan tahap yang diminta (default SCA) belum selesai.
      *
      * @throws HttpException
      */
-    public function ensureReady(AuditScan $audit): void
+    public function ensureReady(AuditScan $audit, AuditStage $stage = AuditStage::Sca): void
     {
         $running = in_array($audit->status, [AuditStatus::Queued, AuditStatus::Ingesting, AuditStatus::Scanning], true);
-        $scaUnfinished = in_array($audit->sca_status, [StageStatus::Pending, StageStatus::Running], true);
+        $stageUnfinished = in_array($audit->{$stage->statusColumn()}, [StageStatus::Pending, StageStatus::Running], true);
 
-        if ($running && $scaUnfinished) {
+        if ($running && $stageUnfinished) {
             throw new HttpException(409);
         }
     }
