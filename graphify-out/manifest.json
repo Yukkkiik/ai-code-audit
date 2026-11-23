@@ -60,16 +60,16 @@
     "semantic_hash": "4c7a3f0ee99cd83c167c4cc582c2e8ca"
   },
   "backend/app/Enums/FixMatchReason.php": {
-    "mtime": 1795162958.4395566,
-    "seen": 1795332004.068196,
-    "ast_hash": "b56ab70e164fcd7b6628a1564ba41a70",
-    "semantic_hash": "b56ab70e164fcd7b6628a1564ba41a70"
+    "mtime": 1795424515.6908271,
+    "seen": 1795424622.702917,
+    "ast_hash": "0d4d7a7dba06a6ef6968041ef72b60ef",
+    "semantic_hash": ""
   },
   "backend/app/Enums/FixMatchStatus.php": {
-    "mtime": 1795162958.4378219,
-    "seen": 1795332004.068197,
-    "ast_hash": "04af5540e59909a1929063db4d13a5eb",
-    "semantic_hash": "04af5540e59909a1929063db4d13a5eb"
+    "mtime": 1795424515.6910176,
+    "seen": 1795424622.7029178,
+    "ast_hash": "938b215f33f808eb1a5f14b9ba348e3e",
+    "semantic_hash": ""
   },
   "backend/app/Enums/ManifestType.php": {
     "mtime": 1794675590.2225852,
@@ -282,9 +282,9 @@
     "semantic_hash": "f4c989803593af10fabf52582505aa35"
   },
   "backend/app/Http/Resources/VulnerabilityDetailResource.php": {
-    "mtime": 1795419854.27509,
-    "seen": 1795420074.009347,
-    "ast_hash": "7697c040d8d38bea688ea2e6e9b5b770",
+    "mtime": 1795424526.6090775,
+    "seen": 1795424622.702958,
+    "ast_hash": "ecb86b3a6757283d4b162ee4d1dad4f0",
     "semantic_hash": ""
   },
   "backend/app/Http/Resources/VulnerabilityResource.php": {
@@ -348,10 +348,10 @@
     "semantic_hash": "3c5567f02739e564120fe8bf0bbdbcca"
   },
   "backend/app/Models/Vulnerability.php": {
-    "mtime": 1794675590.2255998,
-    "seen": 1795332004.068228,
-    "ast_hash": "d9f1fe86d3d84241d51b887f167b7e1c",
-    "semantic_hash": "d9f1fe86d3d84241d51b887f167b7e1c"
+    "mtime": 1795424515.6905491,
+    "seen": 1795424622.702967,
+    "ast_hash": "a99f2b275f01d713083fd2a1d8128717",
+    "semantic_hash": ""
   },
   "backend/app/Policies/AuditScanPolicy.php": {
     "mtime": 1794676682.1286716,
@@ -504,9 +504,9 @@
     "semantic_hash": "293ec7c0fd3e97991838d20e5f155aba"
   },
   "backend/app/Services/Sca/FixedVersionMatcher.php": {
-    "mtime": 1795419973.193599,
-    "seen": 1795420074.009404,
-    "ast_hash": "d0d2b140be12c2fc2050391066ec9649",
+    "mtime": 1795424499.0156379,
+    "seen": 1795424622.703014,
+    "ast_hash": "490832e6c4b76abab8082322e9967711",
     "semantic_hash": ""
   },
   "backend/app/Services/Sca/ManifestFailure.php": {
@@ -558,16 +558,16 @@
     "semantic_hash": "675cba7cfb5ca81084bbfa53e1dd5dd0"
   },
   "backend/app/Services/Sca/OsvVulnerabilityDetail.php": {
-    "mtime": 1795159865.6567864,
-    "seen": 1795332004.0682502,
-    "ast_hash": "dc6c4a860bab93448d21dd9a8c67878d",
-    "semantic_hash": "dc6c4a860bab93448d21dd9a8c67878d"
+    "mtime": 1795424515.6897693,
+    "seen": 1795424622.703022,
+    "ast_hash": "5720d64c0aae3d1b759bb26b5d04b168",
+    "semantic_hash": ""
   },
   "backend/app/Services/Sca/OsvVulnerabilityParser.php": {
-    "mtime": 1795159878.255658,
-    "seen": 1795332004.068251,
-    "ast_hash": "ef2804ff79f315251771822fc19f40f6",
-    "semantic_hash": "ef2804ff79f315251771822fc19f40f6"
+    "mtime": 1795424515.6894238,
+    "seen": 1795424622.703022,
+    "ast_hash": "b7f1522df7fca96d506c4c4b7b6bd265",
+    "semantic_hash": ""
   },
   "backend/app/Services/Sca/OsvVulnerabilityRef.php": {
     "mtime": 1795158147.6796808,
@@ -630,10 +630,10 @@
     "semantic_hash": "dbf3c3683d2c6527c62195cc109eb016"
   },
   "backend/app/Services/Sca/VulnerabilityStore.php": {
-    "mtime": 1795159866.2757325,
-    "seen": 1795332004.068258,
-    "ast_hash": "dcfb27a95bb07a077e7539fe2ca71d16",
-    "semantic_hash": "dcfb27a95bb07a077e7539fe2ca71d16"
+    "mtime": 1795424515.6901798,
+    "seen": 1795424622.703031,
+    "ast_hash": "5c4c489c1217013b0e19d258ac2d9f90",
+    "semantic_hash": ""
   },
   "backend/artisan": {
     "mtime": 1790776605.0,
@@ -774,10 +774,10 @@
     "semantic_hash": "f30b85258ca159c2c15b6f93708b43c7"
   },
   "backend/database/factories/VulnerabilityFactory.php": {
-    "mtime": 1794675590.2282138,
-    "seen": 1795332004.0682728,
-    "ast_hash": "638e4f811f90bc77db631f6bde1f5583",
-    "semantic_hash": "638e4f811f90bc77db631f6bde1f5583"
+    "mtime": 1795424442.1276362,
+    "seen": 1795424622.703052,
+    "ast_hash": "9b30696e11d2249df2791b51721de5be",
+    "semantic_hash": ""
   },
   "backend/database/migrations/0001_01_01_000000_create_users_table.php": {
     "mtime": 1794673119.4266205,
@@ -984,10 +984,10 @@
     "semantic_hash": "7e8d5e6ed79bff29e7237e7ea879ece2"
   },
   "backend/tests/Feature/Database/ScaTablesTest.php": {
-    "mtime": 1794675590.2355988,
-    "seen": 1795332004.068296,
-    "ast_hash": "bec0dfca4e04c0af7749514cf8b76ff0",
-    "semantic_hash": "bec0dfca4e04c0af7749514cf8b76ff0"
+    "mtime": 1795424442.1271043,
+    "seen": 1795424622.703084,
+    "ast_hash": "bd85348e27babb336a4ce1055073c0db",
+    "semantic_hash": ""
   },
   "backend/tests/Feature/Database/UsersTableTest.php": {
     "mtime": 1794675590.2358654,
@@ -1134,10 +1134,10 @@
     "semantic_hash": "7630d4fae923f0df7f9e9f7d3cde6dfa"
   },
   "backend/tests/Support/BuildsScaResults.php": {
-    "mtime": 1795161187.7677202,
-    "seen": 1795332004.0683131,
-    "ast_hash": "c8f9b62de3744b36a89bf2120881bfde",
-    "semantic_hash": "c8f9b62de3744b36a89bf2120881bfde"
+    "mtime": 1795424442.127422,
+    "seen": 1795424622.70311,
+    "ast_hash": "0ccadfd2936e83d85c002c6760cdd878",
+    "semantic_hash": ""
   },
   "backend/tests/Support/BuildsZipArchives.php": {
     "mtime": 1794678276.544244,
@@ -1248,10 +1248,10 @@
     "semantic_hash": "86e3e1436a08df7699cdab222b1c25be"
   },
   "backend/tests/Unit/Sca/OsvVulnerabilityParserTest.php": {
-    "mtime": 1795160201.1579628,
-    "seen": 1795332004.068325,
-    "ast_hash": "25714e692b2eb9f429c2a68089841919",
-    "semantic_hash": "25714e692b2eb9f429c2a68089841919"
+    "mtime": 1795424442.1264699,
+    "seen": 1795424622.703131,
+    "ast_hash": "9e5fac64115b1bf8a24d86d7092d2ee2",
+    "semantic_hash": ""
   },
   "backend/tests/Unit/Sca/PackageJsonParserTest.php": {
     "mtime": 1795147403.777627,
@@ -1338,9 +1338,9 @@
     "semantic_hash": "08c2f00ae9de03c1f07008dea8f4bf42"
   },
   "API_CONTRACT.md": {
-    "mtime": 1795420027.75745,
-    "seen": 1795420074.009537,
-    "ast_hash": "ec5ed2ec997f3e58c6ba34994986ecbd",
+    "mtime": 1795424621.3084345,
+    "seen": 1795424622.703146,
+    "ast_hash": "f9227edff0ea8a135c05e88ba2d1be1d",
     "semantic_hash": ""
   },
   "ARCHITECTURE.md": {
@@ -1362,9 +1362,9 @@
     "semantic_hash": "92ad81f881ed478d7e3cbfd0329083ba"
   },
   "IMPLEMENTATION_ROADMAP.md": {
-    "mtime": 1795420047.3022132,
-    "seen": 1795420074.009541,
-    "ast_hash": "b3e0065c4c420d40e53b164e1e542a33",
+    "mtime": 1795424621.3097486,
+    "seen": 1795424622.70315,
+    "ast_hash": "31896ea132b009becca0e492e3a0361f",
     "semantic_hash": ""
   },
   "PRD.md": {
@@ -1380,9 +1380,9 @@
     "semantic_hash": "f4f9d4daa1d3c09ea796efed3451fd2a"
   },
   "TESTING.md": {
-    "mtime": 1795420027.7569036,
-    "seen": 1795420074.009544,
-    "ast_hash": "ecf61ac5952483f08c2944d0b1c5ea89",
+    "mtime": 1795424621.3088315,
+    "seen": 1795424622.7031522,
+    "ast_hash": "3073f9a64aaecab51a54912762370be0",
     "semantic_hash": ""
   },
   "backend/README.md": {
@@ -1764,33 +1764,63 @@
     "semantic_hash": ""
   },
   "DATABASE.md": {
-    "mtime": 1795343678.5896559,
-    "seen": 1795398273.370781,
-    "ast_hash": "2140b04b62e2062855a443fdfb1de283",
+    "mtime": 1795424621.3063028,
+    "seen": 1795424622.7031481,
+    "ast_hash": "a54baa0724eed5859c8a57dca106acd6",
     "semantic_hash": ""
   },
   "DECISIONS.md": {
-    "mtime": 1795420047.301868,
-    "seen": 1795420074.00954,
-    "ast_hash": "4c9b8c209402d3298785da5587586471",
+    "mtime": 1795424621.3092825,
+    "seen": 1795424622.703149,
+    "ast_hash": "885ef44ce70ce1e81a9dc21e9765e60d",
     "semantic_hash": ""
   },
   "backend/app/Services/Sca/CombinedFixResolver.php": {
-    "mtime": 1795419854.260966,
-    "seen": 1795420074.009399,
-    "ast_hash": "695137b0b33932656cc9094dca74c65f",
+    "mtime": 1795424526.6087189,
+    "seen": 1795424622.70301,
+    "ast_hash": "fa2af378b3cd7828acbe0b712ac7cd97",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Api/V1/AuditVulnerabilityCombinedFixTest.php": {
-    "mtime": 1795419799.912504,
-    "seen": 1795420074.009461,
-    "ast_hash": "2f5c4718a95dc8067eb4de4f5de69ad8",
+    "mtime": 1795424442.1267571,
+    "seen": 1795424622.703073,
+    "ast_hash": "c99a2ff2f92f13170954e1e05129b492",
     "semantic_hash": ""
   },
   "backend/tests/Unit/Sca/CombinedFixMatchTest.php": {
     "mtime": 1795419763.0969474,
     "seen": 1795420074.009517,
     "ast_hash": "5fd02750b0b5e5dbb7dd22ef9bbe4802",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sca/AdvisoryAffects.php": {
+    "mtime": 1795424499.0009508,
+    "seen": 1795424622.703008,
+    "ast_hash": "f8813eefb45d677f04425ff7a8241ec0",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_11_23_120000_add_affected_versions_to_vulnerabilities_table.php": {
+    "mtime": 1795424498.9993134,
+    "seen": 1795424622.703061,
+    "ast_hash": "b08db0de11412d87028a8826a48f9df1",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Api/V1/AuditVulnerabilityExplicitVersionsTest.php": {
+    "mtime": 1795424428.57251,
+    "seen": 1795424622.703073,
+    "ast_hash": "e87f68f21bfa7ff57584bc0932817f82",
+    "semantic_hash": ""
+  },
+  "backend/tests/Fixtures/Sca/osv-detail-versions-handwritten.json": {
+    "mtime": 1795424298.9553444,
+    "seen": 1795424622.703105,
+    "ast_hash": "3a0ba6794c311dddf25ca5d762d947e7",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sca/ExplicitVersionsMatchTest.php": {
+    "mtime": 1795424364.8177555,
+    "seen": 1795424622.7031271,
+    "ast_hash": "38a0829e8ad3967d0f10d528023042ca",
     "semantic_hash": ""
   },
   "backend/tooling/package-lock.json": {
