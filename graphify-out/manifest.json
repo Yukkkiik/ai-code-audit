@@ -360,16 +360,16 @@
     "semantic_hash": "03723c5e41e70955449f6d456958a332"
   },
   "backend/app/Providers/AppServiceProvider.php": {
-    "mtime": 1795159927.1325235,
-    "seen": 1795332004.0682292,
-    "ast_hash": "b1141e9f921d5d0866eb27c4e7d0ddff",
-    "semantic_hash": "b1141e9f921d5d0866eb27c4e7d0ddff"
+    "mtime": 1795343678.5905042,
+    "seen": 1795398273.370625,
+    "ast_hash": "12b1083d223f1069ba4ab237835ac693",
+    "semantic_hash": ""
   },
   "backend/app/Services/Audit/AuditAccessGuard.php": {
-    "mtime": 1795161152.4194906,
-    "seen": 1795332004.06823,
-    "ast_hash": "2338bb58ac0817306df78d6fab222494",
-    "semantic_hash": "2338bb58ac0817306df78d6fab222494"
+    "mtime": 1795398174.1408274,
+    "seen": 1795398273.370625,
+    "ast_hash": "e431f1cfacff17facf216e9e887b6f6f",
+    "semantic_hash": ""
   },
   "backend/app/Services/Audit/AuditScanCreator.php": {
     "mtime": 1794676682.128865,
@@ -666,10 +666,10 @@
     "semantic_hash": "16aa3191020b1b82de27217b4845c5aa"
   },
   "backend/config/audit.php": {
-    "mtime": 1795159927.131792,
-    "seen": 1795332004.0682619,
-    "ast_hash": "a0ee23b880dd2ecd1630b963f0ecbe12",
-    "semantic_hash": "a0ee23b880dd2ecd1630b963f0ecbe12"
+    "mtime": 1795345801.3994863,
+    "seen": 1795398273.370684,
+    "ast_hash": "0c0852ba0cd99c1d39e62ad4d5c1044d",
+    "semantic_hash": ""
   },
   "backend/config/auth.php": {
     "mtime": 1790776605.0,
@@ -870,10 +870,10 @@
     "semantic_hash": "1a03818ea91deb4f3989c6c994e5867c"
   },
   "backend/routes/api.php": {
-    "mtime": 1795161186.166125,
-    "seen": 1795332004.0682838,
-    "ast_hash": "6e883b2ab581740c2fc1213bbfe8b577",
-    "semantic_hash": "6e883b2ab581740c2fc1213bbfe8b577"
+    "mtime": 1795398204.6014993,
+    "seen": 1795398273.370709,
+    "ast_hash": "38a076b0d8e729a5969e65de1162c8e4",
+    "semantic_hash": ""
   },
   "backend/routes/console.php": {
     "mtime": 1790776605.0,
@@ -954,10 +954,10 @@
     "semantic_hash": "8ab1971dd84fdc76a0d476e2c88689b9"
   },
   "backend/tests/Feature/Audit/ProcessAuditJobTest.php": {
-    "mtime": 1795159879.7900958,
-    "seen": 1795332004.068293,
-    "ast_hash": "648f2118cb58a3e1ac4f27285198675f",
-    "semantic_hash": "648f2118cb58a3e1ac4f27285198675f"
+    "mtime": 1795343678.5958295,
+    "seen": 1795398273.37072,
+    "ast_hash": "9ecfb06fc51057adbeda6d443371e5a3",
+    "semantic_hash": ""
   },
   "backend/tests/Feature/Database/AiTablesTest.php": {
     "mtime": 1794675590.2349586,
@@ -1338,10 +1338,10 @@
     "semantic_hash": "08c2f00ae9de03c1f07008dea8f4bf42"
   },
   "API_CONTRACT.md": {
-    "mtime": 1795163035.912559,
-    "seen": 1795332004.068335,
-    "ast_hash": "8c3e8f74e6d244d756696c0fd7db5348",
-    "semantic_hash": "8c3e8f74e6d244d756696c0fd7db5348"
+    "mtime": 1795398268.8694134,
+    "seen": 1795398273.3707788,
+    "ast_hash": "b571515505d477aeb15ac436368e22b0",
+    "semantic_hash": ""
   },
   "ARCHITECTURE.md": {
     "mtime": 1795163035.9130127,
@@ -1350,10 +1350,10 @@
     "semantic_hash": "dac21cfa07918906ad97b8aaa4ff78b2"
   },
   "CLAUDE.md": {
-    "mtime": 1794670864.3607357,
-    "seen": 1795332004.068336,
-    "ast_hash": "be68b3c01d683c3f64f9fbf7fe5a1a08",
-    "semantic_hash": "be68b3c01d683c3f64f9fbf7fe5a1a08"
+    "mtime": 1795332153.4151733,
+    "seen": 1795398273.37078,
+    "ast_hash": "bb43d7b5066d3d03529d0dde08ad5e37",
+    "semantic_hash": ""
   },
   "FLOWS.md": {
     "mtime": 1795159974.107113,
@@ -1362,10 +1362,10 @@
     "semantic_hash": "92ad81f881ed478d7e3cbfd0329083ba"
   },
   "IMPLEMENTATION_ROADMAP.md": {
-    "mtime": 1795163035.9133947,
-    "seen": 1795332004.068337,
-    "ast_hash": "5253155411adcf6daffd3eb509442528",
-    "semantic_hash": "5253155411adcf6daffd3eb509442528"
+    "mtime": 1795398268.8699415,
+    "seen": 1795398273.370783,
+    "ast_hash": "0f4534f7692b4a3978bd5b3812498d79",
+    "semantic_hash": ""
   },
   "PRD.md": {
     "mtime": 1794668027.1262984,
@@ -1380,10 +1380,10 @@
     "semantic_hash": "f4f9d4daa1d3c09ea796efed3451fd2a"
   },
   "TESTING.md": {
-    "mtime": 1795163035.9131997,
-    "seen": 1795332004.0683389,
-    "ast_hash": "ce5e3534c204fd6c537d912ebff46e26",
-    "semantic_hash": "ce5e3534c204fd6c537d912ebff46e26"
+    "mtime": 1795398268.8697112,
+    "seen": 1795398273.370785,
+    "ast_hash": "f00fade3b224f7eb1f4f80a409791e86",
+    "semantic_hash": ""
   },
   "backend/README.md": {
     "mtime": 1790776605.0,
@@ -1396,5 +1396,389 @@
     "seen": 1795332004.06834,
     "ast_hash": "b6216d61c03e6ce0c9aea6ca7808f7ca",
     "semantic_hash": "b6216d61c03e6ce0c9aea6ca7808f7ca"
+  },
+  ".claude/settings.json": {
+    "mtime": 1795332153.415436,
+    "seen": 1795398273.3705611,
+    "ast_hash": "3b1e8910086e9752c4230d989081158b",
+    "semantic_hash": ""
+  },
+  "backend/app/Enums/HealthCategory.php": {
+    "mtime": 1795343678.5903547,
+    "seen": 1795398273.3705778,
+    "ast_hash": "03d7ab054ee0419ec1f45aabbe85cbb3",
+    "semantic_hash": ""
+  },
+  "backend/app/Exceptions/SastToolException.php": {
+    "mtime": 1795343678.5904093,
+    "seen": 1795398273.370593,
+    "ast_hash": "fe2a1a25e9873f0a31fb67968b9364ec",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Controllers/Api/V1/AuditFindingController.php": {
+    "mtime": 1795398204.582321,
+    "seen": 1795398273.370595,
+    "ast_hash": "5ee719442dff7dbee253fc83f2be167c",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Controllers/Api/V1/AuditMetricController.php": {
+    "mtime": 1795398204.5842066,
+    "seen": 1795398273.3705962,
+    "ast_hash": "23a7f871f78d2f9009dee459abbbca1d",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Requests/Api/V1/ListFindingsRequest.php": {
+    "mtime": 1795398204.572161,
+    "seen": 1795398273.370603,
+    "ast_hash": "23bf30dc735f8ca8991fa6557f1e7d53",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Requests/Api/V1/ListMetricsRequest.php": {
+    "mtime": 1795398204.573954,
+    "seen": 1795398273.370603,
+    "ast_hash": "c0161269fb5c6c9bd4e01336832e96f2",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Resources/FindingCollection.php": {
+    "mtime": 1795398204.576875,
+    "seen": 1795398273.3706088,
+    "ast_hash": "9056e517c4930f719ff96ad7cb178fd3",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Resources/FindingResource.php": {
+    "mtime": 1795398204.5795884,
+    "seen": 1795398273.3706088,
+    "ast_hash": "dba3815c5b278ecd18366ac7e7965541",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Resources/MetricCollection.php": {
+    "mtime": 1795398204.5782375,
+    "seen": 1795398273.37061,
+    "ast_hash": "3746a7f2ecc8eafef038b9dcb21ebc2a",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Resources/MetricResource.php": {
+    "mtime": 1795398204.5808568,
+    "seen": 1795398273.370611,
+    "ast_hash": "8a247b2760f76fb4352e4d3debb2b274",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Resources/SastListCollection.php": {
+    "mtime": 1795398204.5755086,
+    "seen": 1795398273.370611,
+    "ast_hash": "5ff98ec356dfea88734e205b0651ee91",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/EslintParser.php": {
+    "mtime": 1795343678.5906308,
+    "seen": 1795398273.3706398,
+    "ast_hash": "a8993a568caf43f63964a9f029ec5d01",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/EslintRunner.php": {
+    "mtime": 1795343678.5907173,
+    "seen": 1795398273.370641,
+    "ast_hash": "9af000383e5ce78a62e1cd066cc628e6",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/FileMetrics.php": {
+    "mtime": 1795343678.5907924,
+    "seen": 1795398273.370641,
+    "ast_hash": "3c08ecc80fdd0a78f9c357a3d1027a65",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/FindingNormalizer.php": {
+    "mtime": 1795343678.59087,
+    "seen": 1795398273.370642,
+    "ast_hash": "72bb82e6bfc8123e69d3b240d1f54ef5",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/FunctionMetrics.php": {
+    "mtime": 1795343678.5909445,
+    "seen": 1795398273.370643,
+    "ast_hash": "a1d079d4c82b705da8244ee61caf9562",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/HealthScore.php": {
+    "mtime": 1795343678.5911126,
+    "seen": 1795398273.3706439,
+    "ast_hash": "264e2507368b811bc596925e84148fa9",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/HealthScoreCalculator.php": {
+    "mtime": 1795343678.5911763,
+    "seen": 1795398273.3706439,
+    "ast_hash": "451d115d76e96de5b7165da681bf442c",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/JsTsFileSelector.php": {
+    "mtime": 1795343678.5912275,
+    "seen": 1795398273.370645,
+    "ast_hash": "7c8960c31bd9ac6c75637413b0455491",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/JsTsSelection.php": {
+    "mtime": 1795343678.5912995,
+    "seen": 1795398273.370646,
+    "ast_hash": "f1f4e542c8c8573044ae298dc006d434",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/MetricValues.php": {
+    "mtime": 1795343678.5913818,
+    "seen": 1795398273.370647,
+    "ast_hash": "d7c1c153cebfb04aa9ec6591e5d3c9d8",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/MetricsAggregate.php": {
+    "mtime": 1795343678.593479,
+    "seen": 1795398273.370647,
+    "ast_hash": "39c3ff797a16a4968d9bd7b63d9665cd",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/MetricsParser.php": {
+    "mtime": 1795343678.5935485,
+    "seen": 1795398273.3706481,
+    "ast_hash": "467f82df2a3bee29346d5ae5eb69c822",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/MetricsReport.php": {
+    "mtime": 1795343678.593609,
+    "seen": 1795398273.370649,
+    "ast_hash": "ee1f4b9a0fa23a586725a4d5febe8054",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/MetricsResult.php": {
+    "mtime": 1795343678.593669,
+    "seen": 1795398273.370649,
+    "ast_hash": "defccc3fea95128ef50b3acc46d8444c",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/MetricsRunner.php": {
+    "mtime": 1795343678.5937672,
+    "seen": 1795398273.37065,
+    "ast_hash": "4b2b6975b97be50aaebfe98742c1ec31",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/MetricsStore.php": {
+    "mtime": 1795343678.5938456,
+    "seen": 1795398273.3706508,
+    "ast_hash": "b34b890c8f798d885c94cbc8bf59278f",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/NormalizedFindings.php": {
+    "mtime": 1795343678.5939016,
+    "seen": 1795398273.3706508,
+    "ast_hash": "1eac41341ed44074256791dc2cb22a17",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SastFinding.php": {
+    "mtime": 1795343678.5939875,
+    "seen": 1795398273.370652,
+    "ast_hash": "c46e482018ca5f75382f89f236a1c566",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SastResultStore.php": {
+    "mtime": 1795343678.594063,
+    "seen": 1795398273.370652,
+    "ast_hash": "d64e928108d5e59c97cb603c766a8f31",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SastScanSummary.php": {
+    "mtime": 1795398214.1172931,
+    "seen": 1795398273.370653,
+    "ast_hash": "a940e6baf4ecb7d5d1b53919cbd22dc7",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SastStageRunner.php": {
+    "mtime": 1795343678.5941691,
+    "seen": 1795398273.3706539,
+    "ast_hash": "51c9c79731dec5e0ebce7c79b0e2f9f4",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SastText.php": {
+    "mtime": 1795343678.5942688,
+    "seen": 1795398273.370655,
+    "ast_hash": "7cb432236a73009eaee7d6c890250075",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SastToolExecutor.php": {
+    "mtime": 1795345801.3992412,
+    "seen": 1795398273.370655,
+    "ast_hash": "cc07a79edd94e7afa6313ff218891b13",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SemgrepParser.php": {
+    "mtime": 1795343678.5945694,
+    "seen": 1795398273.370656,
+    "ast_hash": "35d0c15fd524873580e274bb384e1c21",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SemgrepRunner.php": {
+    "mtime": 1795343678.594647,
+    "seen": 1795398273.370657,
+    "ast_hash": "3c4935dac24b3902ddfde6a07028fc0b",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/SnippetReader.php": {
+    "mtime": 1795343678.5947034,
+    "seen": 1795398273.370657,
+    "ast_hash": "cd579b6f547966862d4558872b956873",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/ToolReport.php": {
+    "mtime": 1795343678.5947669,
+    "seen": 1795398273.3706582,
+    "ast_hash": "a75e84f7c3856dec5772b3bb787fe913",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sast/ToolRunResult.php": {
+    "mtime": 1795343678.5948217,
+    "seen": 1795398273.370659,
+    "ast_hash": "f8eb65e0fdd7cb93165a0fa18358203c",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Api/V1/AuditFindingsTest.php": {
+    "mtime": 1795398214.1174717,
+    "seen": 1795398273.370712,
+    "ast_hash": "2aa84b1c0e87253147c4bf521adb19c6",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Api/V1/AuditMetricsTest.php": {
+    "mtime": 1795398214.1177444,
+    "seen": 1795398273.370713,
+    "ast_hash": "e51de3140a74ba2fad79e4bed455707f",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Sast/EslintRunnerTest.php": {
+    "mtime": 1795345801.3996692,
+    "seen": 1795398273.370733,
+    "ast_hash": "a63c23d1a8b7b464e8072604c1a77b41",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Sast/MetricsRunnerTest.php": {
+    "mtime": 1795343678.5961106,
+    "seen": 1795398273.370733,
+    "ast_hash": "cde7af1b8c4db9002699e74051e510df",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Sast/SastIgnoredDirectoriesTest.php": {
+    "mtime": 1795345801.3997676,
+    "seen": 1795398273.370734,
+    "ast_hash": "beb1ffaf541c439c262534d59431838b",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Sast/SastResultStoreTest.php": {
+    "mtime": 1795343678.5962217,
+    "seen": 1795398273.3707352,
+    "ast_hash": "daa4ee3e92bee5516fc458a88eb016f8",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Sast/SastStageRunnerTest.php": {
+    "mtime": 1795345801.399907,
+    "seen": 1795398273.3707352,
+    "ast_hash": "e9b448a7e231b0b339b09d69f5c123b9",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Sast/SemgrepRunnerTest.php": {
+    "mtime": 1795345801.4000807,
+    "seen": 1795398273.3707361,
+    "ast_hash": "dc43d320445d92b255c9a923df0c706e",
+    "semantic_hash": ""
+  },
+  "backend/tests/Fixtures/sast/eslint-real-output.json": {
+    "mtime": 1795343678.5965297,
+    "seen": 1795398273.3707461,
+    "ast_hash": "6d095dd8e78d300aaecfb54a00e16045",
+    "semantic_hash": ""
+  },
+  "backend/tests/Fixtures/sast/semgrep-output.json": {
+    "mtime": 1795343678.5965858,
+    "seen": 1795398273.3707469,
+    "ast_hash": "a7a880e3cd2078c4dc3162ee057f929a",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sast/EslintParserTest.php": {
+    "mtime": 1795343678.5967267,
+    "seen": 1795398273.370757,
+    "ast_hash": "9942ac3d2fd5e27056a9664d952a65c6",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sast/FindingNormalizerTest.php": {
+    "mtime": 1795343678.5968301,
+    "seen": 1795398273.3707578,
+    "ast_hash": "f547cacb6335553eb4a850cf4a4efcc0",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sast/HealthScoreCalculatorTest.php": {
+    "mtime": 1795343678.5969324,
+    "seen": 1795398273.370759,
+    "ast_hash": "48a252c8a1ab85671a1880823e9c3c74",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sast/JsTsFileSelectorTest.php": {
+    "mtime": 1795343678.5971434,
+    "seen": 1795398273.370759,
+    "ast_hash": "37367e56e48a20e6eec11b040b560b3c",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sast/MetricsTest.php": {
+    "mtime": 1795343678.5972881,
+    "seen": 1795398273.37076,
+    "ast_hash": "30e25f73410c994fcda0365c9cdfca0c",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sast/SastScanSummaryTest.php": {
+    "mtime": 1795398238.7677114,
+    "seen": 1795398273.370761,
+    "ast_hash": "c2237f93fa68c115e3b324cc39e5199b",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sast/SemgrepParserTest.php": {
+    "mtime": 1795343678.597391,
+    "seen": 1795398273.370761,
+    "ast_hash": "72af8b87a5ee926a12acd83e7cab8f24",
+    "semantic_hash": ""
+  },
+  "backend/tooling/eslint.config.mjs": {
+    "mtime": 1795345801.4002087,
+    "seen": 1795398273.3707688,
+    "ast_hash": "ae7ea3f5cd154e59cd46951c9c2cdd3b",
+    "semantic_hash": ""
+  },
+  "backend/tooling/metrics.mjs": {
+    "mtime": 1795343678.5977333,
+    "seen": 1795398273.37077,
+    "ast_hash": "e737f249c1a93ac3521aa34a58d4c864",
+    "semantic_hash": ""
+  },
+  "backend/tooling/package.json": {
+    "mtime": 1795343678.597911,
+    "seen": 1795398273.37077,
+    "ast_hash": "96f2426a60e97a892adfd33f673ba63d",
+    "semantic_hash": ""
+  },
+  "backend/tooling/semgrep/js-ts-security.yml": {
+    "mtime": 1795343678.5980182,
+    "seen": 1795398273.370771,
+    "ast_hash": "591709e00c2a671ad6ace307f25b70a9",
+    "semantic_hash": ""
+  },
+  "DATABASE.md": {
+    "mtime": 1795343678.5896559,
+    "seen": 1795398273.370781,
+    "ast_hash": "2140b04b62e2062855a443fdfb1de283",
+    "semantic_hash": ""
+  },
+  "DECISIONS.md": {
+    "mtime": 1795398268.870432,
+    "seen": 1795398273.370782,
+    "ast_hash": "272ae9eb830b77875a5fe4ebe69ce7c7",
+    "semantic_hash": ""
+  },
+  "backend/tooling/package-lock.json": {
+    "mtime": 1795343678.5978312,
+    "seen": 1795398273.370788,
+    "ast_hash": "a761bdea6cc864ce9b86125fbdaa43db",
+    "semantic_hash": ""
   }
 }
