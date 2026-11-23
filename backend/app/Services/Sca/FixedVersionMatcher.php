@@ -16,6 +16,10 @@ use App\Enums\VersionChange;
  * menyimpulkan versi: hanya nilai `fixed` yang tertulis. Range GIT dan tipe lain diabaikan; `ECOSYSTEM`
  * diperlakukan seperti `SEMVER` (asumsi untuk npm). Event `limit`, versi bukan semver ketat, atau event yang
  * tidak berurutan wajar membuat hasil `undetermined`, bukan tebakan.
+ *
+ * Daftar `versions` eksplisit OSV (A-38): versi terpasang terdampak bila ada di interval ATAU kuncinya (string tanpa
+ * `+build`) ada di daftar; kandidat `fixed` yang tertulis di daftar dilewati. Ketiadaan di daftar tidak pernah
+ * membuktikan "tidak terdampak". Daftar yang tidak diketahui (null) memblokir hasil.
  */
 class FixedVersionMatcher
 {
@@ -32,6 +36,11 @@ class FixedVersionMatcher
      * pada data nyata.
      */
     public const MAX_COMBINED_INTERVALS = 20000;
+
+    /**
+     * Anggaran total kunci `versions` distinct pada pencocokan gabungan. Usulan, belum divalidasi pada data nyata.
+     */
+    public const MAX_COMBINED_VERSIONS = 20000;
 
     /**
      * Pengganti untuk range tersimpan yang tidak dapat dibaca (JSON rusak/bukan array): bentuk yang pasti
@@ -53,84 +62,64 @@ class FixedVersionMatcher
     ];
 
     /**
-     * @param  list<array{type: string, events: list<array<string, string>>}>|null  $affectedRanges  null = detail advisori tidak tersedia
+     * @param  AdvisoryAffects|list<array{type: string, events: list<array<string, string>>}>|null  $affects  array/null = jalur lama (daftar `versions` kosong; null = detail advisori tidak tersedia)
      */
-    public function match(string $installedVersion, ?array $affectedRanges): FixMatch
+    public function match(string $installedVersion, AdvisoryAffects|array|null $affects): FixMatch
     {
-        if ($affectedRanges === null) {
-            return FixMatch::undetermined($installedVersion, FixMatchReason::DetailUnavailable);
-        }
-
         $installed = SemverVersion::tryParse($installedVersion);
+        $evaluation = $this->evaluate(AdvisoryAffects::from($affects), $installed);
 
-        if ($installed === null) {
-            return FixMatch::undetermined($installedVersion, FixMatchReason::InvalidVersion);
+        if ($evaluation instanceof FixMatchReason) {
+            return FixMatch::undetermined($installedVersion, $evaluation);
         }
 
-        $analysis = $this->analyze($affectedRanges);
+        [$merged, $fixed, $keys, $affected] = $evaluation;
 
-        if ($analysis instanceof FixMatchReason) {
-            return FixMatch::undetermined($installedVersion, $analysis);
-        }
-
-        [$merged, $fixed] = $analysis;
-
-        if (! $this->contains($merged, $installed)) {
+        if (! $affected) {
             return FixMatch::undetermined($installedVersion, FixMatchReason::NotInListedRanges);
         }
 
-        return $this->smallestFix($installedVersion, $installed, $merged, $fixed);
+        return $this->smallestFix($installedVersion, $installed, $merged, $fixed, $keys);
     }
 
     /**
      * Versi perbaikan gabungan untuk SEMUA advisori satu dependency: nilai `fixed` terkecil di atas versi terpasang
-     * yang tidak terdampak oleh advisori mana pun yang diberikan. Versi itu tidak ditanyakan ke OSV; advisori yang
-     * hanya berlaku pada versi tersebut tidak ada di data ini.
+     * yang tidak terdampak oleh advisori mana pun yang diberikan (interval ATAU daftar `versions`). Versi itu tidak
+     * ditanyakan ke OSV; advisori yang hanya berlaku pada versi tersebut tidak ada di data ini.
      *
-     * Fase 1 mengevaluasi tiap advisori terpisah (urutan pemeriksaan sama seperti `match()`); satu advisori yang
-     * tidak dapat dipastikan membuat seluruh hasil `undetermined`, dengan alasan berprioritas (lihat COMBINED_REASON_PRIORITY).
-     * Fase 2 hanya jalan bila semua advisori memuat versi terpasang. Advisori dibaca satu per satu (boleh generator)
-     * dan hanya interval gabungannya yang disimpan. Hasil tidak bergantung pada urutan advisori.
+     * Fase 1 mengevaluasi tiap advisori terpisah (`evaluate()`, sama seperti `match()`); satu advisori yang tidak
+     * dapat dipastikan membuat seluruh hasil `undetermined`, dengan alasan berprioritas (COMBINED_REASON_PRIORITY).
+     * Fase 2 hanya jalan bila semua advisori terdampak. Advisori dibaca satu per satu (boleh generator) dan hanya
+     * interval, nilai `fixed`, dan kunci versinya yang disimpan. Hasil tidak bergantung pada urutan advisori.
      *
-     * @param  iterable<list<array{type: string, events: list<array<string, string>>}>|null>  $rangesPerAdvisory  null = detail advisori tidak tersedia
+     * @param  iterable<AdvisoryAffects|list<array{type: string, events: list<array<string, string>>}>|null>  $advisories  array/null = jalur lama
      */
-    public function matchCombined(string $installedVersion, iterable $rangesPerAdvisory): FixMatch
+    public function matchCombined(string $installedVersion, iterable $advisories): FixMatch
     {
         $installed = SemverVersion::tryParse($installedVersion);
         $reasons = [];
         $intervals = [];
         $fixed = [];
+        $keys = [];
         $total = 0;
         $seen = 0;
         $overBudget = false;
 
-        foreach ($rangesPerAdvisory as $ranges) {
+        foreach ($advisories as $advisory) {
             $seen++;
+            $evaluation = $this->evaluate(AdvisoryAffects::from($advisory), $installed);
 
-            if ($ranges === null) {
-                $reasons[FixMatchReason::DetailUnavailable->value] = true;
-
-                continue;
-            }
-
-            if ($installed === null) {
-                $reasons[FixMatchReason::InvalidVersion->value] = true;
+            if ($evaluation instanceof FixMatchReason) {
+                $reasons[$evaluation->value] = true;
 
                 continue;
             }
 
-            $analysis = $this->analyze($ranges);
-
-            if ($analysis instanceof FixMatchReason) {
-                $reasons[$analysis->value] = true;
-
-                continue;
-            }
-
-            [$merged, $advisoryFixed] = $analysis;
+            [$merged, $advisoryFixed, $advisoryKeys, $affected] = $evaluation;
             $total += count($merged);
+            $keys += $advisoryKeys;
 
-            if (! $this->contains($merged, $installed)) {
+            if (! $affected) {
                 $reasons[FixMatchReason::NotInListedRanges->value] = true;
             }
 
@@ -142,9 +131,9 @@ class FixedVersionMatcher
             }
 
             // Setelah anggaran terlampaui hasilnya sudah pasti undetermined; berhenti menyimpan agar memori terbatas.
-            if ($total > self::MAX_COMBINED_INTERVALS || count($fixed) > self::MAX_COMBINED_INTERVALS) {
+            if ($total > self::MAX_COMBINED_INTERVALS || count($fixed) > self::MAX_COMBINED_INTERVALS || count($keys) > self::MAX_COMBINED_VERSIONS) {
                 $overBudget = true;
-                $intervals = $fixed = [];
+                $intervals = $fixed = $keys = [];
             } elseif (! $overBudget) {
                 array_push($intervals, ...$merged);
             }
@@ -165,7 +154,73 @@ class FixedVersionMatcher
             }
         }
 
-        return $this->smallestFix($installedVersion, $installed, $this->merge($intervals), array_values($fixed));
+        return $this->smallestFix($installedVersion, $installed, $this->merge($intervals), array_values($fixed), $keys);
+    }
+
+    /**
+     * Evaluasi satu advisori, urutan pemeriksaan (yang pertama kena menang): detail tidak ada; versi terpasang tidak
+     * valid; daftar `versions` tidak diketahui; range tak dapat dievaluasi (memblokir walau versi terpasang tertulis
+     * di `versions`); tidak ada range dan `versions` kosong. Selebihnya hasilnya adalah interval gabungan, nilai
+     * `fixed`, kunci `versions`, dan apakah versi terpasang terdampak (di interval ATAU kuncinya di `versions`).
+     *
+     * @return FixMatchReason|array{0: list<array{0: SemverVersion|null, 1: SemverVersion|null, 2: bool}>, 1: list<SemverVersion>, 2: array<string, true>, 3: bool}
+     */
+    private function evaluate(AdvisoryAffects $affects, ?SemverVersion $installed): FixMatchReason|array
+    {
+        if ($affects->ranges === null) {
+            return FixMatchReason::DetailUnavailable;
+        }
+
+        if ($installed === null) {
+            return FixMatchReason::InvalidVersion;
+        }
+
+        if ($affects->versions === null) {
+            return FixMatchReason::UnevaluableRange;
+        }
+
+        $analysis = $this->analyze($affects->ranges);
+
+        // Tanpa range SEMVER/ECOSYSTEM: advisori yang hanya memakai `versions` tetap dapat dievaluasi.
+        if ($analysis === FixMatchReason::NoRangeData && $affects->versions !== []) {
+            $analysis = [[], []];
+        }
+
+        if ($analysis instanceof FixMatchReason) {
+            return $analysis;
+        }
+
+        [$merged, $fixed] = $analysis;
+        $keys = $this->versionKeys($affects->versions);
+
+        return [$merged, $fixed, $keys, $this->contains($merged, $installed) || isset($keys[self::key($installed->original)])];
+    }
+
+    /**
+     * Kunci pencocokan `versions`: string versi dipotong di "+" pertama (metadata build diabaikan).
+     */
+    private static function key(string $version): string
+    {
+        return explode('+', $version, 2)[0];
+    }
+
+    /**
+     * Hanya entri semver ketat yang dapat cocok; entri lain (nilai sampah) tidak pernah cocok.
+     *
+     * @param  list<mixed>  $versions
+     * @return array<string, true>
+     */
+    private function versionKeys(array $versions): array
+    {
+        $keys = [];
+
+        foreach ($versions as $version) {
+            if (is_string($version) && SemverVersion::tryParse($version) !== null) {
+                $keys[self::key($version)] = true;
+            }
+        }
+
+        return $keys;
     }
 
     /**
@@ -206,18 +261,20 @@ class FixedVersionMatcher
     }
 
     /**
-     * Versi perbaikan = nilai `fixed` terkecil yang lebih besar dari versi terpasang dan sendiri tidak terdampak.
+     * Versi perbaikan = nilai `fixed` terkecil yang lebih besar dari versi terpasang dan sendiri tidak terdampak
+     * (tidak di interval dan kuncinya tidak tertulis di `versions`).
      *
      * @param  list<array{0: SemverVersion|null, 1: SemverVersion|null, 2: bool}>  $merged
      * @param  list<SemverVersion>  $fixed
+     * @param  array<string, true>  $keys
      */
-    private function smallestFix(string $installedVersion, SemverVersion $installed, array $merged, array $fixed): FixMatch
+    private function smallestFix(string $installedVersion, SemverVersion $installed, array $merged, array $fixed, array $keys): FixMatch
     {
         $candidates = array_values(array_filter($fixed, fn (SemverVersion $v) => $v->compareTo($installed) > 0));
         usort($candidates, fn (SemverVersion $a, SemverVersion $b) => $a->compareTo($b));
 
         foreach ($candidates as $candidate) {
-            if (! $this->contains($merged, $candidate)) {
+            if (! $this->contains($merged, $candidate) && ! isset($keys[self::key($candidate->original)])) {
                 return FixMatch::fixAvailable($installedVersion, $candidate->original, $this->change($installed, $candidate));
             }
         }

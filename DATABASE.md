@@ -191,6 +191,7 @@ Satu baris = satu advisori OSV yang cocok dengan satu dependency pada satu audit
 | severity_label | VARCHAR(10) | ✓ | Enum `VulnerabilitySeverity`: `critical`/`high`/`medium`/`low`/`unknown` — hanya jika dapat diturunkan dari data OSV (`database_specific.severity`), tidak dikarang. **NULL = detail advisori tidak berhasil diambil; `unknown` = detail ada tetapi severity tidak dapat diturunkan (jangan diperlakukan sebagai rendah).** |
 | severity_vectors | JSON | ✓ | Daftar `{type, score}` mentah dari OSV (mis. CVSS_V3). |
 | affected_ranges | JSON | ✓ | Rentang terdampak dari OSV. |
+| affected_versions | JSON | ✓ | Daftar `versions` eksplisit OSV untuk paket ini (migration `2026_11_23_120000`, A-38). **Tiga keadaan:** list string = OSV mencantumkan `versions` (lengkap); `[]` = OSV tidak mencantumkan; **NULL = TIDAK DIKETAHUI** (detail gagal diambil, daftar tidak lengkap/melebihi 1000 versi distinct, `versions` bukan list, atau baris lama sebelum kolom ada) dan memblokir pencocokan versi perbaikan; tidak pernah diperlakukan sebagai kosong. Tanpa backfill. |
 | fixed_versions | JSON | ✓ | Versi perbaikan dari OSV saja. Kosong jika OSV tidak menyediakan. |
 | reference_urls | JSON | ✓ | Daftar URL referensi dari OSV. (Bukan `references` — reserved word MySQL.) |
 | published_at | TIMESTAMP | ✓ | |

@@ -53,6 +53,7 @@ class ScaTablesTest extends TestCase
             'severity_label' => ['varchar(10)', true],
             'severity_vectors' => ['json', true],
             'affected_ranges' => ['json', true],
+            'affected_versions' => ['json', true],
             'fixed_versions' => ['json', true],
             'reference_urls' => ['json', true],
             'published_at' => ['timestamp', true],

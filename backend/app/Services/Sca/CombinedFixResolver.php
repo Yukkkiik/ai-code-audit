@@ -8,8 +8,8 @@ use Generator;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Versi perbaikan gabungan untuk satu dependency: membaca `affected_ranges` semua advisori dependency itu pada
- * audit yang sama (satu query) lalu menyerahkannya ke FixedVersionMatcher::matchCombined().
+ * Versi perbaikan gabungan untuk satu dependency: membaca `affected_ranges` dan `affected_versions` semua advisori
+ * dependency itu pada audit yang sama (satu query) lalu menyerahkannya ke FixedVersionMatcher::matchCombined().
  */
 class CombinedFixResolver
 {
@@ -34,7 +34,7 @@ class CombinedFixResolver
         $installed = (string) $vulnerability->dependency->version;
 
         $rows = DB::table('vulnerabilities')
-            ->select(['id', 'affected_ranges'])
+            ->select(['id', 'affected_ranges', 'affected_versions'])
             ->where('audit_scan_id', $vulnerability->audit_scan_id)
             ->where('dependency_id', $vulnerability->dependency_id)
             ->orderBy('id')
@@ -52,30 +52,54 @@ class CombinedFixResolver
     /**
      * Decode satu per satu dan buang baris mentahnya agar hanya satu JSON hidup pada satu waktu.
      *
-     * @param  list<object{id: int, affected_ranges: ?string}>  $rows
-     * @return Generator<int, array<mixed>|null>
+     * @param  list<object{id: int, affected_ranges: ?string, affected_versions: ?string}>  $rows
+     * @return Generator<int, AdvisoryAffects>
      */
     private function decoded(array $rows): Generator
     {
         while (($row = array_shift($rows)) !== null) {
-            $json = $row->affected_ranges;
+            $ranges = $row->affected_ranges;
+            $versions = $row->affected_versions;
             unset($row);
 
-            if ($json === null) {
-                yield null;
-
-                continue;
-            }
-
-            $decoded = json_decode($json, true, self::JSON_DEPTH);
-            unset($json);
-
-            // JSON literal `null` sama artinya dengan kolom NULL; selain array (atau JSON rusak) tidak dapat dievaluasi.
-            if ($decoded === null && json_last_error() === JSON_ERROR_NONE) {
-                yield null;
-            } else {
-                yield is_array($decoded) ? $decoded : FixedVersionMatcher::UNREADABLE_RANGES;
-            }
+            yield AdvisoryAffects::of($this->ranges($ranges), $this->versions($versions));
         }
+    }
+
+    /**
+     * Kolom NULL atau JSON literal `null` = detail tidak tersedia; selain array (atau JSON rusak) tidak dapat dievaluasi.
+     *
+     * @return array<mixed>|null
+     */
+    private function ranges(?string $json): ?array
+    {
+        if ($json === null) {
+            return null;
+        }
+
+        $decoded = json_decode($json, true, self::JSON_DEPTH);
+
+        if ($decoded === null && json_last_error() === JSON_ERROR_NONE) {
+            return null;
+        }
+
+        return is_array($decoded) ? $decoded : FixedVersionMatcher::UNREADABLE_RANGES;
+    }
+
+    /**
+     * NULL (termasuk baris lama sebelum kolom ada), JSON literal `null`, JSON rusak, dan nilai yang bukan list =
+     * daftar TIDAK DIKETAHUI (null), yang memblokir hasil; tidak pernah dianggap kosong.
+     *
+     * @return list<mixed>|null
+     */
+    private function versions(?string $json): ?array
+    {
+        if ($json === null) {
+            return null;
+        }
+
+        $decoded = json_decode($json, true, self::JSON_DEPTH);
+
+        return is_array($decoded) && array_is_list($decoded) ? $decoded : null;
     }
 }
