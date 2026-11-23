@@ -1,0 +1,46 @@
+{
+  "id": "HANDWRITTEN-VERSIONS-0001",
+  "summary": "HANDWRITTEN FIXTURE: npm advisory with explicit versions lists (not a real OSV response)",
+  "details": "Ditulis tangan untuk test 7.10. Bentuk `versions` pada paket npm di sini BELUM terbukti pada respons OSV nyata.",
+  "affected": [
+    {
+      "package": { "ecosystem": "npm", "name": "hand-both" },
+      "ranges": [ { "type": "SEMVER", "events": [ { "introduced": "0" }, { "fixed": "2.0.0" } ] } ],
+      "versions": [ "1.0.0", "1.0.1", "2.1.0+build" ]
+    },
+    {
+      "package": { "ecosystem": "npm", "name": "hand-versions-only" },
+      "versions": [ "3.0.0", "3.0.1" ]
+    },
+    {
+      "package": { "ecosystem": "npm", "name": "hand-two-entries" },
+      "versions": [ "1.0.0", "1.0.1" ]
+    },
+    {
+      "package": { "ecosystem": "npm", "name": "hand-two-entries" },
+      "versions": [ "1.0.1", "1.0.2" ]
+    },
+    {
+      "package": { "ecosystem": "npm", "name": "hand-not-a-list" },
+      "ranges": [ { "type": "SEMVER", "events": [ { "introduced": "0" }, { "fixed": "1.0.0" } ] } ],
+      "versions": "1.0.0"
+    },
+    {
+      "package": { "ecosystem": "npm", "name": "hand-junk" },
+      "versions": [ 1, "", null, "ok", "ok", true, [ "nested" ], "1.2.3" ]
+    },
+    {
+      "package": { "ecosystem": "npm", "name": "hand-one-null-entry" },
+      "versions": [ "1.0.0" ]
+    },
+    {
+      "package": { "ecosystem": "npm", "name": "hand-one-null-entry" },
+      "versions": { "not": "a list" }
+    },
+    {
+      "package": { "ecosystem": "RubyGems", "name": "hand-ruby" },
+      "ranges": [ { "type": "ECOSYSTEM", "events": [ { "introduced": "0" }, { "fixed": "1.0.0" } ] } ],
+      "versions": [ "0.1.0", "0.2.0" ]
+    }
+  ]
+}

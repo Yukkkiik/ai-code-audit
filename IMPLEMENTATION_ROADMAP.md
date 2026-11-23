@@ -89,7 +89,7 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 7.7 | Endpoint `GET /audits/{id}/dependencies` & `GET /audits/{id}/vulnerabilities` (+ detail per advisori) | ✅ |
 | 7.8 | Pencocokan range versi perbaikan (prasyarat AI Remediation, Tahap 9) | ✅ |
 | 7.9 | Versi perbaikan gabungan per dependency (memenuhi semua advisori yang tersimpan) | ✅ |
-| 7.10 | Simpan daftar `versions` eksplisit OSV (agar advisori tanpa range tidak `undetermined`) | ⬜ |
+| 7.10 | Simpan daftar `versions` eksplisit OSV (agar advisori tanpa range tidak `undetermined`) | ✅ |
 
 ## TAHAP 8 — Authentication & Access Control
 | ID | Pekerjaan | Keputusan | Status |
