@@ -192,10 +192,10 @@
     "semantic_hash": "3fb16c58f212d11866e07757d1c8917c"
   },
   "backend/app/Http/Controllers/Api/V1/AuditVulnerabilityController.php": {
-    "mtime": 1795161186.1522713,
-    "seen": 1795332004.0682108,
-    "ast_hash": "937adefe29610a2a39ed7c6dce1d5ed1",
-    "semantic_hash": "937adefe29610a2a39ed7c6dce1d5ed1"
+    "mtime": 1795419854.2747746,
+    "seen": 1795420074.0093288,
+    "ast_hash": "f6a6d4a37c5cf9bca9b0c50fd8f9f76c",
+    "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Api/V1/HealthController.php": {
     "mtime": 1794671454.36062,
@@ -282,10 +282,10 @@
     "semantic_hash": "f4c989803593af10fabf52582505aa35"
   },
   "backend/app/Http/Resources/VulnerabilityDetailResource.php": {
-    "mtime": 1795162958.4652417,
-    "seen": 1795332004.0682209,
-    "ast_hash": "8f029706a5979af0d381751da5401c50",
-    "semantic_hash": "8f029706a5979af0d381751da5401c50"
+    "mtime": 1795419854.27509,
+    "seen": 1795420074.009347,
+    "ast_hash": "7697c040d8d38bea688ea2e6e9b5b770",
+    "semantic_hash": ""
   },
   "backend/app/Http/Resources/VulnerabilityResource.php": {
     "mtime": 1795161186.1481686,
@@ -366,8 +366,8 @@
     "semantic_hash": ""
   },
   "backend/app/Services/Audit/AuditAccessGuard.php": {
-    "mtime": 1795398174.1408274,
-    "seen": 1795398273.370625,
+    "mtime": 1795400208.1122215,
+    "seen": 1795420074.0093582,
     "ast_hash": "e431f1cfacff17facf216e9e887b6f6f",
     "semantic_hash": ""
   },
@@ -504,10 +504,10 @@
     "semantic_hash": "293ec7c0fd3e97991838d20e5f155aba"
   },
   "backend/app/Services/Sca/FixedVersionMatcher.php": {
-    "mtime": 1795162958.4460912,
-    "seen": 1795332004.068244,
-    "ast_hash": "c48a5dca078af778a823a5b382e578ed",
-    "semantic_hash": "c48a5dca078af778a823a5b382e578ed"
+    "mtime": 1795419973.193599,
+    "seen": 1795420074.009404,
+    "ast_hash": "d0d2b140be12c2fc2050391066ec9649",
+    "semantic_hash": ""
   },
   "backend/app/Services/Sca/ManifestFailure.php": {
     "mtime": 1795157367.819772,
@@ -870,8 +870,8 @@
     "semantic_hash": "1a03818ea91deb4f3989c6c994e5867c"
   },
   "backend/routes/api.php": {
-    "mtime": 1795398204.6014993,
-    "seen": 1795398273.370709,
+    "mtime": 1795400208.1126127,
+    "seen": 1795420074.009454,
     "ast_hash": "38a076b0d8e729a5969e65de1162c8e4",
     "semantic_hash": ""
   },
@@ -1338,9 +1338,9 @@
     "semantic_hash": "08c2f00ae9de03c1f07008dea8f4bf42"
   },
   "API_CONTRACT.md": {
-    "mtime": 1795398268.8694134,
-    "seen": 1795398273.3707788,
-    "ast_hash": "b571515505d477aeb15ac436368e22b0",
+    "mtime": 1795420027.75745,
+    "seen": 1795420074.009537,
+    "ast_hash": "ec5ed2ec997f3e58c6ba34994986ecbd",
     "semantic_hash": ""
   },
   "ARCHITECTURE.md": {
@@ -1362,9 +1362,9 @@
     "semantic_hash": "92ad81f881ed478d7e3cbfd0329083ba"
   },
   "IMPLEMENTATION_ROADMAP.md": {
-    "mtime": 1795398268.8699415,
-    "seen": 1795398273.370783,
-    "ast_hash": "0f4534f7692b4a3978bd5b3812498d79",
+    "mtime": 1795420047.3022132,
+    "seen": 1795420074.009541,
+    "ast_hash": "b3e0065c4c420d40e53b164e1e542a33",
     "semantic_hash": ""
   },
   "PRD.md": {
@@ -1380,9 +1380,9 @@
     "semantic_hash": "f4f9d4daa1d3c09ea796efed3451fd2a"
   },
   "TESTING.md": {
-    "mtime": 1795398268.8697112,
-    "seen": 1795398273.370785,
-    "ast_hash": "f00fade3b224f7eb1f4f80a409791e86",
+    "mtime": 1795420027.7569036,
+    "seen": 1795420074.009544,
+    "ast_hash": "ecf61ac5952483f08c2944d0b1c5ea89",
     "semantic_hash": ""
   },
   "backend/README.md": {
@@ -1416,56 +1416,56 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Api/V1/AuditFindingController.php": {
-    "mtime": 1795398204.582321,
-    "seen": 1795398273.370595,
+    "mtime": 1795400208.1103559,
+    "seen": 1795420074.0093272,
     "ast_hash": "5ee719442dff7dbee253fc83f2be167c",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Api/V1/AuditMetricController.php": {
-    "mtime": 1795398204.5842066,
-    "seen": 1795398273.3705962,
+    "mtime": 1795400208.110562,
+    "seen": 1795420074.0093281,
     "ast_hash": "23a7f871f78d2f9009dee459abbbca1d",
     "semantic_hash": ""
   },
   "backend/app/Http/Requests/Api/V1/ListFindingsRequest.php": {
-    "mtime": 1795398204.572161,
-    "seen": 1795398273.370603,
+    "mtime": 1795400208.1107585,
+    "seen": 1795420074.009335,
     "ast_hash": "23bf30dc735f8ca8991fa6557f1e7d53",
     "semantic_hash": ""
   },
   "backend/app/Http/Requests/Api/V1/ListMetricsRequest.php": {
-    "mtime": 1795398204.573954,
-    "seen": 1795398273.370603,
+    "mtime": 1795400208.1113508,
+    "seen": 1795420074.009336,
     "ast_hash": "c0161269fb5c6c9bd4e01336832e96f2",
     "semantic_hash": ""
   },
   "backend/app/Http/Resources/FindingCollection.php": {
-    "mtime": 1795398204.576875,
-    "seen": 1795398273.3706088,
+    "mtime": 1795400208.1114876,
+    "seen": 1795420074.009342,
     "ast_hash": "9056e517c4930f719ff96ad7cb178fd3",
     "semantic_hash": ""
   },
   "backend/app/Http/Resources/FindingResource.php": {
-    "mtime": 1795398204.5795884,
-    "seen": 1795398273.3706088,
+    "mtime": 1795400208.1116126,
+    "seen": 1795420074.009342,
     "ast_hash": "dba3815c5b278ecd18366ac7e7965541",
     "semantic_hash": ""
   },
   "backend/app/Http/Resources/MetricCollection.php": {
-    "mtime": 1795398204.5782375,
-    "seen": 1795398273.37061,
+    "mtime": 1795400208.1117272,
+    "seen": 1795420074.009343,
     "ast_hash": "3746a7f2ecc8eafef038b9dcb21ebc2a",
     "semantic_hash": ""
   },
   "backend/app/Http/Resources/MetricResource.php": {
-    "mtime": 1795398204.5808568,
-    "seen": 1795398273.370611,
+    "mtime": 1795400208.111851,
+    "seen": 1795420074.009344,
     "ast_hash": "8a247b2760f76fb4352e4d3debb2b274",
     "semantic_hash": ""
   },
   "backend/app/Http/Resources/SastListCollection.php": {
-    "mtime": 1795398204.5755086,
-    "seen": 1795398273.370611,
+    "mtime": 1795400208.1119854,
+    "seen": 1795420074.009345,
     "ast_hash": "5ff98ec356dfea88734e205b0651ee91",
     "semantic_hash": ""
   },
@@ -1584,8 +1584,8 @@
     "semantic_hash": ""
   },
   "backend/app/Services/Sast/SastScanSummary.php": {
-    "mtime": 1795398214.1172931,
-    "seen": 1795398273.370653,
+    "mtime": 1795400208.1123548,
+    "seen": 1795420074.00939,
     "ast_hash": "a940e6baf4ecb7d5d1b53919cbd22dc7",
     "semantic_hash": ""
   },
@@ -1638,14 +1638,14 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Api/V1/AuditFindingsTest.php": {
-    "mtime": 1795398214.1174717,
-    "seen": 1795398273.370712,
+    "mtime": 1795400208.112761,
+    "seen": 1795420074.009459,
     "ast_hash": "2aa84b1c0e87253147c4bf521adb19c6",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Api/V1/AuditMetricsTest.php": {
-    "mtime": 1795398214.1177444,
-    "seen": 1795398273.370713,
+    "mtime": 1795400208.1129718,
+    "seen": 1795420074.009459,
     "ast_hash": "e51de3140a74ba2fad79e4bed455707f",
     "semantic_hash": ""
   },
@@ -1728,8 +1728,8 @@
     "semantic_hash": ""
   },
   "backend/tests/Unit/Sast/SastScanSummaryTest.php": {
-    "mtime": 1795398238.7677114,
-    "seen": 1795398273.370761,
+    "mtime": 1795400208.1130977,
+    "seen": 1795420074.009516,
     "ast_hash": "c2237f93fa68c115e3b324cc39e5199b",
     "semantic_hash": ""
   },
@@ -1770,9 +1770,27 @@
     "semantic_hash": ""
   },
   "DECISIONS.md": {
-    "mtime": 1795398268.870432,
-    "seen": 1795398273.370782,
-    "ast_hash": "272ae9eb830b77875a5fe4ebe69ce7c7",
+    "mtime": 1795420047.301868,
+    "seen": 1795420074.00954,
+    "ast_hash": "4c9b8c209402d3298785da5587586471",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Sca/CombinedFixResolver.php": {
+    "mtime": 1795419854.260966,
+    "seen": 1795420074.009399,
+    "ast_hash": "695137b0b33932656cc9094dca74c65f",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Api/V1/AuditVulnerabilityCombinedFixTest.php": {
+    "mtime": 1795419799.912504,
+    "seen": 1795420074.009461,
+    "ast_hash": "2f5c4718a95dc8067eb4de4f5de69ad8",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/Sca/CombinedFixMatchTest.php": {
+    "mtime": 1795419763.0969474,
+    "seen": 1795420074.009517,
+    "ast_hash": "5fd02750b0b5e5dbb7dd22ef9bbe4802",
     "semantic_hash": ""
   },
   "backend/tooling/package-lock.json": {

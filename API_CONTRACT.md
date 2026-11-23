@@ -161,7 +161,7 @@ Status implementasi: endpoint aktif. Audit dibuat berstatus `queued`, lalu `Proc
 - `severity`: `critical|high|medium|low|unknown`. `unknown` berarti severity tidak dapat diturunkan **atau** detail advisori tidak berhasil diambil (`detail_available: false`); tidak pernah ditampilkan sebagai `low`, dan diurutkan sebelum `medium`. Filter `severity=unknown` mencakup keduanya. Skor CVSS tidak dihitung (hanya vektor mentah di detail).
 - Daftar **tidak** memuat `details`, `severity_vectors`, `affected_ranges`, versi perbaikan, maupun `reference_urls`. Untuk baris dengan `detail_available: false`, `summary` dan `aliases` bernilai `null`.
 
-**`GET /audits/{id}/vulnerabilities/{vulnerabilityId}`** — semua field item daftar ditambah `details`, `severity_vectors`, `affected_ranges`, `osv_fixed_versions`, `osv_fixed_versions_note`, `reference_urls` (hanya `http(s)`), dan `dependency` lengkap (`declared_spec`, `manifest_path`, `source_file_type`, `lock_path`, `version_status`, `unresolved_reason`, `osv_status`). Baris dicari dengan `audit_scan_id` audit pada URL; id milik audit lain, tidak ada, atau bukan angka → `404`. Selain field di atas, detail memuat `fix_match`.
+**`GET /audits/{id}/vulnerabilities/{vulnerabilityId}`** — semua field item daftar ditambah `details`, `severity_vectors`, `affected_ranges`, `osv_fixed_versions`, `osv_fixed_versions_note`, `reference_urls` (hanya `http(s)`), dan `dependency` lengkap (`declared_spec`, `manifest_path`, `source_file_type`, `lock_path`, `version_status`, `unresolved_reason`, `osv_status`). Baris dicari dengan `audit_scan_id` audit pada URL; id milik audit lain, tidak ada, atau bukan angka → `404`. Selain field di atas, detail memuat `fix_match` dan `combined_fix`.
 - `osv_fixed_versions` = **semua** nilai `fixed` pada **seluruh** range advisori untuk paket itu, apa adanya dari OSV, **bukan rekomendasi versi**. `[]` = OSV tidak mencantumkan versi perbaikan; `null` = detail tidak berhasil diambil. Untuk versi yang berlaku bagi dependency ini, gunakan `fix_match`. Klien tidak boleh menampilkan `osv_fixed_versions` sebagai "versi yang disarankan".
 
 **`fix_match`** (item 7.8; hanya di detail) — pencocokan **versi terpasang** dengan range afektasi advisori ini:
@@ -189,6 +189,18 @@ Status implementasi: endpoint aktif. Audit dibuat berstatus `queued`, lalu `Proc
 - `version_change` (`patch|minor|major|prerelease`, `null` bila bukan `fix_available`) hanya **petunjuk** besarnya lompatan dari versi terpasang ke `fixed_version`; `prerelease` berarti salah satu versinya prerelease. Ini bukan rekomendasi dan **tidak boleh dipakai UI untuk label seperti "aman diupgrade"**.
 - `note` memuat tiga hal: hanya untuk advisori ini; versi itu dapat terkena advisori lain; keberadaannya di registry npm tidak diperiksa.
 - Dihitung saat dibaca dari `affected_ranges` dan versi dependency yang tersimpan (tanpa kolom baru). Daftar kerentanan tidak memuat `fix_match`.
+
+**`combined_fix`** (item 7.9; hanya di detail) — satu hasil untuk **seluruh advisori dependency yang sama** pada audit ini; nilainya identik di detail setiap advisori dependency itu:
+```json
+"combined_fix": { "status": "fix_available", "installed_version": "2.2.2", "fixed_version": "2.5.0",
+                  "version_change": "minor", "reason": null,
+                  "note": "Versi perbaikan terkecil menurut data OSV yang tidak terdampak oleh advisori mana pun yang OSV kembalikan untuk versi terpasang dependensi ini. Versi itu tidak diperiksa ke OSV dan dapat terkena advisori lain yang tidak tercatat di sini. Keberadaannya di registry npm tidak diperiksa. Ini bukan jaminan." }
+```
+- **Makna:** `fixed_version` = nilai `fixed` terkecil di atas versi terpasang yang tidak terdampak oleh advisori yang OSV kembalikan **untuk versi terpasang**. Versi kandidat **tidak ditanyakan ke OSV**: advisori yang hanya berlaku pada versi itu tidak ada di data ini. Bukan jaminan bebas kerentanan dan tidak boleh ditampilkan sebagai "aman".
+- Status dan `reason` memakai nilai yang sama dengan `fix_match`. `fix_available`: ada nilai `fixed` yang lolos semua advisori. `no_fix_recorded`: semua advisori terevaluasi dan terdampak, tetapi tidak ada nilai `fixed` di luar gabungan range terdampak. `undetermined`: **satu advisori saja** yang tidak dapat dipastikan membuat seluruh hasil `undetermined`; advisori itu tidak diabaikan. Bila beberapa alasan berlaku, yang dipilih menurut prioritas: `detail_unavailable` > `invalid_version` > `unevaluable_range` > `no_range_data` > `not_in_listed_ranges`. Dependency tanpa advisori tidak punya detail, sehingga tidak ada `combined_fix`.
+- `fixed_version` selalu nilai `fixed` yang tertulis di OSV, tidak pernah hasil perhitungan; `version_change` hanya petunjuk (lihat `fix_match`).
+- **Batas (usulan, belum divalidasi pada data nyata):** maks 200 advisori per dependency (lebih → `undetermined`/`unevaluable_range`) dan anggaran total 20.000 interval setelah digabung per advisori (lebih → `unevaluable_range`). `affected_ranges` tersimpan yang tidak dapat dibaca → `unevaluable_range`.
+- Dihitung saat dibaca (tanpa kolom baru), dikomputasi ulang per request. Daftar kerentanan dan `/dependencies` tidak memuat `combined_fix`. `fix_match` per advisori tidak berubah.
 
 **`meta.scan`** (pada kedua daftar):
 ```json

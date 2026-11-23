@@ -73,7 +73,7 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 6.4 | Normalisasi & penyimpanan findings | – | ✅ |
 | 6.5 | Metrik CC, Halstead, LOC, MI (JS/TS) | D-09 | ✅ |
 | 6.6 | Skor kesehatan + kategori | D-10 | ✅ |
-| 6.7 | Endpoint hasil SAST: `GET /audits/{id}/findings` & `/metrics` (+ `meta.scan` berisi status tool) | A-36 | 👀 |
+| 6.7 | Endpoint hasil SAST: `GET /audits/{id}/findings` & `/metrics` (+ `meta.scan` berisi status tool) | A-36 | ✅ |
 
 ## TAHAP 7 — SCA Engine Node.js/npm (Yuki)
 
@@ -87,8 +87,8 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 7.5 | OSV client `querybatch` (timeout, retry, validasi, pagination) | ✅ |
 | 7.6 | Pengambilan detail advisori + penyimpanan vulnerabilities + runner SCA | ✅ |
 | 7.7 | Endpoint `GET /audits/{id}/dependencies` & `GET /audits/{id}/vulnerabilities` (+ detail per advisori) | ✅ |
-| 7.8 | Pencocokan range versi perbaikan (prasyarat AI Remediation, Tahap 9) | 👀 |
-| 7.9 | Rekomendasi versi gabungan per dependency (memenuhi semua advisorinya) | ⬜ |
+| 7.8 | Pencocokan range versi perbaikan (prasyarat AI Remediation, Tahap 9) | ✅ |
+| 7.9 | Versi perbaikan gabungan per dependency (memenuhi semua advisori yang tersimpan) | ✅ |
 | 7.10 | Simpan daftar `versions` eksplisit OSV (agar advisori tanpa range tidak `undetermined`) | ⬜ |
 
 ## TAHAP 8 — Authentication & Access Control
@@ -108,7 +108,7 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 9.3 | Structured output + validator | – | ⬜ |
 | 9.4 | Static rule template fallback | – | ⬜ |
 | 9.5 | Endpoint & penyimpanan remediation | D-11 | ⬜ |
-| 9.6 | Perketat skill `ai-remediation-guardrail`: versi yang disebut aman hanya `fix_match.fixed_version` (bukan semua `fixed_versions`) | A-34 | ⬜ |
+| 9.6 | Perketat skill `ai-remediation-guardrail`: versi perbaikan yang boleh disebut hanya `combined_fix.fixed_version` bila `combined_fix.status` = `fix_available` (bukan `fix_match.fixed_version` per advisori dan bukan semua `fixed_versions`) | A-34, A-37 | ⬜ |
 
 ## TAHAP 10 — Frontend, Dashboard & Reporting
 | ID | Pekerjaan | Keputusan | Status |
