@@ -71,7 +71,7 @@ trait BuildsScaResults
     {
         return $this->vulnerability($dependency, [
             'osv_id' => $osvId, 'aliases' => null, 'summary' => null, 'details' => null, 'severity_label' => null,
-            'severity_vectors' => null, 'affected_ranges' => null, 'fixed_versions' => null, 'reference_urls' => null,
+            'severity_vectors' => null, 'affected_ranges' => null, 'affected_versions' => null, 'fixed_versions' => null, 'reference_urls' => null,
             'published_at' => null, 'modified_at' => now(),
         ]);
     }
