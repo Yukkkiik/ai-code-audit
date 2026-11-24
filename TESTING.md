@@ -95,7 +95,9 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 ### Auth & Access Control
 - Callback OAuth membuat user baru / memperbarui user lama berdasarkan `google_id`.
 - `state` salah ditolak.
-- Logout menginvalidasi session.
+- Logout menginvalidasi session (`SessionLogoutTest`): data session dihapus dari store (bukan hanya cookie), cookie lama → 401, token CSRF diganti, tanpa `X-XSRF-TOKEN` dari origin frontend → 419, session kedaluwarsa → 401, `/auth/me` tanpa `google_id` dan `no-store`.
+- Matriks akses dengan session hasil login sungguhan (`RealLoginAccessTest`, memakai trait `LogsInViaGoogle`): pemilik 200 pada `GET /audits` dan 6 endpoint audit, user lain 404, tanpa session 404/401, guest token tetap berlaku di samping session user lain, cookie lama kehilangan akses setelah logout. **Catatan harness:** `withUnencryptedCookie` mematikan dekripsi, request JSON hanya mengirim cookie bila `withCredentials()`, dan store session + guard hidup di memori antar request dalam satu test (atribut request sebelumnya bocor); trait membersihkannya agar cookie benar-benar diuji.
+- OAuth (8.1, `GoogleOAuthTest`, `GoogleUserResolverTest`): email belum terverifikasi atau flag hilang ditolak; email milik `google_id` lain ditolak tanpa mengubah akun; `access_denied` → `oauth_cancelled` tanpa memanggil Google; session ID diregenerasi; redirect tidak mengikuti input request; log tanpa code/token; request dari origin frontend tanpa `X-XSRF-TOKEN` → 419 (memakai `EnforcingCsrfToken` karena CSRF dilewati saat unit test).
 - Rate limit guest: permintaan ke-(N+1) → 429 + `Retry-After`.
 - Kuota AI: permintaan bersamaan tidak melebihi batas (uji dengan beberapa proses/transaksi paralel).
 - Kuota reset pada `usage_date` berikutnya.

@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Request dari origin frontend (SANCTUM_STATEFUL_DOMAINS) memakai session cookie + CSRF.
+        $middleware->statefulApi();
+
         // API tidak pernah me-redirect guest ke halaman login: ApiExceptionRenderer menjawab 401 JSON.
         $middleware->redirectGuestsTo(
             fn (Request $request) => $request->is('api/*') ? null : route('login'),

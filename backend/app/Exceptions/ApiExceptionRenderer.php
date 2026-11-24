@@ -27,6 +27,7 @@ class ApiExceptionRenderer
         405 => ['METHOD_NOT_ALLOWED', 'Method HTTP tidak didukung untuk endpoint ini.'],
         409 => ['AUDIT_NOT_READY', 'Data belum tersedia karena pemindaian belum selesai.'],
         413 => ['PAYLOAD_TOO_LARGE', 'Ukuran data melebihi batas yang diizinkan.'],
+        419 => ['CSRF_TOKEN_MISMATCH', 'Token CSRF tidak valid atau kedaluwarsa.'],
         429 => ['RATE_LIMITED', 'Terlalu banyak permintaan. Coba lagi nanti.'],
     ];
 

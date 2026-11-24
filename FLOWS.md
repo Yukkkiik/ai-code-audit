@@ -109,7 +109,7 @@ Catatan: jika keduanya `skipped` (tidak ada file yang didukung sama sekali), aud
 |---|---|
 | `state` OAuth tidak cocok | Tolak, redirect `login?error=oauth_failed`. |
 | User membatalkan di Google | Redirect `login?error=oauth_cancelled`. |
-| Email Google belum terverifikasi | Tolak (menunggu D-15). |
+| Email Google belum terverifikasi | Tolak, redirect `login?error=oauth_failed` (D-15). |
 
 ## 4. Retry, Timeout, Failed Jobs
 
