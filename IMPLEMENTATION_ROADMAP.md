@@ -94,8 +94,8 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 ## TAHAP 8 — Authentication & Access Control
 | ID | Pekerjaan | Keputusan | Status |
 |---|---|---|---|
-| 8.1 | Google OAuth (Raihan) | D-06, D-15, D-19 | ⬜ |
-| 8.2 | Session management & logout (Raihan) | D-07 | ⬜ |
+| 8.1 | Google OAuth (Raihan) | D-06, D-15, D-19 | ✅ |
+| 8.2 | Session management & logout (Raihan) | D-07 | ✅ |
 | 8.3 | Guest Mode (Annisa) | D-04 | ⬜ |
 | 8.4 | IP rate limiting (Annisa) | D-02 | ⬜ |
 | 8.5 | Kuota AI harian atomik (Annisa) | D-03, D-12 | ⬜ |

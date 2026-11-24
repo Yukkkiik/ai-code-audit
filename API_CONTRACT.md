@@ -35,12 +35,13 @@ Stack trace, path server, dan pesan exception mentah **tidak pernah** dikirim ke
 | 409 | `AUDIT_NOT_READY` | Data diminta sebelum tahap terkait selesai. |
 | 413 | `PAYLOAD_TOO_LARGE` | File > 50 MB. |
 | 422 | `VALIDATION_FAILED` | Validasi input gagal. |
+| 419 | `CSRF_TOKEN_MISMATCH` | Request mutasi dari origin frontend tanpa `X-XSRF-TOKEN` yang valid. |
 | 429 | `RATE_LIMITED` / `AI_QUOTA_EXCEEDED` | Batas guest atau kuota AI habis. Header `Retry-After`. |
 | 500 | `INTERNAL_ERROR` | Kesalahan tak terduga. |
 | 502/504 | `UPSTREAM_ERROR` / `UPSTREAM_TIMEOUT` | Layanan eksternal (LLM) gagal, bila tidak ada fallback. |
 
 ### Autentikasi & akses audit
-- **User terdaftar**: cookie session (Sanctum SPA, usulan D-06). Request mutasi wajib header `X-XSRF-TOKEN`.
+- **User terdaftar**: cookie session (Sanctum SPA, D-06). Request mutasi wajib header `X-XSRF-TOKEN`. Ini berlaku untuk semua request mutasi dari origin frontend (`SANCTUM_STATEFUL_DOMAINS`), **termasuk guest** `POST /audits`: panggil `GET /sanctum/csrf-cookie` (204, di luar prefix `/api/v1`) lebih dulu. Request tanpa origin tersebut tidak dikenai CSRF.
 - **Guest**: header `X-Guest-Token: <token>` yang diterima saat membuat audit.
 - Akses audit diizinkan jika: `audit.user_id == user login`, **atau** audit guest dan `sha256(X-Guest-Token) == guest_token_hash`.
 
@@ -91,15 +92,15 @@ Jika salah satu dependensi gagal → `503` dengan `status: "degraded"` dan check
 | Method | Path | Auth | Keterangan |
 |---|---|---|---|
 | GET | `/auth/google/redirect` | – | Redirect 302 ke Google (parameter `state` divalidasi). |
-| GET | `/auth/google/callback` | – | Callback Google → buat/perbarui user → session → redirect ke `FRONTEND_URL`. Gagal → redirect `FRONTEND_URL/login?error=oauth_failed`. |
-| GET | `/auth/me` | User | Data user + sisa kuota AI. |
-| POST | `/auth/logout` | User | Invalidasi session + regenerasi CSRF token. `204`. |
+| GET | `/auth/google/callback` | – | Callback Google → buat/perbarui user (kunci `google_id`) → session (ID diregenerasi) → redirect ke `FRONTEND_URL`. Gagal → redirect `FRONTEND_URL/login?error=oauth_failed` (state tidak cocok, pertukaran kode gagal, email belum terverifikasi, email milik akun lain). Pengguna menolak di Google (`error=access_denied`) → `?error=oauth_cancelled`. Tujuan redirect hanya dari konfigurasi. ✅ |
+| GET | `/auth/me` | User | Profil user (`id`, `name`, `email`, `avatar_url`); `google_id` tidak pernah dikirim. Tanpa `ai_quota` sampai item 8.5. `Cache-Control: private, no-store`. Tanpa session atau session kedaluwarsa → `401 UNAUTHENTICATED`. ✅ |
+| POST | `/auth/logout` | User | Invalidasi session + regenerasi CSRF token. `204`. Session dihapus dari store sehingga cookie lama ditolak. Dari origin frontend wajib `X-XSRF-TOKEN` (`419` bila tidak ada). Tanpa session → `401`. ✅ |
 
 `GET /auth/me` → `200`:
 ```json
-{ "data": { "id": 1, "name": "…", "email": "…", "avatar_url": "…", "ai_quota": { "limit": null, "used": 0, "remaining": null, "resets_on": "2026-11-15" } } }
+{ "data": { "id": 1, "name": "…", "email": "…", "avatar_url": "…" } }
 ```
-(`limit` diisi dari konfigurasi setelah D-03 disepakati.)
+Field `ai_quota` (`limit`, `used`, `remaining`, `resets_on`) ditambahkan di item 8.5 setelah kuota (D-03) ditetapkan. Session kedaluwarsa setelah `SESSION_LIFETIME` menit (120) tanpa aktivitas. `/auth/me` dan `/auth/logout` hanya mengenali session untuk request dari origin frontend (`SANCTUM_STATEFUL_DOMAINS`, header `Origin`/`Referer`); membuka URL-nya langsung di address bar browser menghasilkan `401`.
 
 ### 2.3 Audit (FR-05, FR-09)
 | Method | Path | Auth | Keterangan |
