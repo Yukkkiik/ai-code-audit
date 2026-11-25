@@ -97,7 +97,7 @@ Legenda status: ⬜ belum · 📝 plan diajukan · 🔨 dikerjakan · 👀 menun
 | 8.1 | Google OAuth (Raihan) | D-06, D-15, D-19 | ✅ |
 | 8.2 | Session management & logout (Raihan) | D-07 | ✅ |
 | 8.3 | Guest Mode (Annisa) — fungsi sudah ada sejak 3.1/3.2/4.1; 8.3 mengunci perilakunya dengan `GuestModeTest`. Larangan AI untuk guest (D-04) ditegakkan di 9.5 | D-04 | ✅ |
-| 8.4 | IP rate limiting (Annisa): batas audit harian + batas umum API per menit | D-02 | 👀 |
+| 8.4 | IP rate limiting (Annisa): batas audit harian + batas umum API per menit | D-02 | ✅ |
 | 8.5 | Kuota AI harian atomik (Annisa) | D-03, D-12 | ⬜ |
 
 ## TAHAP 9 — AI Remediation (Annisa)
