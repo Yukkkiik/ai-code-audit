@@ -10,6 +10,8 @@ use App\Http\Resources\AuditCollection;
 use App\Http\Resources\AuditResource;
 use App\Jobs\ProcessAuditJob;
 use App\Models\AuditScan;
+use App\Models\User;
+use App\Services\Access\AuditSubmissionLimiter;
 use App\Services\Audit\AuditScanCreator;
 use App\Services\Audit\AuditStatusManager;
 use App\Services\Audit\CreatedAuditScan;
@@ -35,10 +37,28 @@ class AuditController extends Controller
         AuditWorkspace $workspace,
         AuditStatusManager $statusManager,
         Dispatcher $bus,
+        AuditSubmissionLimiter $limiter,
     ): JsonResponse {
         $owner = $request->user();
 
-        $created = match ($request->sourceType()) {
+        // Validasi sudah lolos (jatah tidak terpakai oleh request yang ditolak); dikembalikan bila audit tidak terbentuk.
+        $limitKey = $limiter->hit($request, $owner);
+
+        try {
+            $created = $this->createAudit($request, $creator, $workspace, $owner);
+            $this->dispatchProcessing($created->audit, $bus, $statusManager, $workspace);
+        } catch (Throwable $e) {
+            $limiter->release($limitKey);
+
+            throw $e;
+        }
+
+        return $this->createdResponse($request, $created);
+    }
+
+    private function createAudit(StoreAuditRequest $request, AuditScanCreator $creator, AuditWorkspace $workspace, ?User $owner): CreatedAuditScan
+    {
+        return match ($request->sourceType()) {
             SourceType::Zip => DB::transaction(function () use ($request, $creator, $workspace, $owner) {
                 $file = $request->file('file');
                 $originalName = Str::limit(basename(str_replace('\\', '/', $file->getClientOriginalName())), 255, '');
@@ -62,10 +82,6 @@ class AuditController extends Controller
                 repositoryUrl: $request->gitRepository()->url,
             ),
         };
-
-        $this->dispatchProcessing($created->audit, $bus, $statusManager, $workspace);
-
-        return $this->createdResponse($request, $created);
     }
 
     /**

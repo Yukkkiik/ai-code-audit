@@ -167,6 +167,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Rate Limit
+    |--------------------------------------------------------------------------
+    |
+    | D-02. Batas audit dihitung per hari kalender di `timezone` (reset 00:00),
+    | guest per IP dan user per akun. Batas umum dihitung per menit untuk semua
+    | endpoint /api/v1 kecuali /health. Angka umum adalah angka awal yang belum
+    | divalidasi dengan beban nyata.
+    |
+    */
+
+    'rate_limits' => [
+        'timezone' => env('AUDIT_RATE_TIMEZONE', 'Asia/Jakarta'),
+        'guest_audits_per_day' => (int) env('AUDIT_RATE_GUEST_PER_DAY', 2),
+        'user_audits_per_day' => (int) env('AUDIT_RATE_USER_PER_DAY', 10),
+        'guest_requests_per_minute' => (int) env('AUDIT_RATE_GUEST_PER_MINUTE', 120),
+        'user_requests_per_minute' => (int) env('AUDIT_RATE_USER_PER_MINUTE', 300),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Lokasi Penyimpanan Sementara
     |--------------------------------------------------------------------------
     |

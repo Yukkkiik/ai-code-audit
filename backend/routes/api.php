@@ -16,25 +16,28 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::get('/health', HealthController::class);
 
-    // Grup `api` tidak punya session, padahal `state` OAuth disimpan di session.
-    Route::prefix('auth/google')->middleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class])->group(function () {
-        Route::get('/redirect', [AuthController::class, 'redirect']);
-        Route::get('/callback', [AuthController::class, 'callback']);
-    });
+    // Batas umum (D-02) berlaku untuk semua endpoint selain /health; batas audit harian ada di AuditController::store.
+    Route::middleware('throttle:api-general')->group(function () {
+        // Grup `api` tidak punya session, padahal `state` OAuth disimpan di session.
+        Route::prefix('auth/google')->middleware([EncryptCookies::class, AddQueuedCookiesToResponse::class, StartSession::class])->group(function () {
+            Route::get('/redirect', [AuthController::class, 'redirect']);
+            Route::get('/callback', [AuthController::class, 'callback']);
+        });
 
-    Route::get('/auth/me', [AuthController::class, 'me'])->middleware(['auth', NoStoreResponse::class]);
-    Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth');
+        Route::get('/auth/me', [AuthController::class, 'me'])->middleware(['auth', NoStoreResponse::class]);
+        Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth');
 
-    Route::post('/audits', [AuditController::class, 'store']);
-    Route::get('/audits', [AuditController::class, 'index'])->middleware('auth');
-    Route::get('/audits/{audit:public_id}', [AuditController::class, 'show']);
+        Route::post('/audits', [AuditController::class, 'store']);
+        Route::get('/audits', [AuditController::class, 'index'])->middleware('auth');
+        Route::get('/audits/{audit:public_id}', [AuditController::class, 'show']);
 
-    // Hasil SAST dan SCA bersifat privat: tidak boleh di-cache, dan penolakan akses selalu 404 (lihat AuditAccessGuard).
-    Route::middleware(NoStoreResponse::class)->group(function () {
-        Route::get('/audits/{audit:public_id}/findings', [AuditFindingController::class, 'index']);
-        Route::get('/audits/{audit:public_id}/metrics', [AuditMetricController::class, 'index']);
-        Route::get('/audits/{audit:public_id}/dependencies', [AuditDependencyController::class, 'index']);
-        Route::get('/audits/{audit:public_id}/vulnerabilities', [AuditVulnerabilityController::class, 'index']);
-        Route::get('/audits/{audit:public_id}/vulnerabilities/{vulnerability}', [AuditVulnerabilityController::class, 'show']);
+        // Hasil SAST dan SCA bersifat privat: tidak boleh di-cache, dan penolakan akses selalu 404 (lihat AuditAccessGuard).
+        Route::middleware(NoStoreResponse::class)->group(function () {
+            Route::get('/audits/{audit:public_id}/findings', [AuditFindingController::class, 'index']);
+            Route::get('/audits/{audit:public_id}/metrics', [AuditMetricController::class, 'index']);
+            Route::get('/audits/{audit:public_id}/dependencies', [AuditDependencyController::class, 'index']);
+            Route::get('/audits/{audit:public_id}/vulnerabilities', [AuditVulnerabilityController::class, 'index']);
+            Route::get('/audits/{audit:public_id}/vulnerabilities/{vulnerability}', [AuditVulnerabilityController::class, 'show']);
+        });
     });
 });
