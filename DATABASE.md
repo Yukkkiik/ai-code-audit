@@ -39,7 +39,7 @@
 | `cache`, `cache_locks` | Cache memakai Redis. |
 | `personal_access_tokens` | Hanya dibutuhkan jika autentikasi Sanctum mode token (lihat D-06). |
 | `advisories` (cache global OSV) | Ditunda. Advisori disimpan sebagai snapshot per audit agar laporan lama tetap konsisten. Dapat dinormalisasi nanti bila duplikasi menjadi masalah. |
-| `guest_visitors` | Rate limit guest (termasuk batas AI guest jika D-04 mengizinkan) di Redis; tidak butuh tabel. |
+| `guest_visitors` | Rate limit guest di Redis; tidak butuh tabel. Guest tidak memakai AI (D-04). |
 
 ## 3. Detail Tabel
 
@@ -229,7 +229,7 @@ Index: `INDEX(audit_scan_id)`, `INDEX(scan_finding_id)`, `INDEX(vulnerability_id
 
 ### 3.9 `ai_usage_logs`
 
-Penghitung harian kuota AI untuk **user terdaftar**. Satu baris per user per tanggal. Batas guest (jika D-04 mengizinkan guest memakai AI) ditangani Redis rate limiter, bukan tabel ini.
+Penghitung harian kuota AI untuk **user terdaftar**. Satu baris per user per tanggal. Guest tidak boleh memakai AI (D-04), jadi tidak ada batas AI guest.
 
 | Kolom | Tipe | Null | Keterangan |
 |---|---|---|---|

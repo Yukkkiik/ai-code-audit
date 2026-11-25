@@ -24,7 +24,7 @@ Keputusan berstatus Usulan/Terbuka **tidak boleh** diimplementasikan sampai dise
 | A-14 | **(D-32, selesai 2026-11-14)** `backend/CLAUDE.md` & `backend/AGENTS.md` bawaan skeleton dihapus oleh pemilik; `laravel/boost` tidak dipasang. |
 | A-15 | **(D-33, 2026-11-14)** `laravel/pao` (dev dependency bawaan skeleton) dipertahankan — hanya memadatkan output test saat dijalankan AI agent. |
 | A-16 | **(Disetujui 2026-11-14)** MySQL: database dev `audit_app`, database test `audit_app_testing`, user khusus `audit_app`@`127.0.0.1` (hak hanya pada dua database itu). Database & user dibuat manual oleh developer; kredensial hanya di `backend/.env`. |
-| A-17 | **(D-30, disetujui 2026-11-14)** Prefix API `/api/v1` (`routes/api.php` didaftarkan manual di `bootstrap/app.php`, **tanpa** `install:api`/Sanctum) dan format error seragam via `ApiExceptionRenderer`. |
+| A-17 | **(D-30, disetujui 2026-11-14)** Prefix API `/api/v1` (`routes/api.php` didaftarkan manual di `bootstrap/app.php`, tanpa `install:api`; **direvisi 2026-11-25:** Sanctum kini dipasang dan dipakai sesuai A-39/D-06, kalimat "tanpa Sanctum" tidak berlaku lagi) dan format error seragam via `ApiExceptionRenderer`. |
 | A-18 | **(D-34, disetujui 2026-11-14)** Mesin dev lokal memakai `DB_USERNAME=root` tanpa password (pilihan pemilik mesin). Template `.env.example` tetap `audit_app`; server/production **wajib** memakai user terbatas dengan password. Pengaman `_testing` di `DatabaseConnectionTest` tetap berlaku. |
 | A-21 | **(Disetujui 2026-11-14)** Skema `DATABASE.md` final (revisi R1–R8): `audit_scans.user_id` `ON DELETE CASCADE` + CHECK pemilik (menggantikan usulan D-14 `SET NULL`, yang terbukti ERROR 3823 bila dikombinasikan dengan CHECK); kolom `vulnerabilities.reference_urls` (bukan reserved word `references`); enum `VulnerabilitySeverity`; `dependencies.declared_spec` VARCHAR(1024); `ai_usage_logs` khusus user (tanpa `guest_hash`); tabel baru `scan_tool_runs`; struktur `failed_jobs` didokumentasikan. Termasuk prinsip D-27 (snapshot advisori per audit) dan D-28 (enum = VARCHAR + PHP Enum). |
 | A-22 | **(2026-11-15, TAHAP 3)** (a) Pembuatan audit berupa service `AuditScanCreator`; endpoint `POST /audits` dibangun di TAHAP 4 bersama validasi ZIP/Git agar tidak ada endpoint setengah jadi. (b) Akses audit yang ditolak dijawab `404`, bukan `403`. (c) Semua transisi status lewat `AuditStatusManager` dengan row lock. (d) `summary` bernilai `null` untuk tahap tanpa hasil. (e) Route `/api/*` tidak me-redirect guest ke `login`; selalu `401` JSON. (f) Sumber identitas user untuk middleware `auth` masih guard default `web`; mekanisme login (Sanctum/OAuth) dipasang di TAHAP 8 (D-06). |
@@ -61,10 +61,10 @@ Keputusan berstatus Usulan/Terbuka **tidak boleh** diimplementasikan sampai dise
 
 | ID | Pertanyaan | Pemilik | Dibutuhkan pada |
 |---|---|---|---|
-| D-02 | Angka rate limit guest (audit per IP per jam/hari) dan batas umum API. | Annisa | TAHAP 8 |
-| D-03 | Angka kuota AI harian user; apakah panggilan yang gagal mengembalikan kuota. | Annisa | TAHAP 8 |
-| D-04 | Apakah guest boleh memakai AI remediation? Jika ya, batasnya. | Annisa | TAHAP 8 |
-| D-05 | Provider dan model LLM; cara structured output (JSON mode / tool call). | Annisa + tim | TAHAP 9 |
+| D-02 (disetujui 2026-11-25) | Batas audit **per hari**: guest **2** (per IP), user terdaftar **10** (per user). **Masih terbuka:** batas umum API (anti-abuse). | Annisa | TAHAP 8 |
+| D-03 (disetujui 2026-11-25) | Kuota AI user terdaftar = **10** per hari (reset sesuai D-12). Panggilan yang gagal **mengembalikan kuota**. **Perlu diputuskan saat 8.5/9.x:** apakah fallback ke static template dihitung gagal (kuota kembali) atau berhasil. | Annisa | TAHAP 8 |
+| D-04 (disetujui 2026-11-25) | **Guest tidak boleh memakai AI remediation.** Endpoint `/remediations` hanya untuk user login (guest → `401 UNAUTHENTICATED`); tidak ada batas AI guest di Redis. Guest tetap mendapat hasil SAST dan SCA penuh. | Annisa | TAHAP 8 |
+| D-05 (provider ditetapkan 2026-11-25; sisanya terbuka) | Provider LLM = **DeepSeek**. **Masih terbuka:** model (belum dibeli/dipilih), cara structured output (JSON mode / tool call), dan nama variabel konfigurasi. Tidak ada kode integrasi sebelum model ditetapkan. | Annisa + tim | TAHAP 9 |
 | D-09 (→ disetujui, lihat A-35) | Perkakas/metode metrik JS/TS: library AST (dependency baru) atau implementasi sendiri. | Raihan | TAHAP 6 |
 | D-10 (→ disetujui, lihat A-35) | Rumus skor kesehatan 0–100 dan batas kategori (mis. Baik/Sedang/Buruk); bobot severity. | Raihan | TAHAP 6 |
 | D-12 (→ disetujui 2026-11-24: `Asia/Jakarta`, reset 00:00 WIB) | Timezone reset kuota harian AI (mis. `Asia/Jakarta`). Timezone aplikasi sudah ditetapkan di A-13. | Annisa | TAHAP 8.5 |

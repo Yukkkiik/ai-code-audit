@@ -1,6 +1,6 @@
 # FLOWS — Alur End-to-End & Penanganan Error
 
-> Status dokumen: **DRAFT — menunggu persetujuan tim**
+> Status dokumen: **Disetujui; diperbarui seiring implementasi.** Alur AI dan laporan belum dibangun.
 
 ## 1. State Machine Audit
 

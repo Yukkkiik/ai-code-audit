@@ -1,7 +1,7 @@
 # PRD — AI Code Security Audit Platform
 
-> Status dokumen: **DRAFT — menunggu persetujuan tim**
-> Versi: 0.1 · Tanggal: 2026-11-14
+> Status dokumen: **Disetujui; diperbarui seiring implementasi.**
+> Versi: 0.2 · Dibuat 2026-11-14 · Diperbarui 2026-11-25
 
 ## 1. Ringkasan Produk
 
@@ -83,8 +83,8 @@ Fitur di luar daftar ini **tidak** dibangun tanpa persetujuan.
 - Ukuran repositori maksimal 50 MB.
 - Lockfile npm yang didukung hanya versi 2 dan 3 (`lockfileVersion` 1 ditandai tidak didukung).
 - Versi dari rentang (`^1.2.3`, `~1.2.3`) tidak ditebak.
-- Provider/model LLM belum ditetapkan (lihat `DECISIONS.md`).
-- Angka rate limit guest dan kuota AI belum ditetapkan (lihat `DECISIONS.md`).
+- Provider LLM: DeepSeek; model belum ditetapkan (D-05).
+- Batas audit: guest 2, user terdaftar 10; kuota AI user 10 per hari. Batas audit berlaku per hari (D-02); panggilan AI yang gagal mengembalikan kuota (D-03). Guest tidak boleh memakai AI (D-04).
 
 ## 7. Prioritas Implementasi
 

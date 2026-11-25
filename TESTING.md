@@ -1,12 +1,12 @@
 # TESTING — Strategi Pengujian
 
-> Status dokumen: **DRAFT — menunggu persetujuan tim**
+> Status dokumen: **Disetujui; diperbarui seiring implementasi.** Bagian AI, guest/rate limit, kuota, dan reporting belum diimplementasikan.
 
 ## 1. Tingkatan Pengujian
 
 | Tingkat | Alat | Cakupan |
 |---|---|---|
-| Unit | PHPUnit/Pest (bawaan Laravel, dipilih saat inisialisasi — D-16) | Parser, normalizer, kalkulator metrik/skor, validator URL, validator output AI. |
+| Unit | PHPUnit 12 (bawaan skeleton Laravel — A-11/D-16) | Parser, normalizer, kalkulator metrik/skor, validator URL, validator output AI. |
 | Feature | Laravel HTTP tests (`RefreshDatabase`) | Endpoint API, validasi, otorisasi, kode error, status audit. |
 | Integration | Laravel tests + `Http::fake()` / fixture | Job pipeline, OSV client, LLM client, eksekusi tool SAST nyata pada fixture kecil. |
 | Security | Feature/unit test khusus | ZIP Slip, symlink, zip bomb, SSRF, akses audit milik orang lain, prompt injection. |
@@ -98,6 +98,7 @@ Layanan eksternal (OSV.dev, LLM, Google) di-fake pada test otomatis. Pengujian d
 - Logout menginvalidasi session (`SessionLogoutTest`): data session dihapus dari store (bukan hanya cookie), cookie lama → 401, token CSRF diganti, tanpa `X-XSRF-TOKEN` dari origin frontend → 419, session kedaluwarsa → 401, `/auth/me` tanpa `google_id` dan `no-store`.
 - Matriks akses dengan session hasil login sungguhan (`RealLoginAccessTest`, memakai trait `LogsInViaGoogle`): pemilik 200 pada `GET /audits` dan 6 endpoint audit, user lain 404, tanpa session 404/401, guest token tetap berlaku di samping session user lain, cookie lama kehilangan akses setelah logout. **Catatan harness:** `withUnencryptedCookie` mematikan dekripsi, request JSON hanya mengirim cookie bila `withCredentials()`, dan store session + guard hidup di memori antar request dalam satu test (atribut request sebelumnya bocor); trait membersihkannya agar cookie benar-benar diuji.
 - OAuth (8.1, `GoogleOAuthTest`, `GoogleUserResolverTest`): email belum terverifikasi atau flag hilang ditolak; email milik `google_id` lain ditolak tanpa mengubah akun; `access_denied` → `oauth_cancelled` tanpa memanggil Google; session ID diregenerasi; redirect tidak mengikuti input request; log tanpa code/token; request dari origin frontend tanpa `X-XSRF-TOKEN` → 419 (memakai `EnforcingCsrfToken` karena CSRF dilewati saat unit test).
+- Guest Mode (8.3, `GuestModeTest`): alur guest utuh (buat audit → baca 6 endpoint dengan satu token); token hanya di respons POST dan tersimpan sebagai SHA-256; token audit guest lain, user login tanpa token, token di audit milik user, dan token di query string → 404 di semua endpoint; guest tanpa riwayat/profil (401); header `no-store`. Larangan AI untuk guest (D-04) diuji di 9.5.
 - Rate limit guest: permintaan ke-(N+1) → 429 + `Retry-After`.
 - Kuota AI: permintaan bersamaan tidak melebihi batas (uji dengan beberapa proses/transaksi paralel).
 - Kuota reset pada `usage_date` berikutnya.

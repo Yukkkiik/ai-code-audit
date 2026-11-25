@@ -1,6 +1,6 @@
 # ARCHITECTURE — AI Code Security Audit Platform
 
-> Status dokumen: **DRAFT — menunggu persetujuan tim**
+> Status dokumen: **Disetujui; diperbarui seiring implementasi.** Modul Access, Ai, Reporting, dan frontend belum dibangun.
 
 ## 1. Tech Stack
 
@@ -13,7 +13,7 @@
 | Cache & Rate Limit | Redis | Laravel `RateLimiter` dengan store Redis. |
 | SAST | Semgrep, ESLint (JS/TS saja) | Semgrep 1.180 terpasang; ESLint dipasang sebagai tooling backend (bukan dari repo target). |
 | SCA | OSV.dev REST API (npm saja) | `POST /v1/querybatch` + `GET /v1/vulns/{id}`. |
-| AI | LLM API (provider dapat dikonfigurasi) | Provider belum ditetapkan. |
+| AI | LLM API (provider dapat dikonfigurasi) | Provider: DeepSeek (D-05). Model belum ditetapkan. |
 
 ## 2. Gambaran Arsitektur
 

@@ -1,6 +1,6 @@
 # API CONTRACT — Versi Awal
 
-> Status dokumen: **DRAFT — menunggu persetujuan tim**
+> Status dokumen: **Disetujui; diperbarui seiring implementasi.** Endpoint bertanda ✅ sudah berjalan; sisanya (§2.4, §2.5, rate limit) belum dibangun.
 > Base URL: `{BACKEND_URL}/api/v1` · Format: JSON (`Content-Type: application/json`) kecuali upload (`multipart/form-data`) dan PDF.
 
 ## 1. Konvensi
@@ -29,8 +29,8 @@ Stack trace, path server, dan pesan exception mentah **tidak pernah** dikirim ke
 |---|---|---|
 | 400 | `BAD_REQUEST` | Request tidak dapat diproses. |
 | 401 | `UNAUTHENTICATED` | Endpoint butuh login. |
-| 403 | `FORBIDDEN` | Bukan pemilik audit / guest token salah. |
-| 404 | `NOT_FOUND` | Resource tidak ada (juga dipakai untuk audit milik orang lain agar tidak membocorkan keberadaan). |
+| 403 | `FORBIDDEN` | Dicadangkan; saat ini **tidak dipakai** untuk akses audit (A-22b). |
+| 404 | `NOT_FOUND` | Resource tidak ada, **juga** audit milik orang lain / guest token salah (tidak membocorkan keberadaan). |
 | 405 | `METHOD_NOT_ALLOWED` | Method HTTP tidak didukung endpoint. |
 | 409 | `AUDIT_NOT_READY` | Data diminta sebelum tahap terkait selesai. |
 | 413 | `PAYLOAD_TOO_LARGE` | File > 50 MB. |
@@ -252,9 +252,9 @@ Kegagalan saat job (mis. ZIP Slip terdeteksi, repo tidak ditemukan, melebihi 50 
 ### 2.4 AI Remediation (FR-08, FR-04)
 | Method | Path | Auth | Keterangan |
 |---|---|---|---|
-| POST | `/audits/{id}/remediations` | Pemilik (guest tergantung D-04) | Minta penjelasan & saran. Mengurangi kuota. |
-| GET | `/audits/{id}/remediations` | Pemilik | Daftar remediation pada audit. |
-| GET | `/audits/{id}/remediations/{remediationId}` | Pemilik | Detail (untuk Diff Viewer). |
+| POST | `/audits/{id}/remediations` | User (pemilik) | Minta penjelasan & saran. Mengurangi kuota. Guest tidak boleh memakai AI (D-04) → `401 UNAUTHENTICATED`. |
+| GET | `/audits/{id}/remediations` | User (pemilik) | Daftar remediation pada audit. |
+| GET | `/audits/{id}/remediations/{remediationId}` | User (pemilik) | Detail (untuk Diff Viewer). |
 
 Request:
 ```json
@@ -301,9 +301,9 @@ Hanya untuk audit dengan status `completed` atau `partial`; selain itu `409 AUDI
 
 | Subjek | Endpoint | Batas | Store |
 |---|---|---|---|
-| Guest (per IP) | `POST /audits` | Menunggu D-02 | Redis |
-| Guest (per IP) | `POST /audits/{id}/remediations` | Menunggu D-04 | Redis |
-| User | `POST /audits/{id}/remediations` | Kuota harian D-03 | MySQL (`ai_usage_logs`) |
-| Semua | Seluruh API | Batas umum anti-abuse (menunggu D-02) | Redis |
+| Guest (per IP) | `POST /audits` | 2 per hari (D-02) | Redis |
+| User | `POST /audits` | 10 per hari (D-02) | Redis |
+| User | `POST /audits/{id}/remediations` | 10 per hari; panggilan gagal mengembalikan kuota (D-03) | MySQL (`ai_usage_logs`) |
+| Semua | Seluruh API | Batas umum anti-abuse (belum ditetapkan) | Redis |
 
 Header respons rate limit: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After` (saat 429).
