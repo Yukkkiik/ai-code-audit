@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Access\AuditSubmissionLimiter;
 use App\Services\Audit\Stages\AuditStageRunners;
 use App\Services\Ingestion\DnsHostResolver;
 use App\Services\Ingestion\GitUrlValidator;
@@ -20,6 +21,9 @@ use App\Services\Sca\OsvClient;
 use App\Services\Sca\PackageJsonParser;
 use App\Services\Sca\PackageLockParser;
 use App\Services\Sca\ScaStageRunner;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 
@@ -111,6 +115,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Batas umum API (D-02): user per akun, guest per IP (hanya HMAC-nya yang masuk kunci cache).
+        RateLimiter::for('api-general', function (Request $request) {
+            $user = $request->user();
+
+            return $user !== null
+                ? Limit::perMinute(config('audit.rate_limits.user_requests_per_minute'))->by('user:'.$user->id)
+                : Limit::perMinute(config('audit.rate_limits.guest_requests_per_minute'))->by('guest:'.AuditSubmissionLimiter::guestFingerprint($request));
+        });
     }
 }

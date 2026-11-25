@@ -180,10 +180,10 @@
     "semantic_hash": "77685f6ccfc9391c93bcf9574452b3ed"
   },
   "backend/app/Http/Controllers/Api/V1/AuditController.php": {
-    "mtime": 1794727773.8022053,
-    "seen": 1795332004.06821,
-    "ast_hash": "72626036367e70bbd4fad3785b849f92",
-    "semantic_hash": "72626036367e70bbd4fad3785b849f92"
+    "mtime": 1795589864.782801,
+    "seen": 1795589980.943552,
+    "ast_hash": "e436f5be9a5d3ae4d81fc9224714a202",
+    "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Api/V1/AuditDependencyController.php": {
     "mtime": 1795161186.1507661,
@@ -360,9 +360,9 @@
     "semantic_hash": "03723c5e41e70955449f6d456958a332"
   },
   "backend/app/Providers/AppServiceProvider.php": {
-    "mtime": 1795343678.5905042,
-    "seen": 1795398273.370625,
-    "ast_hash": "12b1083d223f1069ba4ab237835ac693",
+    "mtime": 1795589857.8498056,
+    "seen": 1795589980.943587,
+    "ast_hash": "204427d1836276c716b04f2a6b08b74b",
     "semantic_hash": ""
   },
   "backend/app/Services/Audit/AuditAccessGuard.php": {
@@ -666,9 +666,9 @@
     "semantic_hash": "16aa3191020b1b82de27217b4845c5aa"
   },
   "backend/config/audit.php": {
-    "mtime": 1795345801.3994863,
-    "seen": 1795398273.370684,
-    "ast_hash": "0c0852ba0cd99c1d39e62ad4d5c1044d",
+    "mtime": 1795589857.5833015,
+    "seen": 1795589980.943657,
+    "ast_hash": "212e9ac9f2482f1182a3e8b1fc226fc9",
     "semantic_hash": ""
   },
   "backend/config/auth.php": {
@@ -870,9 +870,9 @@
     "semantic_hash": "1a03818ea91deb4f3989c6c994e5867c"
   },
   "backend/routes/api.php": {
-    "mtime": 1795490722.8173926,
-    "seen": 1795572587.924426,
-    "ast_hash": "59321ddba8775a771f05479520b9b17f",
+    "mtime": 1795589857.8805606,
+    "seen": 1795589980.9436858,
+    "ast_hash": "ba0d6f45b826b6e6f986284bf129be53",
     "semantic_hash": ""
   },
   "backend/routes/console.php": {
@@ -1338,9 +1338,9 @@
     "semantic_hash": "08c2f00ae9de03c1f07008dea8f4bf42"
   },
   "API_CONTRACT.md": {
-    "mtime": 1795572252.2044318,
-    "seen": 1795572587.9245088,
-    "ast_hash": "430d741f9b6ac286ea4af86b7581ebea",
+    "mtime": 1795589972.0890777,
+    "seen": 1795589980.943774,
+    "ast_hash": "a63be822d59afe41110f70b377575056",
     "semantic_hash": ""
   },
   "ARCHITECTURE.md": {
@@ -1362,9 +1362,9 @@
     "semantic_hash": ""
   },
   "IMPLEMENTATION_ROADMAP.md": {
-    "mtime": 1795572586.5011048,
-    "seen": 1795572587.924513,
-    "ast_hash": "831d45198c74360643118908b79fcdb3",
+    "mtime": 1795589972.0900993,
+    "seen": 1795589980.943779,
+    "ast_hash": "70d691100c6d46222a7ab09ca100ad30",
     "semantic_hash": ""
   },
   "PRD.md": {
@@ -1374,15 +1374,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1795572025.6256018,
-    "seen": 1795572587.924514,
-    "ast_hash": "85e41c9cf66222d2fa88e4fe080ae7d3",
+    "mtime": 1795589972.0899901,
+    "seen": 1795589980.9437802,
+    "ast_hash": "f7502a414cd45ab22eed23af0a63294e",
     "semantic_hash": ""
   },
   "TESTING.md": {
-    "mtime": 1795572586.5342908,
-    "seen": 1795572587.924515,
-    "ast_hash": "9fc28620a9388b59ba0117cc11d6673b",
+    "mtime": 1795589972.0894349,
+    "seen": 1795589980.9437811,
+    "ast_hash": "f3a2c2608c06a5a120649ac995358572",
     "semantic_hash": ""
   },
   "backend/README.md": {
@@ -1770,9 +1770,9 @@
     "semantic_hash": ""
   },
   "DECISIONS.md": {
-    "mtime": 1795572252.1612773,
-    "seen": 1795572587.924511,
-    "ast_hash": "781337a63766175e8f305652a82617b9",
+    "mtime": 1795589979.6127975,
+    "seen": 1795589980.943777,
+    "ast_hash": "3e05a072e002b9800f56f258bf3011be",
     "semantic_hash": ""
   },
   "backend/app/Services/Sca/CombinedFixResolver.php": {
@@ -1887,6 +1887,24 @@
     "mtime": 1795572548.536659,
     "seen": 1795572587.924435,
     "ast_hash": "ff2739ffeb9e1f7edd72da5150022771",
+    "semantic_hash": ""
+  },
+  "backend/app/Services/Access/AuditSubmissionLimiter.php": {
+    "mtime": 1795589857.6793017,
+    "seen": 1795589980.943588,
+    "ast_hash": "a3e31b6f82a8d18c0804ce53a5d12eb6",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Api/V1/AuditRateLimitTest.php": {
+    "mtime": 1795589940.7835398,
+    "seen": 1795589980.943692,
+    "ast_hash": "73ad6daaec4e1cf4b0e52821d23b148f",
+    "semantic_hash": ""
+  },
+  "backend/tests/Feature/Api/V1/GeneralRateLimitTest.php": {
+    "mtime": 1795589927.1431804,
+    "seen": 1795589980.9436958,
+    "ast_hash": "f872d68eced1610f650608bc82c76c8a",
     "semantic_hash": ""
   },
   "backend/tooling/package-lock.json": {

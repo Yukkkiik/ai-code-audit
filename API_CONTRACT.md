@@ -301,9 +301,12 @@ Hanya untuk audit dengan status `completed` atau `partial`; selain itu `409 AUDI
 
 | Subjek | Endpoint | Batas | Store |
 |---|---|---|---|
-| Guest (per IP) | `POST /audits` | 2 per hari (D-02) | Redis |
-| User | `POST /audits` | 10 per hari (D-02) | Redis |
+| Guest (per IP) | `POST /audits` | 2 per hari, reset 00:00 `Asia/Jakarta` (D-02) ✅ | Redis |
+| User | `POST /audits` | 10 per hari, reset 00:00 `Asia/Jakarta` (D-02) ✅ | Redis |
 | User | `POST /audits/{id}/remediations` | 10 per hari; panggilan gagal mengembalikan kuota (D-03) | MySQL (`ai_usage_logs`) |
-| Semua | Seluruh API | Batas umum anti-abuse (belum ditetapkan) | Redis |
+| Guest (per IP) | Semua endpoint `/api/v1` kecuali `/health` | 120 per menit (D-02, angka awal) ✅ | Redis |
+| User | Semua endpoint `/api/v1` kecuali `/health` | 300 per menit (D-02, angka awal) ✅ | Redis |
 
-Header respons rate limit: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After` (saat 429).
+Header respons rate limit: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After` (saat 429). Batas audit harian hanya mengirim header ini pada `429`; respons sukses `POST /audits` membawa header `X-RateLimit-*` milik batas umum per menit.
+
+Aturan batas audit harian: request yang gagal validasi (`422`/`413`) tidak memakai jatah; jatah dikembalikan bila audit tidak terbentuk (mis. `QUEUE_UNAVAILABLE`). Guest dihitung per IP koneksi (tanpa `X-Forwarded-For` kecuali trusted proxy dikonfigurasi); IP tidak disimpan mentah (hanya HMAC). Batas audit dan batas umum berhitung terpisah.

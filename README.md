@@ -114,6 +114,9 @@ Semua secret disimpan di `backend/.env` / `frontend/.env.local` dan **tidak** di
 | `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | Koneksi Redis; password **wajib** di server | `127.0.0.1` / `6379` / kosong |
 | `REDIS_DB` / `REDIS_CACHE_DB` / `REDIS_TIMEOUT` | DB session, DB cache (test: 14/15), timeout detik | `0` / `1` / `2` |
 | `AUDIT_JOB_TIMEOUT` / `REDIS_QUEUE_RETRY_AFTER` | Timeout job / `retry_after` (harus lebih besar) | `600` / `660` |
+| `AUDIT_RATE_GUEST_PER_DAY` / `AUDIT_RATE_USER_PER_DAY` | Batas pembuatan audit per hari (guest per IP / user per akun) | `2` / `10` |
+| `AUDIT_RATE_GUEST_PER_MINUTE` / `AUDIT_RATE_USER_PER_MINUTE` | Batas umum request API per menit (kecuali `/health`) | `120` / `300` |
+| `AUDIT_RATE_TIMEZONE` | Zona waktu reset batas harian (00:00) | `Asia/Jakarta` |
 
 Variabel audit (ingestion, SAST, SCA/OSV):
 
@@ -152,6 +155,7 @@ Test yang memanggil OSV.dev nyata dikecualikan dari run default: `RUN_LIVE_OSV_T
 - Kode dan skrip repositori target tidak pernah dijalankan; dependency tidak dipasang; config ESLint/Semgrep repo target tidak dimuat.
 - Hanya JavaScript/TypeScript (SAST) dan npm dengan `package.json` / `package-lock.json` v2–v3 (SCA).
 - Hasil kosong (SAST maupun SCA) **tidak** berarti bebas kerentanan.
+- Di belakang reverse proxy/load balancer, konfigurasikan trusted proxies; tanpa itu semua guest terlihat berasal dari IP proxy dan berbagi satu jatah.
 - Rekomendasi AI (setelah dibangun) bersifat advisory dan wajib ditinjau developer.
 
 ## Dokumentasi
